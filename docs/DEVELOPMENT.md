@@ -3,12 +3,19 @@
 ## Supported development environment
 
 CI validates Node.js 20, 22, and 24 on macOS-independent Linux runners. Use a
-current release from that range with the committed npm lockfile.
+current release from that range with npm `11.11.0`, the tool version recorded
+by `packageManager`, and the committed npm lockfile.
 
 ```bash
+npm install --global npm@11.11.0
 npm ci
 npm run check
 ```
+
+npm 10 rejects the archived dependency graph because it attempts to resolve
+Vite's newer esbuild peer again. npm 11 installs the approved lockfile without
+changing dependencies; the production bundle remains byte-identical to
+`0.1.1`.
 
 `npm run check` runs ESLint, 15 Vitest cases, strict TypeScript compilation, a
 production esbuild bundle, and the mobile-bundle inspection. During migration

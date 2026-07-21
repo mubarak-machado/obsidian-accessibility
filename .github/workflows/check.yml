@@ -24,6 +24,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: npm
+      - name: Use the lockfile npm version
+        run: npm install --global npm@11.11.0
       - name: Install locked dependencies
         run: npm ci
       - name: Run the complete validation pipeline

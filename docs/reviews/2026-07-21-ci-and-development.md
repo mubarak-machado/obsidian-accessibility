@@ -22,6 +22,12 @@ The first rollback draft also referred to the verifier from tag `0.1.1`, where
 the script did not yet exist. Rollback now uses direct SHA-256 comparison with
 the documented approved hashes.
 
+The first remote matrix run passed on Node.js 24 but npm 10 on Node.js 20 and
+22 rejected the archived lockfile while attempting to introduce esbuild 0.28
+for Vite's peer range. The workflow now installs the recorded npm `11.11.0`
+before `npm ci` on every Node version. This fixes tool-version drift without
+changing the dependency graph or approved bundle.
+
 ## Review dimensions
 
 ### Security
@@ -36,8 +42,9 @@ the documented approved hashes.
 
 ### Correctness
 
-- CI covers Node.js 20, 22, and 24, then runs install, lint, tests, TypeScript,
-  production build, mobile inspection, and generated-artifact drift checking.
+- CI covers Node.js 20, 22, and 24 with npm `11.11.0`, then runs install, lint,
+  tests, TypeScript, production build, mobile inspection, and
+  generated-artifact drift checking.
 - A temporary isolated vault installation reproduced all three approved hashes.
 - README, operating contract, roadmap, development instructions, and the
   immutable handoff now describe consistent project states.
