@@ -13,52 +13,52 @@ const container = {
 describe('computePanelPosition', () => {
   it('sobrepõe o botão e centraliza verticalmente no lado direito', () => {
     const position = computePanelPosition(
-      { top: 360, right: 1000, bottom: 408, left: 952, width: 48, height: 48 },
-      { width: 104, height: 310 },
+      { top: 348, right: 1006, bottom: 420, left: 934, width: 72, height: 72 },
+      { width: 75, height: 450 },
       container,
       { width: 1024, height: 768 },
       'right',
     );
 
-    expect(position).toEqual({ left: 896, top: 229 });
+    expect(position).toEqual({ left: 931, top: 159 });
   });
 
   it('sobrepõe o botão e mantém a borda externa no lado esquerdo', () => {
     const position = computePanelPosition(
-      { top: 360, right: 60, bottom: 408, left: 12, width: 48, height: 48 },
-      { width: 88, height: 280 },
+      { top: 348, right: 90, bottom: 420, left: 18, width: 72, height: 72 },
+      { width: 75, height: 420 },
       container,
       { width: 1024, height: 768 },
       'left',
     );
 
-    expect(position.top).toBe(244);
-    expect(position.left).toBe(12);
+    expect(position.top).toBe(174);
+    expect(position.left).toBe(18);
   });
 
   it('contém verticalmente quando o painel excede o espaço central', () => {
     const position = computePanelPosition(
-      { top: 16, right: 60, bottom: 64, left: 12, width: 48, height: 48 },
-      { width: 88, height: 400 },
+      { top: 18, right: 90, bottom: 90, left: 18, width: 72, height: 72 },
+      { width: 75, height: 600 },
       container,
       { width: 1024, height: 768 },
       'left',
     );
 
-    expect(position.top).toBe(8);
+    expect(position.top).toBe(12);
   });
 
   it('contém o painel em viewport estreito', () => {
     const narrow = { ...container, right: 320, width: 320 };
     const position = computePanelPosition(
-      { top: 400, right: 316, bottom: 448, left: 268, width: 48, height: 48 },
-      { width: 104, height: 300 },
+      { top: 348, right: 302, bottom: 420, left: 230, width: 72, height: 72 },
+      { width: 75, height: 450 },
       narrow,
       { width: 320, height: 640 },
       'right',
     );
 
-    expect(position.left).toBeLessThanOrEqual(208);
-    expect(position.left).toBeGreaterThanOrEqual(8);
+    expect(position.left).toBeLessThanOrEqual(233);
+    expect(position.left).toBeGreaterThanOrEqual(12);
   });
 });

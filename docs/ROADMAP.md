@@ -45,6 +45,10 @@ body-class and scoped-CSS pattern documented in
 [`RESEARCH-tab-bar-toggle-2026-07.md`](RESEARCH-tab-bar-toggle-2026-07.md). It
 keeps a command-palette recovery route and restores the tab bar on unload.
 
+**Control-scale refinement completed 2026-07-21:** the full floating control is
+150% of its original dimensions using intrinsic layout rather than a transform.
+See [`RESEARCH-control-scale-2026-07.md`](RESEARCH-control-scale-2026-07.md).
+
 **Human gate:** rehearse with a real long-form note on iPad without modifying it.
 
 ## Milestone 2 — Interaction safety

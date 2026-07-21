@@ -42,6 +42,14 @@ if (
 ) {
   failures.push('CSS não restringe a ocultação da barra de abas à área principal');
 }
+if (
+  !styles.includes('width: 72px;') ||
+  !styles.includes('width: 75px;') ||
+  !styles.includes('width: 66px;') ||
+  !styles.includes('height: clamp(222px, 27vh, 255px);')
+) {
+  failures.push('controle não preserva a ampliação mecânica de 150%');
+}
 if (!styles.includes('prefers-reduced-motion')) failures.push('CSS não respeita movimento reduzido');
 
 if (failures.length > 0) {

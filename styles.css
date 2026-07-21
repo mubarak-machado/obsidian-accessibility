@@ -36,28 +36,28 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
   position: absolute;
   top: 50%;
   display: grid;
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-  min-height: 48px;
+  width: 72px;
+  height: 72px;
+  min-width: 72px;
+  min-height: 72px;
   place-items: center;
   padding: 0;
-  border: 2px solid var(--interactive-accent);
-  border-radius: 16px;
+  border: 3px solid var(--interactive-accent);
+  border-radius: 24px;
   background: var(--background-primary-alt, var(--background-primary));
   color: var(--text-normal);
-  box-shadow: 0 6px 22px rgb(0 0 0 / 28%);
+  box-shadow: 0 9px 33px rgb(0 0 0 / 28%);
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
   transform: translateY(-50%);
 }
 
 .oa-font-scale-root.is-right .oa-font-scale-trigger {
-  right: calc(env(safe-area-inset-right, 0px) + 12px);
+  right: calc(env(safe-area-inset-right, 0px) + 18px);
 }
 
 .oa-font-scale-root.is-left .oa-font-scale-trigger {
-  left: calc(env(safe-area-inset-left, 0px) + 12px);
+  left: calc(env(safe-area-inset-left, 0px) + 18px);
 }
 
 .oa-font-scale-trigger:is(:hover, :focus-visible),
@@ -69,49 +69,49 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
 .oa-font-scale-trigger:focus-visible,
 .oa-font-scale-panel__button:focus-visible,
 .oa-font-scale-panel__range:focus-visible {
-  outline: 3px solid var(--interactive-accent);
-  outline-offset: 3px;
+  outline: 4.5px solid var(--interactive-accent);
+  outline-offset: 4.5px;
 }
 
 .oa-font-scale-trigger__glyph {
   font-family: var(--font-interface);
-  font-size: 17px;
+  font-size: 25.5px;
   font-weight: 750;
   letter-spacing: -0.04em;
   line-height: 1;
 }
 
 .oa-font-scale-panel {
-  --oa-font-scale-gap: 4px;
+  --oa-font-scale-gap: 6px;
 
   position: absolute;
   display: flex;
-  width: 50px;
-  max-height: calc(100% - 16px);
+  width: 75px;
+  max-height: calc(100% - 24px);
   box-sizing: border-box;
   flex-direction: column;
   align-items: center;
   gap: var(--oa-font-scale-gap);
-  padding: 2px;
-  border: 1px solid var(--background-modifier-border);
-  border-radius: 15px;
+  padding: 3px;
+  border: 1.5px solid var(--background-modifier-border);
+  border-radius: 22.5px;
   background: var(--background-primary);
   color: var(--text-normal);
-  box-shadow: 0 10px 32px rgb(0 0 0 / 34%);
+  box-shadow: 0 15px 48px rgb(0 0 0 / 34%);
   overflow-y: auto;
   overscroll-behavior: contain;
 }
 
 .oa-font-scale-panel__button {
   display: grid;
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
+  width: 66px;
+  height: 66px;
+  min-width: 66px;
+  min-height: 66px;
   place-items: center;
   padding: 0;
   border: 0;
-  border-radius: 6px;
+  border-radius: 9px;
   background: transparent;
   color: var(--text-normal);
   box-shadow: none;
@@ -129,13 +129,13 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
 }
 
 .oa-font-scale-panel__tab-bar svg {
-  width: 22px;
-  height: 22px;
+  width: 33px;
+  height: 33px;
 }
 
 .oa-font-scale-panel__step {
   font-family: var(--font-interface);
-  font-size: 30px;
+  font-size: 45px;
   font-weight: 500;
   line-height: 1;
 }
@@ -144,7 +144,7 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
   -webkit-text-fill-color: currentcolor;
   color: var(--text-muted);
   font-family: var(--font-interface);
-  font-size: 11px;
+  font-size: 16.5px;
   font-style: normal;
   font-variant: normal;
   font-weight: 600;
@@ -156,14 +156,14 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
 }
 
 .oa-font-scale-panel__mode {
-  max-width: 44px;
+  max-width: 66px;
   margin-bottom: 0;
 }
 
 .oa-font-scale-panel__mode::after {
   display: block;
-  width: 28px;
-  height: 1px;
+  width: 42px;
+  height: 1.5px;
   margin: var(--oa-font-scale-gap) auto 0;
   border-radius: 999px;
   background: var(--background-modifier-border-focus);
@@ -171,8 +171,8 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
 }
 
 .oa-font-scale-panel__separator {
-  width: 28px;
-  height: 1px;
+  width: 42px;
+  height: 1.5px;
   margin-block: 0;
   border-radius: 999px;
   background: var(--background-modifier-border-focus);
@@ -203,7 +203,7 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
 
 .oa-font-scale-panel__reset:focus-visible {
   text-decoration: underline;
-  text-underline-offset: 2px;
+  text-underline-offset: 3px;
 }
 
 .oa-font-scale-panel__reset-label {
@@ -214,8 +214,8 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
 
 .oa-font-scale-panel__range-frame {
   position: relative;
-  width: 44px;
-  height: clamp(148px, 18vh, 170px);
+  width: 66px;
+  height: clamp(222px, 27vh, 255px);
 }
 
 .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range {
@@ -225,8 +225,8 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
   top: 50%;
   left: 50%;
   display: block;
-  width: clamp(148px, 18vh, 170px);
-  height: 44px;
+  width: clamp(222px, 27vh, 255px);
+  height: 66px;
   min-width: 0;
   max-width: none;
   margin: 0;
@@ -242,38 +242,38 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
 
 .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range::-webkit-slider-runnable-track {
   width: 100%;
-  height: 10px;
-  border: 1px solid var(--interactive-accent);
+  height: 15px;
+  border: 1.5px solid var(--interactive-accent);
   border-radius: 999px;
   background: var(--background-modifier-border-focus);
-  box-shadow: inset 0 0 0 1px var(--background-primary);
+  box-shadow: inset 0 0 0 1.5px var(--background-primary);
 }
 
 .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 22px;
-  height: 22px;
+  width: 33px;
+  height: 33px;
   margin-top: 0;
-  border: 3px solid var(--background-primary);
+  border: 4.5px solid var(--background-primary);
   border-radius: 50%;
   background: var(--interactive-accent);
-  box-shadow: 0 0 0 2px var(--text-normal), 0 2px 8px rgb(0 0 0 / 42%);
+  box-shadow: 0 0 0 3px var(--text-normal), 0 3px 12px rgb(0 0 0 / 42%);
 }
 
 .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range::-moz-range-track {
-  height: 10px;
-  border: 1px solid var(--interactive-accent);
+  height: 15px;
+  border: 1.5px solid var(--interactive-accent);
   border-radius: 999px;
   background: var(--background-modifier-border-focus);
 }
 
 .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range::-moz-range-thumb {
-  width: 22px;
-  height: 22px;
-  border: 3px solid var(--background-primary);
+  width: 33px;
+  height: 33px;
+  border: 4.5px solid var(--background-primary);
   border-radius: 50%;
   background: var(--interactive-accent);
-  box-shadow: 0 0 0 2px var(--text-normal), 0 2px 8px rgb(0 0 0 / 42%);
+  box-shadow: 0 0 0 3px var(--text-normal), 0 3px 12px rgb(0 0 0 / 42%);
 }
 
 .oa-settings-profile-heading,
@@ -283,18 +283,18 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
   border-block-end: 1px solid var(--background-modifier-border);
 }
 
-@media (max-height: 560px) {
+@media (max-height: 840px) {
   .oa-font-scale-panel {
     gap: var(--oa-font-scale-gap);
-    padding-block: 5px;
+    padding-block: 7.5px;
   }
 
   .oa-font-scale-panel__range-frame {
-    height: 120px;
+    height: 180px;
   }
 
   .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range {
-    width: 120px;
+    width: 180px;
   }
 }
 

@@ -25,7 +25,7 @@ export function computePanelPosition(
   container: RectLike,
   viewport: { width: number; height: number },
   side: ControlSide,
-  edge = 8,
+  edge = 12,
 ): PanelPosition {
   const minimumLeft = Math.max(container.left + edge, edge);
   const maximumRight = Math.min(container.right - edge, viewport.width - edge);
