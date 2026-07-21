@@ -80,6 +80,8 @@ Appearance, touch, orientation, safe-area, focus, VoiceOver, or position changes
 ## Release and documentation
 
 - Keep `manifest.json`, `versions.json`, package version, tag, and release name coherent.
+- Follow the project versioning policy: increment `PATCH` for fixes only, `MINOR` for backward-compatible feature additions or smaller improvements, and `MAJOR` for large product changes.
+- Choose the release version from the highest-impact change since the previous release, and keep the version-bump commit separate from feature implementation.
 - Release assets must include `manifest.json`, `main.js`, and `styles.css`.
 - Preserve release `0.1.1` as the immutable first-version baseline.
 - Keep [the handoff](docs/HANDOFF-v0.1.1.md) immutable.
