@@ -10,7 +10,9 @@ body .workspace-leaf-content[data-type='markdown'].oa-scale-active .markdown-sou
   line-height: var(--oa-scale-line-height);
 }
 
-body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container {
+body.oa-zen-mode .mod-root .workspace-tabs .workspace-tab-header-container,
+body.oa-zen-mode .workspace-ribbon.mod-left,
+body.oa-zen-mode .status-bar {
   display: none;
 }
 
@@ -127,14 +129,27 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
   color: var(--interactive-accent);
 }
 
-.oa-font-scale-panel__tab-bar.is-active {
+.oa-font-scale-panel__zen-mode.is-active {
   background: var(--interactive-accent);
   color: var(--text-on-accent);
 }
 
-.oa-font-scale-panel__tab-bar svg {
+.oa-font-scale-panel__zen-mode svg {
   width: 33px;
   height: 33px;
+}
+
+.oa-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .oa-font-scale-panel__step {

@@ -3,6 +3,7 @@ import { computePanelPosition } from './positioning';
 import { ScaleController } from './scale-controller';
 import { ScaleStore } from './scale-store';
 import { scaleLimits } from './settings-model';
+import { ZenModeController } from './zen-mode-controller';
 
 const PANEL_ID = 'oa-font-scale-panel';
 
@@ -11,17 +12,20 @@ export class FontScaleControl {
   private readonly trigger: HTMLButtonElement;
   private readonly panel: HTMLElement;
   private readonly modeLabel: HTMLDivElement;
-  private readonly tabBarButton: HTMLButtonElement;
+  private readonly zenModeButton: HTMLButtonElement;
+  private readonly statusLive: HTMLDivElement;
   private readonly resetLabel: HTMLSpanElement;
   private readonly range: HTMLInputElement;
   private readonly abortController = new AbortController();
   private readonly unsubscribe: () => void;
+  private readonly unsubscribeZenMode: () => void;
   private opened = false;
 
   constructor(
     private readonly view: MarkdownView,
     private readonly store: ScaleStore,
     private readonly controller: ScaleController,
+    private readonly zenMode: ZenModeController,
   ) {
     const doc = view.containerEl.ownerDocument;
     this.root = view.containerEl.createDiv({ cls: 'oa-font-scale-root' });
@@ -54,16 +58,15 @@ export class FontScaleControl {
       cls: 'oa-font-scale-panel__mode oa-font-scale-panel__text',
     });
     this.modeLabel.setAttribute('aria-live', 'polite');
-    this.tabBarButton = this.panel.createEl('button', {
-      cls: 'oa-font-scale-panel__button oa-font-scale-panel__tab-bar',
+    this.zenModeButton = this.panel.createEl('button', {
+      cls: 'oa-font-scale-panel__button oa-font-scale-panel__zen-mode',
       attr: {
         type: 'button',
-        'aria-label': 'Ocultar barra de abas',
+        'aria-label': 'Ativar modo zen',
         'aria-pressed': 'false',
-        title: 'Ocultar barra de abas',
+        title: 'Ativar modo zen',
       },
     });
-    setIcon(this.tabBarButton, 'panel-top');
     const increase = this.textButton(this.panel, '+', 'Aumentar um pixel');
 
     const rangeFrame = this.panel.createDiv({ cls: 'oa-font-scale-panel__range-frame' });
@@ -92,10 +95,14 @@ export class FontScaleControl {
       cls: 'oa-font-scale-panel__reset-label oa-font-scale-panel__text',
       text: 'Reset',
     });
+    this.statusLive = this.root.createDiv({
+      cls: 'oa-visually-hidden',
+      attr: { 'aria-live': 'polite', 'aria-atomic': 'true' },
+    });
 
     const signal = this.abortController.signal;
     this.trigger.addEventListener('click', (event) => this.toggle(event.detail === 0), { signal });
-    this.tabBarButton.addEventListener('click', () => this.toggleTabBar(), { signal });
+    this.zenModeButton.addEventListener('click', () => this.toggleZenMode(), { signal });
     increase.addEventListener('click', () => this.step(1), { signal });
     decrease.addEventListener('click', () => this.step(-1), { signal });
     reset.addEventListener('click', () => this.reset(), { signal });
@@ -112,7 +119,12 @@ export class FontScaleControl {
     );
 
     this.unsubscribe = store.subscribe(() => this.render());
+    this.unsubscribeZenMode = zenMode.subscribe((active) => {
+      this.renderZenMode(active);
+      this.statusLive.setText(active ? 'Modo zen ativado' : 'Modo zen desativado');
+    });
     this.render();
+    this.renderZenMode(zenMode.active);
   }
 
   refreshContext(): void {
@@ -129,7 +141,7 @@ export class FontScaleControl {
     this.opened = true;
     this.panel.hidden = false;
     this.trigger.setAttribute('aria-expanded', 'true');
-    this.setTriggerLabel('Fechar controles de acessibilidade');
+    this.updateTriggerLabel();
     window.requestAnimationFrame(() => {
       this.alignResetLabel();
       this.positionPanel();
@@ -140,6 +152,7 @@ export class FontScaleControl {
   destroy(): void {
     this.abortController.abort();
     this.unsubscribe();
+    this.unsubscribeZenMode();
     this.close(false);
     this.root.remove();
   }
@@ -160,9 +173,6 @@ export class FontScaleControl {
     this.range.setAttribute('aria-valuetext', `${value} pixels`);
     this.modeLabel.setText(`${value} px`);
     this.modeLabel.setAttribute('title', `${value} pixels`);
-    this.tabBarButton.setAttribute('aria-pressed', `${settings.tabBarHidden}`);
-    this.tabBarButton.classList.toggle('is-active', settings.tabBarHidden);
-
     if (!settings.enabled && this.opened) this.close(false);
   }
 
@@ -190,7 +200,7 @@ export class FontScaleControl {
     this.opened = false;
     this.panel.hidden = true;
     this.trigger.setAttribute('aria-expanded', 'false');
-    this.setTriggerLabel('Abrir controles de acessibilidade');
+    this.updateTriggerLabel();
     if (returnFocus) this.trigger.focus();
   }
 
@@ -214,8 +224,25 @@ export class FontScaleControl {
     this.controller.applyScaleWithAnchor();
   }
 
-  private toggleTabBar(): void {
-    this.store.setTabBarHidden(!this.store.snapshot.tabBarHidden);
+  private toggleZenMode(): void {
+    this.zenMode.toggle();
+    this.close(false);
+  }
+
+  private renderZenMode(active: boolean): void {
+    const label = active ? 'Sair do modo zen' : 'Ativar modo zen';
+    this.zenModeButton.setAttribute('aria-label', label);
+    this.zenModeButton.setAttribute('title', label);
+    this.zenModeButton.setAttribute('aria-pressed', `${active}`);
+    this.zenModeButton.classList.toggle('is-active', active);
+    setIcon(this.zenModeButton, active ? 'minimize-2' : 'focus');
+    this.updateTriggerLabel();
+  }
+
+  private updateTriggerLabel(): void {
+    const action = this.opened ? 'Fechar' : 'Abrir';
+    const state = this.zenMode.active ? 'Modo zen ativo. ' : '';
+    this.setTriggerLabel(`${state}${action} controles de acessibilidade`);
   }
 
   private alignResetLabel(): void {
@@ -243,9 +270,16 @@ export class FontScaleControl {
   }
 
   private onKeyDown(event: KeyboardEvent): void {
-    if (!this.opened || event.key !== 'Escape') return;
-    event.preventDefault();
-    this.close(true);
+    if (event.key !== 'Escape') return;
+    if (this.opened) {
+      event.preventDefault();
+      this.close(true);
+      return;
+    }
+    if (this.zenMode.active) {
+      event.preventDefault();
+      this.zenMode.exit();
+    }
   }
 
   private textButton(parent: HTMLElement, text: string, label: string): HTMLButtonElement {

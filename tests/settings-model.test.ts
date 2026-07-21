@@ -23,7 +23,6 @@ describe('normalizeSettings', () => {
   it('limita escalas e preserva escolhas válidas', () => {
     const settings = normalizeSettings({
       enabled: false,
-      tabBarHidden: true,
       side: 'left',
       activeProfile: 'presentation',
       profiles: {
@@ -32,7 +31,6 @@ describe('normalizeSettings', () => {
     });
 
     expect(settings.enabled).toBe(false);
-    expect(settings.tabBarHidden).toBe(true);
     expect(settings.side).toBe('left');
     expect(settings.activeProfile).toBe('presentation');
     expect(settings.profiles.presentation).toEqual({
@@ -42,8 +40,16 @@ describe('normalizeSettings', () => {
     });
   });
 
-  it('normaliza visibilidade inválida da barra de abas para visível', () => {
-    expect(normalizeSettings({ tabBarHidden: 'sim' }).tabBarHidden).toBe(false);
+  it('descarta o estado persistente legado da barra de abas', () => {
+    const migrated = normalizeSettings({
+      ...DEFAULT_SETTINGS,
+      schemaVersion: 1,
+      tabBarHidden: true,
+    });
+
+    expect(migrated).not.toHaveProperty('tabBarHidden');
+    expect(migrated.schemaVersion).toBe(2);
+    expect(hasCurrentSettingsSchema({ ...DEFAULT_SETTINGS, schemaVersion: 1 })).toBe(false);
   });
 
   it('distingue migração inicial de dados já versionados', () => {

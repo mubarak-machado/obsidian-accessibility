@@ -30,12 +30,12 @@ Node.js 20, 22, and 24.
 
 **Goal:** enter and leave a presentation-focused state safely.
 
-- [ ] Research current Obsidian presentation, focus, workspace, and mobile-toolbar patterns.
-- [ ] Define the state captured before entry.
-- [ ] Implement entry, exit, and deterministic restoration.
-- [ ] Provide an obvious recovery route.
-- [ ] Simulate failure and verify the interface never becomes trapped.
-- [ ] Preserve reading position and the approved slider.
+- [x] Research current Obsidian presentation, focus, workspace, and mobile-toolbar patterns.
+- [x] Define the state captured before entry.
+- [x] Implement entry, exit, and deterministic restoration.
+- [x] Provide an obvious recovery route.
+- [x] Simulate failure and verify the interface never becomes trapped.
+- [x] Preserve reading position and the approved slider.
 - [x] Add the first presentation control: a persistent tab-bar toggle inside the approved slider panel.
 
 **Already complete:** the left/right floating button and vertical panel are the baseline.
@@ -54,6 +54,13 @@ See [`RESEARCH-control-scale-2026-07.md`](RESEARCH-control-scale-2026-07.md).
 stable circular launcher now represents the expanding accessibility suite while
 the existing panel remains its first focused module. See
 [`RESEARCH-accessibility-launcher-2026-07.md`](RESEARCH-accessibility-launcher-2026-07.md).
+
+**Recoverable Zen mode implemented 2026-07-21:** the tab-bar-only toggle now
+captures and restores both sidebars, hides navigation chrome through one scoped
+class, and keeps the right mobile drawer and its active Outline available to
+Obsidian's native swipe gesture. The mode is session-only and has touch,
+command, Escape, context-change, and unload recovery routes. See
+[`RESEARCH-zen-mode-2026-07.md`](RESEARCH-zen-mode-2026-07.md).
 
 **Human gate:** rehearse with a real long-form note on iPad without modifying it.
 
@@ -84,7 +91,7 @@ Each module must fail independently, avoid note writes, and not depend only on c
 ## Milestone 4 — Robustness and distribution
 
 - [ ] Expand automated and physical-device tests.
-- [ ] Formalize configuration versioning and migrations.
+- [x] Formalize configuration versioning and migrations.
 - [ ] Test BRAT update and rollback.
 - [ ] Verify removal and restricted-mode recovery.
 - [ ] Establish Obsidian and iPadOS compatibility baselines.

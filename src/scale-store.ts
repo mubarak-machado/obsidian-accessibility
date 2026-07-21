@@ -45,10 +45,6 @@ export class ScaleStore {
     this.update({ ...this.settings, enabled });
   }
 
-  setTabBarHidden(tabBarHidden: boolean): void {
-    this.update({ ...this.settings, tabBarHidden });
-  }
-
   setSide(side: ControlSide): void {
     this.update({ ...this.settings, side });
   }

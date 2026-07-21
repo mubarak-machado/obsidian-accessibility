@@ -32,15 +32,24 @@ if (
 if (!bundle.includes('aria-orientation') || !bundle.includes('vertical')) {
   failures.push('bundle não expõe a orientação vertical para acessibilidade');
 }
-if (!bundle.includes('aria-pressed') || !bundle.includes('oa-tab-bar-hidden')) {
-  failures.push('bundle não expõe estado acessível nem limpeza da barra de abas');
+if (!bundle.includes('aria-pressed') || !bundle.includes('oa-zen-mode')) {
+  failures.push('bundle não expõe estado acessível nem limpeza do modo Zen');
 }
 if (
   !styles.includes(
-    'body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container',
+    'body.oa-zen-mode .mod-root .workspace-tabs .workspace-tab-header-container',
   )
 ) {
-  failures.push('CSS não restringe a ocultação da barra de abas à área principal');
+  failures.push('CSS não restringe o modo Zen à interface do Obsidian');
+}
+if (
+  styles.includes('body.oa-zen-mode .workspace-drawer') ||
+  styles.includes('body.oa-zen-mode .workspace-sidedock')
+) {
+  failures.push('modo Zen não pode remover drawers; o Outline deve continuar acessível por swipe');
+}
+if (!bundle.includes('leftSplit') || !bundle.includes('rightSplit')) {
+  failures.push('bundle não captura as duas sidebars para restauração determinística');
 }
 if (
   !styles.includes('width: 72px;') ||

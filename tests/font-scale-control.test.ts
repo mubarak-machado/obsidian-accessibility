@@ -6,6 +6,7 @@ import { FontScaleControl } from '../src/font-scale-control';
 import type { ScaleController } from '../src/scale-controller';
 import { ScaleStore } from '../src/scale-store';
 import { DEFAULT_SETTINGS } from '../src/settings-model';
+import { ZenModeController } from '../src/zen-mode-controller';
 
 interface CreateOptions {
   cls?: string;
@@ -53,6 +54,7 @@ function setup(): {
   control: FontScaleControl;
   store: ScaleStore;
   controller: ScaleController;
+  zenMode: ZenModeController;
   container: HTMLElement;
 } {
   const container = document.createElement('div');
@@ -67,8 +69,12 @@ function setup(): {
     containerEl: container,
     getMode: () => 'preview',
   };
-  const control = new FontScaleControl(view as never, store, controller);
-  return { control, store, controller, container };
+  const zenMode = new ZenModeController(document.body, {
+    leftSplit: { collapsed: false, collapse() { this.collapsed = true; }, expand() { this.collapsed = false; } },
+    rightSplit: { collapsed: false, collapse() { this.collapsed = true; }, expand() { this.collapsed = false; } },
+  });
+  const control = new FontScaleControl(view as never, store, controller, zenMode);
+  return { control, store, controller, zenMode, container };
 }
 
 describe('FontScaleControl', () => {
@@ -147,7 +153,7 @@ describe('FontScaleControl', () => {
     expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe(
       '55 px',
     );
-    expect(panel?.children[1]?.classList.contains('oa-font-scale-panel__tab-bar')).toBe(true);
+    expect(panel?.children[1]?.classList.contains('oa-font-scale-panel__zen-mode')).toBe(true);
     expect(panel?.children[2]?.textContent).toBe('+');
     expect(panel?.querySelector('.oa-font-scale-panel__separator')?.getAttribute('aria-hidden')).toBe(
       'true',
@@ -156,20 +162,60 @@ describe('FontScaleControl', () => {
     control.destroy();
   });
 
-  it('alterna e expõe o estado persistente da barra de abas', () => {
-    const { control, store, container } = setup();
+  it('alterna o modo Zen, fecha o painel e expõe estado e ícone acessíveis', () => {
+    const { control, zenMode, container } = setup();
+    const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
+    const panel = container.querySelector<HTMLElement>('.oa-font-scale-panel');
+    const status = container.querySelector<HTMLElement>('.oa-visually-hidden');
     const button = container.querySelector<HTMLButtonElement>(
-      '.oa-font-scale-panel__tab-bar',
+      '.oa-font-scale-panel__zen-mode',
     );
 
     expect(button?.getAttribute('aria-pressed')).toBe('false');
-    expect(button?.dataset.icon).toBe('panel-top');
+    expect(button?.dataset.icon).toBe('focus');
+    trigger?.click();
     button?.click();
 
-    expect(store.snapshot.tabBarHidden).toBe(true);
+    expect(zenMode.active).toBe(true);
     expect(button?.getAttribute('aria-pressed')).toBe('true');
+    expect(button?.getAttribute('aria-label')).toBe('Sair do modo zen');
+    expect(button?.dataset.icon).toBe('minimize-2');
     expect(button?.classList.contains('is-active')).toBe(true);
+    expect(panel?.hidden).toBe(true);
+    expect(status?.textContent).toBe('Modo zen ativado');
+    expect(trigger?.getAttribute('aria-label')).toBe(
+      'Modo zen ativo. Abrir controles de acessibilidade',
+    );
+
+    trigger?.click();
+    button?.click();
+    expect(zenMode.active).toBe(false);
+    expect(button?.getAttribute('aria-pressed')).toBe('false');
+    expect(button?.dataset.icon).toBe('focus');
+    expect(status?.textContent).toBe('Modo zen desativado');
     control.destroy();
+    zenMode.destroy();
+  });
+
+  it('fecha primeiro o painel e depois sai do modo Zen por Escape', () => {
+    const { control, zenMode, container } = setup();
+    const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
+    const panel = container.querySelector<HTMLElement>('.oa-font-scale-panel');
+    const button = container.querySelector<HTMLButtonElement>(
+      '.oa-font-scale-panel__zen-mode',
+    );
+    trigger?.click();
+    button?.click();
+    trigger?.click();
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(panel?.hidden).toBe(true);
+    expect(zenMode.active).toBe(true);
+
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(zenMode.active).toBe(false);
+    control.destroy();
+    zenMode.destroy();
   });
 
   it('restaura o tamanho do perfil pela ação textual inferior', () => {
