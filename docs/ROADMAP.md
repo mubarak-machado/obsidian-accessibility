@@ -50,9 +50,10 @@ keeps a command-palette recovery route and restores the tab bar on unload.
 See [`RESEARCH-control-scale-2026-07.md`](RESEARCH-control-scale-2026-07.md).
 
 **Accessibility launcher refinement completed 2026-07-21:** the typography-specific
-`A↕` glyph was replaced by Obsidian's universal Lucide `accessibility` icon. The
-stable circular launcher now represents the expanding accessibility suite while
-the existing panel remains its first focused module. See
+`A↕` glyph was first replaced by Obsidian's Lucide `accessibility` icon, then
+refined after low-vision review to a larger, filled Material
+`accessibility_new` silhouette. The stable circular launcher now represents the
+expanding accessibility suite while the existing panel remains its first focused module. See
 [`RESEARCH-accessibility-launcher-2026-07.md`](RESEARCH-accessibility-launcher-2026-07.md).
 
 **Recoverable Zen mode implemented 2026-07-21:** the tab-bar-only toggle now

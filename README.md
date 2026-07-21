@@ -4,7 +4,7 @@ Mobile-friendly accessibility controls for Obsidian, designed primarily for read
 
 ## Features
 
-- a persistent circular accessibility button that opens a compact vertical control;
+- a persistent circular accessibility button with a high-visibility filled icon that opens a compact vertical control;
 - a recoverable Zen mode that reduces navigation chrome without blocking the right-side Outline drawer;
 - independent scales for Reading view and Live Preview;
 - configurable left or right placement;

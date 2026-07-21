@@ -86,8 +86,15 @@ describe('FontScaleControl', () => {
 
     expect(trigger).not.toBeNull();
     expect(trigger?.getAttribute('aria-label')).toBe('Abrir controles de acessibilidade');
-    expect(triggerIcon?.dataset.icon).toBe('accessibility');
     expect(triggerIcon?.getAttribute('aria-hidden')).toBe('true');
+    const launcherSvg = triggerIcon?.querySelector<SVGElement>('svg');
+    const launcherPath = launcherSvg?.querySelector('path');
+    expect(launcherSvg?.dataset.oaIcon).toBe('accessibility-new-filled');
+    expect(launcherSvg?.getAttribute('viewBox')).toBe('0 0 24 24');
+    expect(launcherSvg?.getAttribute('aria-hidden')).toBe('true');
+    expect(launcherSvg?.getAttribute('focusable')).toBe('false');
+    expect(launcherPath?.getAttribute('fill')).toBe('currentColor');
+    expect(launcherPath?.getAttribute('d')).toContain('M20.75 6.99');
     expect(trigger?.textContent).toBe('');
     expect(panel?.hidden).toBe(true);
     trigger?.click();

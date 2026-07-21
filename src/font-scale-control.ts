@@ -6,6 +6,25 @@ import { scaleLimits } from './settings-model';
 import { ZenModeController } from './zen-mode-controller';
 
 const PANEL_ID = 'oa-font-scale-panel';
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+
+/*! Material Design icon "accessibility_new" Copyright Google LLC, Apache-2.0. */
+const ACCESSIBILITY_LAUNCHER_PATH =
+  'M20.75 6.99c-.14-.55-.69-.87-1.24-.75C17.13 6.77 14.48 7 12 7s-5.13-.23-7.51-.76c-.55-.12-1.1.2-1.24.75-.14.56.2 1.13.75 1.26 1.61.36 3.35.61 5 .75v12c0 .55.45 1 1 1s1-.45 1-1v-5h2v5c0 .55.45 1 1 1s1-.45 1-1V9c1.65-.14 3.39-.39 4.99-.75.56-.13.9-.7.76-1.26zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z';
+
+function appendAccessibilityLauncherIcon(container: HTMLElement): void {
+  const svg = container.ownerDocument.createElementNS(SVG_NAMESPACE, 'svg');
+  svg.setAttribute('viewBox', '0 0 24 24');
+  svg.setAttribute('aria-hidden', 'true');
+  svg.setAttribute('focusable', 'false');
+  svg.dataset.oaIcon = 'accessibility-new-filled';
+
+  const path = container.ownerDocument.createElementNS(SVG_NAMESPACE, 'path');
+  path.setAttribute('d', ACCESSIBILITY_LAUNCHER_PATH);
+  path.setAttribute('fill', 'currentColor');
+  svg.append(path);
+  container.append(svg);
+}
 
 export class FontScaleControl {
   private readonly root: HTMLDivElement;
@@ -42,7 +61,7 @@ export class FontScaleControl {
     });
     const triggerIcon = this.trigger.createSpan({ cls: 'oa-font-scale-trigger__icon' });
     triggerIcon.setAttribute('aria-hidden', 'true');
-    setIcon(triggerIcon, 'accessibility');
+    appendAccessibilityLauncherIcon(triggerIcon);
 
     this.panel = this.root.createEl('section', {
       cls: 'oa-font-scale-panel',

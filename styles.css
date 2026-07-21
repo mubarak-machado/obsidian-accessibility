@@ -77,14 +77,14 @@ body.oa-zen-mode .status-bar {
 
 .oa-font-scale-trigger__icon {
   display: grid;
-  width: 33px;
-  height: 33px;
+  width: 42px;
+  height: 42px;
   place-items: center;
 }
 
 .oa-font-scale-trigger__icon svg {
-  width: 33px;
-  height: 33px;
+  width: 42px;
+  height: 42px;
 }
 
 .oa-font-scale-panel {
