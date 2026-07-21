@@ -1,10 +1,11 @@
-# Development, test installation, and rollback
+# Desenvolvimento, instalação de teste e reversão
 
-## Supported development environment
+## Ambiente de desenvolvimento compatível
 
-CI validates Node.js 20, 22, and 24 on macOS-independent Linux runners. Use a
-current release from that range with npm `11.11.0`, the tool version recorded
-by `packageManager`, and the committed npm lockfile.
+A integração contínua valida o Node.js 20, 22 e 24 em executores Linux
+independentes do macOS. Use uma versão atual desse intervalo com o npm
+`11.11.0`, versão registrada em `packageManager`, e o arquivo de dependências
+do npm presente no repositório.
 
 ```bash
 npm install --global npm@11.11.0
@@ -12,67 +13,70 @@ npm ci
 npm run check
 ```
 
-npm 10 rejects the archived dependency graph because it attempts to resolve
-Vite's newer esbuild peer again. npm 11 installs the approved lockfile without
-changing dependencies; the production bundle remains byte-identical to
-`0.1.1`.
+O npm 10 rejeita o grafo de dependências arquivado porque tenta resolver
+novamente a dependência de par mais recente do esbuild para o Vite. O npm 11
+instala o arquivo aprovado sem alterar dependências; o pacote de produção
+permanece idêntico, byte por byte, ao da versão `0.1.1`.
 
-`npm run check` runs ESLint, 15 Vitest cases, strict TypeScript compilation, a
-production esbuild bundle, and the mobile-bundle inspection. During migration
-verification, also run:
+`npm run check` executa o ESLint, 26 casos do Vitest, a compilação estrita do
+TypeScript, o pacote de produção do esbuild e a inspeção do pacote móvel.
+Durante a verificação da migração, execute também:
 
 ```bash
 npm run verify:baseline
 git diff --check
 ```
 
-## Development loop
+## Ciclo de desenvolvimento
 
-Run the watch build from the repository root:
+Execute a compilação contínua na raiz do repositório:
 
 ```bash
 npm run dev
 ```
 
-The build writes `main.js` at the repository root. Source belongs in `src/`,
-tests in `tests/`, behavior in TypeScript, and appearance in `styles.css`.
+A compilação grava `main.js` na raiz do repositório. O código-fonte deve ficar
+em `src/`, os testes em `tests/`, o comportamento em TypeScript e a aparência
+em `styles.css`.
 
-## Install in an isolated test vault
+## Instalação em um cofre isolado de testes
 
-Do not use the primary personal vault for routine development. Create or choose
-an isolated Obsidian vault, open it once so that `.obsidian/` exists, then run:
+Não use o cofre pessoal principal no desenvolvimento rotineiro. Crie ou escolha
+um cofre isolado do Obsidian, abra-o uma vez para que `.obsidian/` exista e,
+depois, execute:
 
 ```bash
 npm run build
 npm run install:test -- /absolute/path/to/test-vault
 ```
 
-The installer refuses to run without an explicit vault and an existing
-`.obsidian/` directory. It copies only `main.js`, `manifest.json`, and
-`styles.css` into `.obsidian/plugins/obsidian-accessibility/`; it does not copy,
-read, or modify notes.
+O instalador se recusa a funcionar sem um cofre informado explicitamente e um
+diretório `.obsidian/` existente. Ele copia apenas `main.js`, `manifest.json` e
+`styles.css` para `.obsidian/plugins/obsidian-accessibility/`; não copia, lê nem
+modifica notas.
 
-In Obsidian, reload the application, enable **Obsidian Accessibility**, and
-verify activation, deactivation, active-leaf changes, Reading view, and Live
-Preview. Appearance, touch, orientation, safe-area, focus, VoiceOver, or
-position changes still require physical iPad validation before release.
+No Obsidian, recarregue o aplicativo, ative **Obsidian Accessibility** e
+verifique a ativação, a desativação, as mudanças da folha ativa, o modo de
+Leitura e a Pré-visualização em tempo real. Alterações de aparência, toque,
+orientação, área segura, foco, VoiceOver ou posição ainda exigem validação em um
+iPad físico antes do lançamento estável.
 
-## Roll back a development installation
+## Reversão de uma instalação de desenvolvimento
 
-1. Disable **Obsidian Accessibility** in the test vault.
-2. Preserve `data.json` if the saved development settings are needed.
-3. Replace only `main.js`, `manifest.json`, and `styles.css` with the assets from
-   the immutable [0.1.1 release](https://github.com/mubarak-machado/obsidian-accessibility/releases/tag/0.1.1), or let BRAT reinstall that release.
-4. Confirm the restored files with `shasum -a 256` against the table below,
-   then reload and re-enable the plugin.
+1. Desative **Obsidian Accessibility** no cofre de testes.
+2. Preserve `data.json` se as configurações salvas do desenvolvimento forem necessárias.
+3. Substitua apenas `main.js`, `manifest.json` e `styles.css` pelos arquivos do
+   [lançamento imutável 0.1.1](https://github.com/mubarak-machado/obsidian-accessibility/releases/tag/0.1.1), ou deixe o BRAT reinstalar essa versão.
+4. Confira os arquivos restaurados com `shasum -a 256` e a tabela abaixo;
+   depois, recarregue e reative o plugin.
 
-Approved rollback hashes:
+Hashes aprovados para reversão:
 
-| Artifact | SHA-256 |
+| Arquivo | SHA-256 |
 |---|---|
 | `main.js` | `97c1a6090b32f5a42813b89c560a6046b15da034ee017feaf7bb678c044c6ca0` |
 | `manifest.json` | `395f7f350b53e06b98e6b8cadd08693ba914db06d091ba3e30af57213271d9cb` |
 | `styles.css` | `464e5cb687f810c238510f8052f416687085a113540f20d70a4fd01b953799d4` |
 
-The plugin stores preferences in its own `data.json`. Neither installation nor
-rollback writes visual preferences into Markdown or frontmatter.
+O plugin armazena as preferências em seu próprio `data.json`. Nem a instalação
+nem a reversão gravam preferências visuais no Markdown ou no frontmatter.

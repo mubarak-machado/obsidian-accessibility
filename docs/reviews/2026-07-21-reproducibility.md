@@ -1,35 +1,33 @@
-# Code Review: 0.1.1 reproducibility verification
+# Revisão de código: verificação de reprodutibilidade da versão 0.1.1
 
-## Summary
+## Resumo
 
-The change adds a deterministic SHA-256 verifier for the three approved
-release artifacts and records the clean-clone reproduction evidence.
+A mudança adiciona um verificador SHA-256 determinístico para os três arquivos
+aprovados do lançamento e registra a evidência de reprodução em clone limpo.
 
-## Critical issues
+## Problemas críticos
 
-None.
+Nenhum.
 
-## Resolved during review
+## Resolvido durante a revisão
 
-The first draft implied that the new verifier had run in commit `f176807`
-before the script existed. The record now distinguishes the original manual
-hash comparison from the subsequent automated verification.
+O primeiro rascunho dava a entender que o novo verificador havia sido executado
+no commit `f176807`, antes de o script existir. O registro agora distingue a
+comparação manual original de hashes da verificação automatizada posterior.
 
-## Review dimensions
+## Dimensões da revisão
 
-- **Security:** the script reads only three repository files, performs local
-  SHA-256 hashing, and has no network, process-execution, or write path.
-- **Correctness:** every expected artifact is keyed by filename; any mismatch
-  sets a failing exit code and reports both expected and actual hashes.
-- **Performance:** the verifier reads approximately 25 KB in total and runs
-  once; resource use is bounded.
-- **Maintainability:** baseline verification is an explicit command rather than
-  part of the general future-development `check`, so later versioned work is
-  not accidentally forced to reproduce `0.1.1`.
+- **Segurança:** o script lê apenas três arquivos do repositório, calcula
+  SHA-256 localmente e não possui acesso à rede, execução de processos nem rota
+  de escrita.
+- **Correção:** cada arquivo esperado é identificado pelo nome; qualquer
+  divergência define código de saída de falha e informa os hashes esperado e real.
+- **Desempenho:** o verificador lê aproximadamente 25 KB no total e funciona uma vez; o uso de recursos é limitado.
+- **Manutenção:** a verificação da referência é um comando explícito, não parte da verificação geral do desenvolvimento futuro, evitando obrigar versões posteriores a reproduzir acidentalmente a `0.1.1`.
 
-## Verdict
+## Veredito
 
-Approve.
+Aprovado.
 
-Validation: clean-clone `npm ci`, `npm run check`, manual SHA-256 comparison,
-`npm run verify:baseline`, and `git diff --check`.
+Validação: `npm ci` e `npm run check` em clone limpo, comparação manual SHA-256,
+`npm run verify:baseline` e `git diff --check`.

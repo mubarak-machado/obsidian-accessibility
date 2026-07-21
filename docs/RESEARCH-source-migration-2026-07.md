@@ -1,72 +1,65 @@
-# TypeScript source migration research
+# Pesquisa sobre a migração do código-fonte TypeScript
 
-Research date: 2026-07-21.
+Data da pesquisa: 2026-07-21.
 
-## Decision
+## Decisão
 
-Migrate the maintainer-authorized `0.1.1` TypeScript snapshot into the public
-repository root without changing behavior, dependencies, release metadata, or
-distribution assets. Preserve the snapshot lockfile and tool versions until a
-clean-clone build has been compared with the approved artifacts.
+Migrar o retrato TypeScript autorizado pelo mantenedor da versão `0.1.1` para a
+raiz do repositório público sem alterar comportamento, dependências, metadados
+do lançamento nem arquivos distribuíveis. Preservar o arquivo de dependências e
+as versões das ferramentas até comparar uma compilação de clone limpo com os
+arquivos aprovados.
 
-The migration adopts the current official repository shape, but it does not
-upgrade the archived source to newer APIs or introduce code from another
-plugin.
+A migração adota a estrutura oficial vigente do repositório, mas não atualiza o
+código-fonte arquivado para APIs mais novas nem introduz código de outro plugin.
 
-## Reviewed sources
+## Fontes avaliadas
 
-| Source | Reviewed commit | License | Mobile evidence | Classification and conclusion |
+| Fonte | Commit avaliado | Licença | Evidência móvel | Classificação e conclusão |
 |---|---|---|---|---|
-| [Obsidian sample plugin](https://github.com/obsidianmd/obsidian-sample-plugin/tree/23c165fd362d4049330cb3edad6a52914ff2007a) | `23c165fd362d4049330cb3edad6a52914ff2007a` | 0BSD | `manifest.json` has `isDesktopOnly: false`; the build emits CommonJS for `es2021` and keeps Obsidian/runtime modules external | **adopt** the root `src/`, TypeScript, esbuild, ESLint, manifest, and lockfile layout; **reject** changing the archived dependency graph during migration |
-| [Obsidian releases registry](https://github.com/obsidianmd/obsidian-releases/tree/df00d76b5ddc5c90595fec38c54ef00102d61076) | `df00d76b5ddc5c90595fec38c54ef00102d61076` | no repository license; policy/data reference only | compatibility is selected from `manifest.json` and `versions.json`; installation downloads `manifest.json`, `main.js`, and `styles.css` from a matching release | **adopt** the release and compatibility contract; no source code is copied |
-| [BRAT developer guide](https://github.com/TfTHacker/obsidian42-brat/blob/e0908d3b8bf83397abcca3c70106c2236b861d71/BRAT-DEVELOPER-GUIDE.md) | `e0908d3b8bf83397abcca3c70106c2236b861d71` | MIT | BRAT `2.2.0` has `isDesktopOnly: false` and installs matching GitHub release assets | **adapt** the release verification contract; BRAT remains a distribution channel, not a runtime dependency |
-| [Note Toolbar](https://github.com/chrisgurney/obsidian-note-toolbar/tree/34e91c21565b2a9a790e9027b4619d16cdf7880f) | `34e91c21565b2a9a790e9027b4619d16cdf7880f` | GPL-3.0 | version `1.34.11` declares `isDesktopOnly: false` | **adapt concepts only** for active-leaf lifecycle, safe areas, and contained floating UI; no GPL code is copied |
-| [Mobile Pinch Zoom](https://github.com/hata-suriiken/obsidian-mobile-pinch-zoom/tree/8fe3152eb82c2084fbb847e1c445312145134b66) | `8fe3152eb82c2084fbb847e1c445312145134b66` | MIT | version `0.6.1` declares `isDesktopOnly: false` and explicitly supports iPad, iPhone, and Android | **adapt** the already-approved scheduling, debounce, and scroll-anchoring concepts; pinch gestures remain outside `0.1.1` and no dependency is added |
+| [Plugin de exemplo do Obsidian](https://github.com/obsidianmd/obsidian-sample-plugin/tree/23c165fd362d4049330cb3edad6a52914ff2007a) | `23c165fd362d4049330cb3edad6a52914ff2007a` | 0BSD | `manifest.json` possui `isDesktopOnly: false`; a compilação gera CommonJS para `es2021` e mantém externos os módulos do Obsidian e da execução | **adotar** a estrutura raiz com `src/`, TypeScript, esbuild, ESLint, manifesto e arquivo de dependências; **rejeitar** mudanças no grafo de dependências arquivado durante a migração |
+| [Registro de lançamentos do Obsidian](https://github.com/obsidianmd/obsidian-releases/tree/df00d76b5ddc5c90595fec38c54ef00102d61076) | `df00d76b5ddc5c90595fec38c54ef00102d61076` | repositório sem licença; referência apenas de política e dados | a compatibilidade é selecionada por `manifest.json` e `versions.json`; a instalação baixa `manifest.json`, `main.js` e `styles.css` de um lançamento correspondente | **adotar** o contrato de lançamento e compatibilidade; nenhum código-fonte é copiado |
+| [Guia de desenvolvimento do BRAT](https://github.com/TfTHacker/obsidian42-brat/blob/e0908d3b8bf83397abcca3c70106c2236b861d71/BRAT-DEVELOPER-GUIDE.md) | `e0908d3b8bf83397abcca3c70106c2236b861d71` | MIT | o BRAT `2.2.0` possui `isDesktopOnly: false` e instala os arquivos correspondentes do lançamento no GitHub | **adaptar** o contrato de verificação do lançamento; o BRAT continua sendo canal de distribuição, não dependência de execução |
+| [Note Toolbar](https://github.com/chrisgurney/obsidian-note-toolbar/tree/34e91c21565b2a9a790e9027b4619d16cdf7880f) | `34e91c21565b2a9a790e9027b4619d16cdf7880f` | GPL-3.0 | a versão `1.34.11` declara `isDesktopOnly: false` | **adaptar apenas conceitos** para o ciclo de vida da folha ativa, áreas seguras e interface flutuante contida; nenhum código GPL é copiado |
+| [Mobile Pinch Zoom](https://github.com/hata-suriiken/obsidian-mobile-pinch-zoom/tree/8fe3152eb82c2084fbb847e1c445312145134b66) | `8fe3152eb82c2084fbb847e1c445312145134b66` | MIT | a versão `0.6.1` declara `isDesktopOnly: false` e oferece suporte explícito a iPad, iPhone e Android | **adaptar** os conceitos já aprovados de agendamento, espera e ancoragem da rolagem; gestos de pinça permanecem fora da versão `0.1.1` e nenhuma dependência é adicionada |
 
-## Authorized source provenance
+## Procedência do código-fonte autorizado
 
-The source of truth is the archived private project at commit
-`49a5e8583c97bd4d94be41d1e01c1923e8c6a993`. The plugin implementation was
-last changed at `ce8bea637a55764b2894d03cfb431287762cbb7c`; later changes only extended
-its archival README. The authorized `plugin/` snapshot contains:
+A fonte oficial é o projeto privado arquivado no commit
+`49a5e8583c97bd4d94be41d1e01c1923e8c6a993`. A implementação do plugin foi
+alterada pela última vez em `ce8bea637a55764b2894d03cfb431287762cbb7c`;
+mudanças posteriores apenas ampliaram o README do arquivo histórico. O retrato
+autorizado de `plugin/` contém:
 
-- eight TypeScript source modules under `src/`;
-- three Vitest suites with 15 approved cases and one Obsidian mock;
-- `package.json`, `package-lock.json`, TypeScript, ESLint, Vitest, and esbuild
-  configuration;
-- mobile-bundle and isolated test-vault scripts;
-- the approved `manifest.json`, `styles.css`, and `versions.json`.
+- oito módulos TypeScript em `src/`;
+- três conjuntos Vitest, com 15 casos aprovados e uma simulação do Obsidian;
+- `package.json`, `package-lock.json` e configurações do TypeScript, ESLint, Vitest e esbuild;
+- scripts do pacote móvel e do cofre isolado de testes;
+- `manifest.json`, `styles.css` e `versions.json` aprovados.
 
-The public `0.1.1` baseline currently matches the archived approved hashes:
+A referência pública `0.1.1` corresponde aos hashes aprovados e arquivados:
 
-| Artifact | SHA-256 |
+| Arquivo | SHA-256 |
 |---|---|
 | `main.js` | `97c1a6090b32f5a42813b89c560a6046b15da034ee017feaf7bb678c044c6ca0` |
 | `manifest.json` | `395f7f350b53e06b98e6b8cadd08693ba914db06d091ba3e30af57213271d9cb` |
 | `styles.css` | `464e5cb687f810c238510f8052f416687085a113540f20d70a4fd01b953799d4` |
 
-## Migration constraints
+## Restrições da migração
 
-1. Copy the authorized snapshot into conventional root folders; do not derive
-   source from the bundled `main.js`.
-2. Keep package and manifest version `0.1.1`, `isDesktopOnly: false`, and the
-   existing dependency lock unchanged.
-3. Keep appearance in CSS and behavior in TypeScript.
-4. Preserve the active-leaf-only root, complete lifecycle cleanup, reading
-   anchor, safe areas, reduced motion, focus, touch targets, and left/right
-   placement.
-5. Make `npm ci` followed by `npm run check` the clean-clone validation path.
-6. Compare all rebuilt distributable artifacts with the approved hashes and
-   explain any unavoidable difference before adding CI.
+1. Copiar o retrato autorizado para pastas convencionais na raiz; não derivar o código-fonte do `main.js` empacotado.
+2. Manter a versão `0.1.1` do pacote e do manifesto, `isDesktopOnly: false` e o arquivo de dependências existente sem alterações.
+3. Manter aparência no CSS e comportamento no TypeScript.
+4. Preservar a raiz limitada à folha ativa, a limpeza completa do ciclo de vida,
+   a âncora de leitura, as áreas seguras, o movimento reduzido, o foco, os alvos
+   de toque e o posicionamento à esquerda ou à direita.
+5. Tornar `npm ci`, seguido de `npm run check`, o caminho de validação do clone limpo.
+6. Comparar todos os arquivos distribuíveis recompilados com os hashes aprovados
+   e explicar qualquer diferença inevitável antes de adicionar integração contínua.
 
-## Rejected alternatives
+## Alternativas rejeitadas
 
-- Reverse engineering `main.js`: it would lose source intent and violate the
-  handoff provenance requirement.
-- Starting from the sample plugin and recreating behavior: unnecessary and
-  likely to drift from the approved iPad build.
-- Updating dependencies during migration: mixes reproducibility work with an
-  upgrade and makes artifact differences ambiguous.
-- Adopting Note Toolbar or Mobile Pinch Zoom as dependencies: both are broader
-  than the required control, and Note Toolbar's GPL license is incompatible
-  with copying code into this MIT repository without changing obligations.
+- Engenharia reversa de `main.js`: perderia a intenção do código-fonte e violaria o requisito de procedência da transição.
+- Começar pelo plugin de exemplo e recriar o comportamento: desnecessário e sujeito a divergir da compilação aprovada no iPad.
+- Atualizar dependências durante a migração: mistura reprodutibilidade com atualização e torna ambíguas as diferenças nos arquivos.
+- Adotar Note Toolbar ou Mobile Pinch Zoom como dependências: ambos são mais amplos que o controle necessário, e a licença GPL do Note Toolbar é incompatível com a cópia de código para este repositório MIT sem mudar as obrigações.

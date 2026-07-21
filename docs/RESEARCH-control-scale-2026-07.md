@@ -1,53 +1,58 @@
-# Research — 150% control scale
+# Pesquisa — controle ampliado para 150%
 
-Date: 2026-07-21
+Data: 2026-07-21
 
-## Requirement
+## Requisito
 
-Increase the complete floating control to 150% of its approved original size:
-the closed trigger, panel, labels, icon, buttons, vertical range, track, thumb,
-separators, spacing, borders, focus ring, edge offset, and shadows. Preserve the
-current behavior, order, positioning, safe areas, and note isolation.
+Ampliar o controle flutuante completo para 150% do tamanho original aprovado:
+acionador fechado, painel, rótulos, ícone, botões, controle vertical, trilho,
+polegar, separadores, espaçamento, bordas, anel de foco, afastamento da borda e
+sombras. Preservar comportamento, ordem, posicionamento, áreas seguras e
+isolamento da nota.
 
-## Reviewed references
+## Referências avaliadas
 
-| Candidate | Reviewed release | License | Mobile relevance | Classification and conclusion |
+| Candidato | Versão avaliada | Licença | Relevância móvel | Classificação e conclusão |
 | --- | --- | --- | --- | --- |
-| [CSS Transforms Module Level 1](https://www.w3.org/TR/css-transforms-1/) | W3C Recommendation, 14 February 2019 | W3C Document License | normative CSS behavior applies to the iPad WebView | **reject** `transform: scale(1.5)` because transforms change client rectangles but not layout flow, complicating the existing viewport-fit and overflow contract |
-| [WCAG 2.2 target-size guidance](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced) | WCAG 2.2 Recommendation with 12 December 2024 errata | W3C Document License | explicitly addresses touch targets and limited dexterity | **adopt** the target-size principle; scaling the 44 px controls to 66 px remains comfortably above the 44 × 44 px enhanced target |
-| [Obsidian sample plugin](https://github.com/obsidianmd/obsidian-sample-plugin) | release `1.0.0` | 0BSD | the official manifest declares `isDesktopOnly: false` | **reject** as an implementation source because it offers no uniform control-scaling pattern; retain the existing mobile-safe plugin structure |
+| [Módulo CSS Transforms Nível 1](https://www.w3.org/TR/css-transforms-1/) | Recomendação W3C de 14 de fevereiro de 2019 | Licença de Documentos do W3C | o comportamento normativo do CSS se aplica à WebView do iPad | **rejeitar** `transform: scale(1.5)` porque transformações mudam os retângulos do cliente, mas não o fluxo do layout, dificultando o contrato existente de ajuste à tela e transbordamento |
+| [Orientação da WCAG 2.2 sobre tamanho do alvo](https://www.w3.org/WAI/WCAG22/Understanding/target-size-enhanced) | Recomendação WCAG 2.2 com errata de 12 de dezembro de 2024 | Licença de Documentos do W3C | trata explicitamente de alvos de toque e destreza limitada | **adotar** o princípio de tamanho do alvo; ampliar controles de 44 para 66 px os mantém confortavelmente acima do alvo aprimorado de 44 × 44 px |
+| [Plugin de exemplo do Obsidian](https://github.com/obsidianmd/obsidian-sample-plugin) | versão `1.0.0` | 0BSD | o manifesto oficial declara `isDesktopOnly: false` | **rejeitar** como fonte de implementação porque não oferece padrão uniforme para ampliar controles; manter a estrutura móvel segura existente |
 
-No source code is copied from these references.
+Nenhum código-fonte é copiado dessas referências.
 
-## Decision
+## Decisão
 
-Use explicit layout dimensions rather than `transform`, `zoom`, or a new
-runtime mechanism. This makes intrinsic layout, `getBoundingClientRect()`, panel
-positioning, hit areas, focus outlines, and overflow agree on the same size.
+Usar dimensões explícitas de layout, não `transform`, `zoom` nem novo mecanismo
+de execução. Assim, layout intrínseco, `getBoundingClientRect()`, posicionamento
+do painel, áreas de toque, contornos de foco e transbordamento concordam sobre o
+mesmo tamanho.
 
-The 150% mapping is mechanical:
+O mapeamento de 150% é mecânico:
 
-| Component | Original | New |
+| Componente | Original | Novo |
 | --- | ---: | ---: |
-| Trigger | 48 px | 72 px |
-| Panel width | 50 px | 75 px |
-| Buttons and range cross-axis | 44 px | 66 px |
-| Default range length | 148–170 px | 222–255 px |
-| Compact range length | 120 px | 180 px |
-| Icon | 22 px | 33 px |
-| Step text | 30 px | 45 px |
-| Supporting text | 11 px | 16.5 px |
-| Panel viewport edge | 8 px | 12 px |
+| Acionador | 48 px | 72 px |
+| Largura do painel | 50 px | 75 px |
+| Botões e eixo transversal do controle | 44 px | 66 px |
+| Comprimento padrão do controle | 148–170 px | 222–255 px |
+| Comprimento compacto do controle | 120 px | 180 px |
+| Ícone | 22 px | 33 px |
+| Texto de incremento | 30 px | 45 px |
+| Texto auxiliar | 11 px | 16,5 px |
+| Distância da borda da tela | 8 px | 12 px |
 
-Spacing, radii, borders, focus rings, shadows, and safe-area edge offsets are
-also multiplied by 1.5. Percentages, relative color tokens, and the pressed
-animation remain unchanged because they already scale proportionally.
+Espaçamentos, raios, bordas, anéis de foco, sombras e afastamentos das áreas
+seguras também são multiplicados por 1,5. Percentuais, variáveis relativas de
+cor e animação de pressionamento permanecem inalterados porque já se ajustam
+proporcionalmente.
 
-## Risk and validation
+## Risco e validação
 
-The taller panel may need scrolling in short Split View or when the software
-keyboard reduces the viewport. Preserve `max-height`, `overflow-y: auto`, and a
-compact-height media query whose range is also 150% of the original. Automated
-checks verify the mechanical dimensions, but a physical iPad remains required
-before release to validate portrait, landscape, Split View, software keyboard,
-touch, VoiceOver focus order, safe areas, and reachability of every control.
+O painel mais alto pode precisar de rolagem em um Split View estreito ou quando
+o teclado virtual reduz a área visível. Preservar `max-height`,
+`overflow-y: auto` e uma consulta de mídia para baixa altura, cujo controle
+também tenha 150% do tamanho original. As verificações automatizadas conferem
+as dimensões mecânicas, mas um iPad físico continua obrigatório antes do
+lançamento estável para validar orientação vertical e horizontal, Split View,
+teclado virtual, toque, ordem de foco do VoiceOver, áreas seguras e alcance de
+todos os controles.

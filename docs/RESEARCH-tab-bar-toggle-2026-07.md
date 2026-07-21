@@ -1,47 +1,50 @@
-# Research — tab-bar toggle
+# Pesquisa — botão da barra de abas
 
-Date: 2026-07-21
+Data: 2026-07-21
 
-## Requirement
+## Requisito
 
-Add a button between the current font-size value and the increment button. It
-must hide or show Obsidian's main tab bar without changing note content, remain
-usable on mobile, expose its state accessibly, and restore the interface when
-the plugin unloads.
+Adicionar um botão entre o valor atual do tamanho da fonte e o botão de
+incremento. Ele deve ocultar ou mostrar a barra principal de abas do Obsidian
+sem alterar o conteúdo da nota, continuar utilizável em dispositivos móveis,
+expor seu estado de forma acessível e restaurar a interface quando o plugin for
+descarregado.
 
-## Reviewed references
+## Referências avaliadas
 
-| Candidate | Reviewed version | License | Mobile evidence | Classification and conclusion |
+| Candidato | Versão avaliada | Licença | Evidência móvel | Classificação e conclusão |
 | --- | --- | --- | --- | --- |
-| [Obsidian Hider](https://github.com/kepano/obsidian-hider) | [release `1.6.2`](https://github.com/kepano/obsidian-hider/releases/tag/1.6.2) | MIT | `manifest.json` declares `isDesktopOnly: false`; the release requires Obsidian 1.11.1 or newer | **adopt** the proven body-class toggle and the selector scoped through `.mod-root`, which avoids hiding sidebar tab headers |
-| [Ultra Zen Mode](https://github.com/MarckFp/ultra-zen-mode) | [release `1.15.0`](https://github.com/MarckFp/ultra-zen-mode/releases/tag/1.15.0) | Apache-2.0 | its README explicitly covers desktop, tablet, and mobile | **adapt** its deterministic class cleanup and command recovery route; **reject** its broader all-workspace tab selector and unrelated zen-mode behavior |
-| [Obsidian API](https://github.com/obsidianmd/obsidian-api) | npm package `1.13.1` | MIT | official cross-platform plugin API used by this project | **reject** a direct API call because the public typings expose no supported show/hide operation for the tab bar; keep the undocumented selector isolated in one CSS rule with a no-op failure mode |
+| [Obsidian Hider](https://github.com/kepano/obsidian-hider) | [versão `1.6.2`](https://github.com/kepano/obsidian-hider/releases/tag/1.6.2) | MIT | `manifest.json` declara `isDesktopOnly: false`; a versão exige Obsidian 1.11.1 ou posterior | **adotar** o padrão comprovado de alternar classe no `body` e o seletor delimitado por `.mod-root`, que evita ocultar cabeçalhos de abas das barras laterais |
+| [Ultra Zen Mode](https://github.com/MarckFp/ultra-zen-mode) | [versão `1.15.0`](https://github.com/MarckFp/ultra-zen-mode/releases/tag/1.15.0) | Apache-2.0 | o README abrange explicitamente computador, tablet e celular | **adaptar** a limpeza determinística de classes e a rota de recuperação por comando; **rejeitar** o seletor mais abrangente para todas as abas e comportamentos não relacionados do Modo Zen |
+| [API do Obsidian](https://github.com/obsidianmd/obsidian-api) | pacote npm `1.13.1` | MIT | API oficial multiplataforma usada por este projeto | **rejeitar** chamada direta porque as tipagens públicas não expõem operação compatível para mostrar ou ocultar a barra de abas; manter o seletor não documentado isolado em uma regra CSS, com falha inofensiva |
 
-The official guidance to keep `onload()` light and clean up registered behavior
-was also reviewed in [Optimize plugin load time](https://docs.obsidian.md/plugins/guides/load-time)
-and [Events](https://docs.obsidian.md/Plugins/Events).
+As orientações oficiais para manter `onload()` leve e limpar comportamentos
+registrados também foram avaliadas em
+[Otimizar o tempo de carregamento do plugin](https://docs.obsidian.md/plugins/guides/load-time)
+e [Eventos](https://docs.obsidian.md/Plugins/Events).
 
-## Decision
+## Decisão
 
-- Persist `tabBarHidden` as a normalized boolean, defaulting to `false` so
-  existing users retain the visible interface.
-- Toggle one plugin-owned class on `body`; CSS hides only tab-header containers
-  inside the root workspace.
-- Keep the DOM-dependent selector in CSS. If Obsidian changes its internal
-  class, the feature safely becomes a no-op rather than manipulating or
-  removing unknown DOM nodes.
-- Add a command-palette toggle as a recovery route when the floating control is
-  unavailable in a non-Markdown view.
-- Remove the plugin-owned class during `onunload()` regardless of the persisted
-  preference.
-- Use a 44 px toggle button with a stable accessible name and `aria-pressed` to
-  expose whether hiding is active.
+- Persistir `tabBarHidden` como booleano normalizado, com valor inicial `false`,
+  para que usuários existentes mantenham a interface visível.
+- Alternar uma classe pertencente ao plugin no `body`; o CSS oculta somente os
+  contêineres de cabeçalho de abas dentro do espaço de trabalho raiz.
+- Manter no CSS o seletor dependente do DOM. Se o Obsidian mudar sua classe
+  interna, o recurso se torna inofensivamente inoperante, sem manipular nem
+  remover nós desconhecidos do DOM.
+- Adicionar um botão na paleta de comandos como rota de recuperação quando o
+  controle flutuante não estiver disponível fora de uma visualização Markdown.
+- Remover a classe pertencente ao plugin durante `onunload()`, seja qual for a
+  preferência persistida.
+- Usar um botão de 44 px, nome acessível estável e `aria-pressed` para expor se
+  a ocultação está ativa.
 
-## Known risk and release gate
+## Risco conhecido e etapa de lançamento
 
-`.workspace-tab-header-container` is not a documented public API. A future
-Obsidian release or a high-specificity theme rule may stop the CSS from taking
-effect. The fallback is intentionally harmless and the command remains
-available. Before release, validate the default theme and the actual target
-theme on a physical iPad in portrait, landscape, and Split View; confirm touch,
-VoiceOver state, focus order, safe areas, hiding, recovery, and plugin unload.
+`.workspace-tab-header-container` não é uma API pública documentada. Uma futura
+versão do Obsidian ou regra de tema com alta especificidade pode impedir o
+efeito do CSS. A falha é intencionalmente inofensiva e o comando permanece
+disponível. Antes do lançamento, validar o tema padrão e o tema realmente usado
+em um iPad físico nas orientações vertical e horizontal e em Split View;
+confirmar toque, estado no VoiceOver, ordem de foco, áreas seguras, ocultação,
+recuperação e descarregamento do plugin.

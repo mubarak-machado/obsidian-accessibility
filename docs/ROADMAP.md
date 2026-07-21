@@ -1,108 +1,118 @@
-# Development roadmap
+# Roteiro de desenvolvimento
 
-## Operating rule
+## Regra de trabalho
 
-Every feature or improvement begins with external research, prioritizing GitHub, official documentation, standards, and auditable source code. Record whether an approach is adopted, adapted, or rejected.
+Toda funcionalidade ou melhoria começa com pesquisa externa, priorizando GitHub, documentação oficial, padrões e código-fonte auditável. Registre se cada abordagem foi adotada, adaptada ou rejeitada.
 
-Work directly on `main` under the single-maintainer workflow in [`AGENTS.md`](../AGENTS.md).
+Trabalhe diretamente em `main`, conforme o fluxo de mantenedor único definido em [`AGENTS.md`](../AGENTS.md).
 
-## Milestone 0 — Reproducible source
+## Marco 0 — Código-fonte reproduzível
 
-**Goal:** make this repository the complete source of truth without changing `0.1.1`.
+**Objetivo:** tornar este repositório a fonte oficial completa sem alterar a versão `0.1.1`.
 
-- [x] Migrate TypeScript source, tests, lockfile, scripts, and build configuration.
-- [x] Establish clean-clone `npm ci` and `npm run check`.
-- [x] Rebuild the three artifacts and compare hashes with the handoff.
-- [x] Document unavoidable build differences (none were found).
-- [x] Add CI after local reproducibility is proven.
-- [x] Document development installation and rollback.
+- [x] Migrar o código-fonte TypeScript, os testes, o arquivo de dependências, os scripts e a configuração de compilação.
+- [x] Estabelecer `npm ci` e `npm run check` em um clone limpo.
+- [x] Recompilar os três arquivos distribuíveis e comparar os hashes com a transição.
+- [x] Documentar diferenças inevitáveis de compilação — nenhuma foi encontrada.
+- [x] Adicionar integração contínua depois de comprovar a reprodutibilidade local.
+- [x] Documentar a instalação de desenvolvimento e a reversão.
 
-**Exit gate:** one isolated migration commit with no behavioral or visual change.
+**Etapa de conclusão:** um commit isolado de migração, sem mudança visual ou comportamental.
 
-**Completed 2026-07-21:** research `ce127a8`, isolated source migration
-`f176807`, and reproducibility evidence `f658a96`. The production bundle and
-release assets remained byte-identical to `0.1.1`; CI and development guidance
-were added only after the clean-clone gate passed. CI commits `6de769c` and
-`c4b983a` culminated in successful GitHub Actions run `29852766796` across
-Node.js 20, 22, and 24.
+**Concluído em 2026-07-21:** pesquisa `ce127a8`, migração isolada do código-fonte
+`f176807` e evidência de reprodutibilidade `f658a96`. O pacote de produção e os
+arquivos do lançamento permaneceram idênticos, byte por byte, à versão `0.1.1`;
+a integração contínua e as orientações de desenvolvimento só foram adicionadas
+depois da aprovação do clone limpo. Os commits de integração contínua `6de769c`
+e `c4b983a` culminaram na execução bem-sucedida `29852766796` do GitHub Actions
+em Node.js 20, 22 e 24.
 
-## Milestone 1 — Presentation mode
+## Marco 1 — Modo de apresentação
 
-**Goal:** enter and leave a presentation-focused state safely.
+**Objetivo:** entrar e sair com segurança de um estado voltado à apresentação.
 
-- [x] Research current Obsidian presentation, focus, workspace, and mobile-toolbar patterns.
-- [x] Define the state captured before entry.
-- [x] Implement entry, exit, and deterministic restoration.
-- [x] Provide an obvious recovery route.
-- [x] Simulate failure and verify the interface never becomes trapped.
-- [x] Preserve reading position and the approved slider.
-- [x] Add the first presentation control: a persistent tab-bar toggle inside the approved slider panel.
+- [x] Pesquisar padrões atuais do Obsidian para apresentação, foco, espaço de trabalho e barra móvel.
+- [x] Definir o estado capturado antes da entrada.
+- [x] Implementar entrada, saída e restauração determinística.
+- [x] Oferecer uma rota evidente de recuperação.
+- [x] Simular falhas e verificar que a interface nunca fica bloqueada.
+- [x] Preservar a posição de leitura e o slider aprovado.
+- [x] Adicionar o primeiro controle de apresentação: botão persistente da barra de abas dentro do painel aprovado do slider.
 
-**Already complete:** the left/right floating button and vertical panel are the baseline.
+**Já concluído:** o botão flutuante à esquerda ou à direita e o painel vertical formam a referência inicial.
 
-**First feature slice completed 2026-07-21:** the tab-bar toggle adapts the
-body-class and scoped-CSS pattern documented in
-[`RESEARCH-tab-bar-toggle-2026-07.md`](RESEARCH-tab-bar-toggle-2026-07.md). It
-keeps a command-palette recovery route and restores the tab bar on unload.
+**Primeira parte funcional concluída em 2026-07-21:** o botão da barra de abas
+adapta o padrão de classe no `body` e CSS delimitado documentado em
+[`RESEARCH-tab-bar-toggle-2026-07.md`](RESEARCH-tab-bar-toggle-2026-07.md).
+Ele mantém uma rota de recuperação pela paleta de comandos e restaura a barra
+de abas ao descarregar o plugin.
 
-**Control-scale refinement completed 2026-07-21:** the full floating control is
-150% of its original dimensions using intrinsic layout rather than a transform.
-See [`RESEARCH-control-scale-2026-07.md`](RESEARCH-control-scale-2026-07.md).
+**Ampliação do controle concluída em 2026-07-21:** o controle flutuante completo
+passou a ter 150% das dimensões originais usando layout intrínseco, sem
+transformação visual. Consulte
+[`RESEARCH-control-scale-2026-07.md`](RESEARCH-control-scale-2026-07.md).
 
-**Accessibility launcher refinement completed 2026-07-21:** the typography-specific
-`A↕` glyph was first replaced by Obsidian's Lucide `accessibility` icon, then
-refined after low-vision review to a larger, filled Material
-`accessibility_new` silhouette. The stable circular launcher now represents the
-expanding accessibility suite while the existing panel remains its first focused module. See
+**Aprimoramento do acionador de acessibilidade concluído em 2026-07-21:** o
+símbolo tipográfico `A↕` foi primeiro substituído pelo ícone Lucide
+`accessibility` do Obsidian e, após a avaliação para baixa visão, por uma
+silhueta Material `accessibility_new` maior e preenchida. O acionador circular
+estável agora representa o conjunto crescente de recursos de acessibilidade,
+enquanto o painel existente continua sendo seu primeiro módulo. Consulte
 [`RESEARCH-accessibility-launcher-2026-07.md`](RESEARCH-accessibility-launcher-2026-07.md).
 
-**Recoverable Zen mode implemented 2026-07-21:** the tab-bar-only toggle now
-captures and restores both sidebars, hides navigation chrome through one scoped
-class, and keeps the right mobile drawer and its active Outline available to
-Obsidian's native swipe gesture. The mode is session-only and has touch,
-command, Escape, context-change, and unload recovery routes. See
+**Modo Zen recuperável implementado em 2026-07-21:** o antigo botão isolado da
+barra de abas agora captura e restaura as duas barras laterais, oculta elementos
+de navegação com uma classe delimitada e mantém a gaveta móvel direita e seu
+Outline ativo disponíveis ao gesto nativo do Obsidian. O modo vale apenas
+durante a sessão e oferece recuperação por toque, comando, `Escape`, mudança de
+contexto e descarregamento. Consulte
 [`RESEARCH-zen-mode-2026-07.md`](RESEARCH-zen-mode-2026-07.md).
 
-**Human gate:** rehearse with a real long-form note on iPad without modifying it.
+**Simetria do controle refinada em 2026-07-21:** a ação textual `Reset` foi
+substituída por um botão inferior padronizado, com o ícone `rotate-ccw`, as
+mesmas dimensões do botão do Modo Zen e nome acessível explícito. Consulte
+[`RESEARCH-reset-control-2026-07.md`](RESEARCH-reset-control-2026-07.md).
 
-## Milestone 2 — Interaction safety
+**Etapa humana:** ensaiar com uma nota longa real no iPad sem modificá-la.
 
-- [ ] Research safe editing and keyboard protection.
-- [ ] Implement protection with immediate recovery.
-- [ ] Integrate commands with the mobile toolbar.
-- [ ] Validate external-keyboard shortcuts.
-- [ ] Retest VoiceOver, focus order, labels, values, and adjustable actions.
-- [ ] Test orientation, split view, safe areas, and context switching.
+## Marco 2 — Segurança da interação
 
-**Human gate:** complete an end-to-end rehearsal before adding more controls.
+- [ ] Pesquisar edição segura e proteção contra ações acidentais do teclado.
+- [ ] Implementar proteção com recuperação imediata.
+- [ ] Integrar comandos à barra móvel.
+- [ ] Validar atalhos de teclado externo.
+- [ ] Revalidar VoiceOver, ordem de foco, rótulos, valores e ações ajustáveis.
+- [ ] Testar orientação, Split View, áreas seguras e mudança de contexto.
 
-## Milestone 3 — Optional reading aids
+**Etapa humana:** concluir um ensaio de ponta a ponta antes de adicionar mais controles.
 
-Prototype independently and keep disabled until approved:
+## Marco 3 — Auxílios opcionais de leitura
 
-- [ ] paragraph focus or reading ruler;
-- [ ] block navigation and temporary position marker;
-- [ ] Bluetooth presenter support;
-- [ ] reliable screen-wake prevention;
-- [ ] isolated pinch-to-scale experiment;
-- [ ] optional timer or remaining-time estimate.
+Criar protótipos independentes e mantê-los desativados até a aprovação:
 
-Each module must fail independently, avoid note writes, and not depend only on color.
+- [ ] foco de parágrafo ou régua de leitura;
+- [ ] navegação por blocos e marcador temporário de posição;
+- [ ] compatibilidade com apresentador Bluetooth;
+- [ ] prevenção confiável do bloqueio da tela;
+- [ ] experimento isolado de pinça para ajustar escala;
+- [ ] cronômetro opcional ou estimativa de tempo restante.
 
-## Milestone 4 — Robustness and distribution
+Cada módulo deve poder falhar isoladamente, evitar escrita nas notas e não depender apenas de cor.
 
-- [ ] Expand automated and physical-device tests.
-- [x] Formalize configuration versioning and migrations.
-- [ ] Test BRAT update and rollback.
-- [ ] Verify removal and restricted-mode recovery.
-- [ ] Establish Obsidian and iPadOS compatibility baselines.
-- [ ] Keep release assets, tag, manifest, and `versions.json` coherent.
-- [ ] Decide whether official catalog submission is desirable.
+## Marco 4 — Robustez e distribuição
 
-## Continuous refinement
+- [ ] Ampliar os testes automatizados e em dispositivos físicos.
+- [x] Formalizar o versionamento da configuração e as migrações.
+- [ ] Testar atualização e reversão pelo BRAT.
+- [ ] Verificar remoção e recuperação no modo restrito.
+- [ ] Estabelecer referências de compatibilidade do Obsidian e iPadOS.
+- [x] Manter arquivos do lançamento, tag, manifesto e `versions.json` coerentes.
+- [ ] Decidir se é desejável solicitar inclusão no catálogo oficial.
 
-- Promote friction only after evidence from real use.
-- Remove unused options before adding configuration.
-- Retest after relevant Obsidian or iPadOS updates.
-- Preserve presentation reliability over convenience.
-- Update this roadmap when scope or sequencing changes.
+## Aprimoramento contínuo
+
+- Só introduzir controles adicionais após evidências de uso real.
+- Remover opções sem uso antes de adicionar configurações.
+- Revalidar depois de atualizações relevantes do Obsidian ou iPadOS.
+- Priorizar a confiabilidade da apresentação em relação à conveniência.
+- Atualizar este roteiro quando o escopo ou a sequência mudar.

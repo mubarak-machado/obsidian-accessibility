@@ -1,17 +1,18 @@
-# Reproducibility record for 0.1.1
+# Registro de reprodutibilidade da versão 0.1.1
 
-Validation date: 2026-07-21.
+Data da validação: 2026-07-21.
 
-## Result
+## Resultado
 
-Version `0.1.1` is reproducible from a clean clone. No behavioral, visual,
-metadata, or artifact difference was found after the authorized TypeScript
-source migration.
+A versão `0.1.1` é reproduzível a partir de um clone limpo. Nenhuma diferença
+de comportamento, aparência, metadados ou arquivos foi encontrada após a
+migração autorizada do código-fonte TypeScript.
 
-## Clean-clone procedure
+## Procedimento com clone limpo
 
-The public `main` branch at source-migration commit `f176807` was cloned into a
-new temporary directory. The following commands completed successfully:
+O ramo público `main`, no commit de migração do código-fonte `f176807`, foi
+clonado em um novo diretório temporário. Os comandos a seguir foram concluídos
+com sucesso:
 
 ```bash
 npm ci
@@ -20,45 +21,48 @@ shasum -a 256 main.js manifest.json styles.css
 git status -sb
 ```
 
-The resulting hashes were then encoded in `scripts/verify-release-baseline.mjs`.
-After adding that verifier, `npm ci`, `npm run check`, and
-`npm run verify:baseline` passed again in the working repository.
+Os hashes resultantes foram registrados em
+`scripts/verify-release-baseline.mjs`. Depois da inclusão desse verificador,
+`npm ci`, `npm run check` e `npm run verify:baseline` voltaram a ser aprovados
+no repositório de trabalho.
 
-Environment used for the recorded run:
+Ambiente usado na execução registrada:
 
 - Node.js `v25.8.0`;
 - npm `11.11.0`;
-- 362 installed packages;
-- 0 vulnerabilities reported by npm audit;
-- clean working tree after the production build.
+- 362 pacotes instalados;
+- nenhuma vulnerabilidade informada pelo `npm audit`;
+- árvore de trabalho limpa após a compilação de produção.
 
-## Pipeline evidence
+## Evidências do processo
 
-- ESLint: passed;
-- Vitest: 3 files and 15 cases passed;
-- TypeScript: strict no-emit compilation passed;
-- esbuild: production build passed;
-- mobile inspection: passed with no Node.js/Electron runtime dependency or
-  note-writing route;
-- production `main.js`: 17,543 bytes.
+- ESLint: aprovado;
+- Vitest: 3 arquivos e 15 casos aprovados;
+- TypeScript: compilação estrita sem emissão aprovada;
+- esbuild: compilação de produção aprovada;
+- inspeção móvel: aprovada, sem dependência de Node.js/Electron na execução nem
+  rota de escrita em notas;
+- `main.js` de produção: 17.543 bytes.
 
-## Artifact comparison
+## Comparação dos arquivos
 
-| Artifact | Approved SHA-256 | Clean-clone SHA-256 | Result |
+| Arquivo | SHA-256 aprovado | SHA-256 do clone limpo | Resultado |
 |---|---|---|---|
-| `main.js` | `97c1a6090b32f5a42813b89c560a6046b15da034ee017feaf7bb678c044c6ca0` | `97c1a6090b32f5a42813b89c560a6046b15da034ee017feaf7bb678c044c6ca0` | identical |
-| `manifest.json` | `395f7f350b53e06b98e6b8cadd08693ba914db06d091ba3e30af57213271d9cb` | `395f7f350b53e06b98e6b8cadd08693ba914db06d091ba3e30af57213271d9cb` | identical |
-| `styles.css` | `464e5cb687f810c238510f8052f416687085a113540f20d70a4fd01b953799d4` | `464e5cb687f810c238510f8052f416687085a113540f20d70a4fd01b953799d4` | identical |
+| `main.js` | `97c1a6090b32f5a42813b89c560a6046b15da034ee017feaf7bb678c044c6ca0` | `97c1a6090b32f5a42813b89c560a6046b15da034ee017feaf7bb678c044c6ca0` | idêntico |
+| `manifest.json` | `395f7f350b53e06b98e6b8cadd08693ba914db06d091ba3e30af57213271d9cb` | `395f7f350b53e06b98e6b8cadd08693ba914db06d091ba3e30af57213271d9cb` | idêntico |
+| `styles.css` | `464e5cb687f810c238510f8052f416687085a113540f20d70a4fd01b953799d4` | `464e5cb687f810c238510f8052f416687085a113540f20d70a4fd01b953799d4` | idêntico |
 
-## Differences
+## Diferenças
 
-None. The archived lockfile, source, tests, build configuration, manifest,
-styles, and versions were transferred without dependency or version changes.
+Nenhuma. O arquivo de dependências arquivado, o código-fonte, os testes, a
+configuração de compilação, o manifesto, os estilos e as versões foram
+transferidos sem mudanças de dependência ou versão.
 
-## Scope of physical validation
+## Escopo da validação física
 
-The migration does not change appearance, touch behavior, orientation, safe
-areas, focus, VoiceOver semantics, or control position. Therefore it does not
-create a new physical-iPad release gate. The approved `0.1.1` runtime artifact
-is exactly the same file already validated on iPad; VoiceOver remains the
-documented human retest gap for a later behavioral release.
+A migração não altera aparência, comportamento de toque, orientação, áreas
+seguras, foco, semântica do VoiceOver nem posição do controle. Portanto, não
+cria uma nova etapa de validação em iPad físico. O arquivo de execução aprovado
+da versão `0.1.1` é exatamente o mesmo já validado no iPad; o VoiceOver continua
+sendo a lacuna documentada para uma nova validação humana em um lançamento
+comportamental posterior.

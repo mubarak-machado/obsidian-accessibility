@@ -1,63 +1,55 @@
-# Code Review: authorized TypeScript source migration
+# Revisão de código: migração autorizada do código-fonte TypeScript
 
-## Summary
+## Resumo
 
-The change moves the maintainer-authorized `0.1.1` source, tests, lockfile,
-scripts, and build configuration into the public repository root. The rebuilt
-bundle is byte-identical to the approved release artifact.
+A mudança transfere o código-fonte, os testes, o arquivo de dependências, os
+scripts e a configuração de compilação autorizados da versão `0.1.1` para a
+raiz do repositório público. O pacote recompilado é idêntico, byte por byte, ao
+arquivo aprovado do lançamento.
 
-## Critical issues
+## Problemas críticos
 
-None.
+Nenhum.
 
-## Review dimensions
+## Dimensões da revisão
 
-### Security
+### Segurança
 
-- No dynamic code execution, unsafe HTML insertion, credential handling, or
-  network access exists in the runtime source.
-- The production bundle contains no Node.js or Electron dependency and no
-  `processFrontMatter`, `fileManager.processFrontMatter`, or `vault.modify`
-  note-writing route.
-- `npm audit --audit-level=high` reports zero vulnerabilities.
+- O código de execução não possui execução dinâmica de código, inserção insegura de HTML, tratamento de credenciais nem acesso à rede.
+- O pacote de produção não contém dependência de Node.js ou Electron nem rota de escrita em notas por `processFrontMatter`, `fileManager.processFrontMatter` ou `vault.modify`.
+- `npm audit --audit-level=high` informa nenhuma vulnerabilidade.
 
-### Performance
+### Desempenho
 
-- Scale application is coalesced with `requestAnimationFrame`.
-- Persisted settings use a bounded 180 ms debounce with the previous timer
-  cancelled before rescheduling.
-- Event listeners are owned by an `AbortController`; animation frames,
-  observers, subscriptions, DOM roots, classes, and CSS variables are removed
-  during teardown.
+- A aplicação da escala é agrupada por `requestAnimationFrame`.
+- As configurações persistidas usam espera limitada de 180 ms, cancelando o temporizador anterior antes de reagendar.
+- Os ouvintes de eventos pertencem a um `AbortController`; quadros de animação, observadores, assinaturas, raízes do DOM, classes e variáveis CSS são removidos na desmontagem.
 
-### Correctness
+### Correção
 
-- Invalid persisted configuration is normalized to bounded safe defaults.
-- Reading and editing ranges remain 32–75 px and 40–60 px respectively.
-- The control mounts only for the active Markdown view and the vertical native
-  range preserves the approved minimum-at-bottom behavior.
-- Three Vitest files pass all 15 approved cases.
-- Production build output is 17,543 bytes and matches the approved `main.js`
-  SHA-256 `97c1a6090b32f5a42813b89c560a6046b15da034ee017feaf7bb678c044c6ca0`.
+- Configurações persistidas inválidas são normalizadas para valores seguros e limitados.
+- Os intervalos de leitura e edição permanecem, respectivamente, em 32–75 px e 40–60 px.
+- O controle é montado somente na visualização Markdown ativa, e o controle vertical nativo preserva o comportamento aprovado de mínimo na parte inferior.
+- Três arquivos Vitest passam pelos 15 casos aprovados.
+- A compilação de produção possui 17.543 bytes e corresponde ao SHA-256 aprovado de `main.js`: `97c1a6090b32f5a42813b89c560a6046b15da034ee017feaf7bb678c044c6ca0`.
 
-### Maintainability
+### Manutenção
 
-- State, DOM control, positioning, reading anchoring, lifecycle integration,
-  and settings UI remain separate modules.
-- Appearance remains in `styles.css`; runtime behavior remains in TypeScript.
-- Tool and dependency versions are preserved by the archived lockfile rather
-  than upgraded during migration.
+- Estado, controle do DOM, posicionamento, ancoragem da leitura, integração do ciclo de vida e interface de configurações continuam em módulos separados.
+- A aparência continua em `styles.css`; o comportamento de execução permanece em TypeScript.
+- As versões de ferramentas e dependências são preservadas pelo arquivo arquivado, sem atualização durante a migração.
 
-## Non-blocking follow-up
+## Acompanhamento não impeditivo
 
-Direct integration coverage for the Obsidian lifecycle and `ReadingAnchor`
-would improve later refactoring confidence. It is intentionally not added to
-this migration because the approved task forbids mixing source transfer with
-behavioral changes or refactors.
+A cobertura direta de integração do ciclo de vida do Obsidian e de
+`ReadingAnchor` aumentaria a confiança em refatorações posteriores. Ela não foi
+adicionada intencionalmente a esta migração porque a tarefa aprovada proíbe
+misturar transferência do código-fonte com mudanças comportamentais ou
+refatorações.
 
-## Verdict
+## Veredito
 
-Approve.
+Aprovado.
 
-Validation: `npm ci`, `npm run check`, `npm audit --audit-level=high`, and
+Validação: `npm ci`, `npm run check`, `npm audit --audit-level=high` e
 `git diff --check`.

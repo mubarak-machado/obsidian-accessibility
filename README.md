@@ -1,49 +1,49 @@
 # Obsidian Accessibility
 
-Mobile-friendly accessibility controls for Obsidian, designed primarily for reading and presenting long-form notes on iPad.
+Controles de acessibilidade para o Obsidian, desenvolvidos primeiro para leitura e apresentação de notas longas no iPad.
 
-## Features
+## Funcionalidades
 
-- a persistent circular accessibility button with a high-visibility filled icon that opens a compact vertical control;
-- a recoverable Zen mode that reduces navigation chrome without blocking the right-side Outline drawer;
-- independent scales for Reading view and Live Preview;
-- configurable left or right placement;
-- persistent settings with a one-tap reset;
-- no changes to Markdown files;
-- no Node.js or Electron dependency in the mobile bundle.
+- botão circular persistente de acessibilidade, com ícone preenchido de alta visibilidade, que abre um controle vertical compacto;
+- Modo Zen recuperável, que reduz os elementos de navegação sem bloquear o Outline (sumário) na barra lateral direita;
+- escalas independentes para o modo de Leitura e a Pré-visualização em tempo real;
+- posicionamento configurável à esquerda ou à direita;
+- configurações persistentes e restauração com um toque;
+- nenhuma alteração nos arquivos Markdown;
+- nenhuma dependência de Node.js ou Electron no pacote móvel.
 
-## Install on iPad with BRAT
+## Instalação no iPad com o BRAT
 
-1. In Obsidian, install and enable **BRAT** from Community plugins.
-2. Open **Settings → BRAT** and choose **Add beta plugin**.
-3. Enter `mubarak-machado/obsidian-accessibility`.
-4. Let BRAT install the latest release.
-5. Open **Settings → Community plugins** and enable **Obsidian Accessibility**.
+1. No Obsidian, instale e ative o **BRAT** nos plugins da comunidade.
+2. Abra **Configurações → BRAT** e escolha **Add beta plugin**.
+3. Informe `mubarak-machado/obsidian-accessibility`.
+4. Aguarde o BRAT instalar o lançamento mais recente.
+5. Abra **Configurações → Plugins da comunidade** e ative **Obsidian Accessibility**.
 
-BRAT handles installation and updates. Obsidian Sync can continue syncing the vault and the plugin settings normally.
+O BRAT cuida da instalação e das atualizações. O Obsidian Sync pode continuar sincronizando normalmente o cofre e as configurações do plugin.
 
-## Privacy and scope
+## Privacidade e escopo
 
-The plugin runs locally, does not collect analytics, does not send note contents over the network, and does not write visual preferences into notes.
+O plugin funciona localmente, não coleta dados de uso, não envia o conteúdo das notas pela rede e não grava preferências visuais nas notas.
 
-This repository is the development source of truth and also keeps the three distributable plugin files required by Obsidian releases. It does not include private project records or note contents.
+Este repositório é a fonte oficial de desenvolvimento e também contém os três arquivos distribuíveis exigidos pelos lançamentos do Obsidian. Ele não inclui registros privados do projeto nem conteúdo de notas.
 
-## Development
+## Desenvolvimento
 
-Version `0.1.1` is the approved behavioral and visual baseline. The authorized TypeScript source, tests, lockfile, build, and CI are reproducible in this repository. Before changing it, read:
+A versão `0.1.1` é a referência visual e comportamental aprovada. O código-fonte TypeScript autorizado, os testes, o arquivo de dependências, a compilação e a integração contínua são reproduzíveis neste repositório. Antes de fazer alterações, leia:
 
-- [AGENTS.md](AGENTS.md) — repository workflow, safety constraints, and validation rules;
-- [Version 0.1.1 handoff](docs/HANDOFF-v0.1.1.md) — technical baseline and mandatory source-migration task;
-- [Development and rollback](docs/DEVELOPMENT.md) — clean setup, isolated test-vault installation, and recovery;
-- [Roadmap](docs/ROADMAP.md) — sequenced improvements and human validation gates.
+- [AGENTS.md](AGENTS.md) — fluxo de trabalho, restrições de segurança e regras de validação do repositório;
+- [Transição de desenvolvimento da versão 0.1.1](docs/HANDOFF-v0.1.1.pt-BR.md) — referência técnica e tarefa obrigatória de migração do código-fonte;
+- [Desenvolvimento e reversão](docs/DEVELOPMENT.md) — preparação limpa, instalação em cofre isolado de testes e recuperação;
+- [Roteiro de desenvolvimento](docs/ROADMAP.md) — melhorias em sequência e etapas de validação humana.
 
 ```bash
 npm ci
 npm run check
 ```
 
-The source migration reproduced `main.js`, `manifest.json`, and `styles.css` byte for byte; see the [reproducibility record](docs/REPRODUCIBILITY-v0.1.1.md).
+A migração do código-fonte reproduziu `main.js`, `manifest.json` e `styles.css` byte por byte; consulte o [registro de reprodutibilidade](docs/REPRODUCIBILITY-v0.1.1.md).
 
-## License
+## Licença
 
 [MIT](LICENSE)

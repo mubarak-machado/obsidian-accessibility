@@ -1,74 +1,77 @@
-# Research — recoverable Zen mode
+# Pesquisa — Modo Zen recuperável
 
-Date: 2026-07-21
+Data: 2026-07-21
 
-## Requirement
+## Requisito
 
-Transform the existing tab-bar visibility button into an accessible Zen mode
-for reading and presenting long-form notes on iPad. The mode must reduce
-navigation chrome without trapping the user, changing note content, changing
-the current reading/editing mode, or losing the previous sidebar state.
+Transformar o botão existente de visibilidade da barra de abas em um Modo Zen
+acessível para ler e apresentar notas longas no iPad. O modo deve reduzir os
+elementos de navegação sem prender o usuário, alterar o conteúdo da nota, mudar
+o modo atual de leitura ou edição nem perder o estado anterior das barras
+laterais.
 
-The right mobile drawer is a required navigation route: its active Outline must
-remain selected and the native right-edge swipe must still be able to show the
-drawer over the note while Zen mode is active.
+A gaveta móvel direita é uma rota obrigatória de navegação: seu Outline ativo
+deve continuar selecionado e o gesto nativo a partir da borda direita deve
+continuar capaz de mostrar a gaveta sobre a nota enquanto o Modo Zen estiver
+ativo.
 
-## Reviewed references
+## Referências avaliadas
 
-| Candidate | Reviewed release | License | Mobile evidence | Classification and conclusion |
+| Candidato | Versão avaliada | Licença | Evidência móvel | Classificação e conclusão |
 | --- | --- | --- | --- | --- |
-| [Obsidian API](https://github.com/obsidianmd/obsidian-api/blob/master/obsidian.d.ts) | npm package `1.13.1` used by the project | MIT | the public API exposes `collapsed`, `collapse()`, and `expand()` on both `WorkspaceMobileDrawer` and `WorkspaceSidedock` | **adopt** the public sidebar state and methods; do not execute undocumented core command IDs or remove drawer DOM |
-| [Obsidian Hider](https://github.com/kepano/obsidian-hider) | release `1.6.2` | MIT | `isDesktopOnly: false`; UI features use independently scoped body classes | **adapt** temporary body classes for tab bar, ribbon, and status bar; **reject** the broad settings matrix and hiding scrollbars or document metadata in the first slice |
-| [Ultra Zen Mode](https://github.com/MarckFp/ultra-zen-mode) | release `1.15.0` | Apache-2.0 | README explicitly covers desktop, tablet, and mobile | **adapt** deterministic class cleanup and an always-available recovery route; **reject** locking notes, changing view mode, hiding properties/title, and adding another floating exit button |
-| [Zen Mode](https://github.com/paperbenni/obsidian-zenmode) | release `1.6.8` | GPL-2.0 | community release supports desktop and mobile and documents an exit button | **adapt** capture-and-restore semantics for sidebars; **reject** full-screen, draggable controls, and optional UI expansion for this version |
+| [API do Obsidian](https://github.com/obsidianmd/obsidian-api/blob/master/obsidian.d.ts) | pacote npm `1.13.1` usado pelo projeto | MIT | a API pública expõe `collapsed`, `collapse()` e `expand()` em `WorkspaceMobileDrawer` e `WorkspaceSidedock` | **adotar** o estado e os métodos públicos das barras laterais; não executar identificadores não documentados de comandos internos nem remover o DOM da gaveta |
+| [Obsidian Hider](https://github.com/kepano/obsidian-hider) | versão `1.6.2` | MIT | `isDesktopOnly: false`; os recursos de interface usam classes independentes no `body` | **adaptar** classes temporárias no `body` para a barra de abas, faixa lateral e barra de status; **rejeitar** a ampla matriz de configurações e a ocultação de barras de rolagem ou metadados do documento nesta primeira etapa |
+| [Ultra Zen Mode](https://github.com/MarckFp/ultra-zen-mode) | versão `1.15.0` | Apache-2.0 | o README abrange explicitamente computador, tablet e celular | **adaptar** a limpeza determinística de classes e uma rota de recuperação sempre disponível; **rejeitar** bloquear notas, mudar o modo de visualização, ocultar propriedades ou título e adicionar outro botão flutuante de saída |
+| [Zen Mode](https://github.com/paperbenni/obsidian-zenmode) | versão `1.6.8` | GPL-2.0 | o lançamento comunitário oferece suporte a computador e celular e documenta um botão de saída | **adaptar** a captura e restauração das barras laterais; **rejeitar** tela cheia, controles arrastáveis e expansão opcional da interface nesta versão |
 
-No source code or CSS rules are copied from these projects.
+Nenhum código-fonte ou regra CSS é copiado desses projetos.
 
-## Decision
+## Decisão
 
-Replace the persistent `tabBarHidden` preference with a session-only
-`ZenModeController`:
+Substituir a preferência persistente `tabBarHidden` por um
+`ZenModeController` válido somente durante a sessão:
 
-1. Capture the collapsed state of both sidebars.
-2. Add one plugin-owned `oa-zen-mode` class to `body`.
-3. Collapse both sidebars through the public Obsidian API.
-4. Hide only the main tab bar, left ribbon, and status bar through scoped CSS.
-5. On exit, remove the class and restore each sidebar to the exact captured
-   state, including collapsing a drawer that was originally closed but opened
-   temporarily during Zen mode.
+1. Capturar o estado recolhido das duas barras laterais.
+2. Adicionar ao `body` uma única classe `oa-zen-mode` pertencente ao plugin.
+3. Recolher as duas barras laterais pela API pública do Obsidian.
+4. Ocultar somente a barra principal de abas, a faixa lateral esquerda e a barra de status com CSS delimitado.
+5. Ao sair, remover a classe e restaurar cada barra lateral ao estado exato
+   capturado, inclusive recolhendo uma gaveta que estava originalmente fechada,
+   mas foi aberta temporariamente durante o Modo Zen.
 
-There must be no Zen CSS selector for `.workspace-drawer` or a sidedock. On
-iPad, collapsing closes the overlaid drawer but leaves the drawer and its active
-Outline intact for Obsidian's native edge gesture. Selecting a heading must
-navigate within the note without leaving Zen mode.
+Não deve existir seletor CSS do Modo Zen para `.workspace-drawer` ou barra
+lateral. No iPad, recolher fecha a gaveta sobreposta, mas mantém a gaveta e seu
+Outline ativo intactos para o gesto nativo do Obsidian a partir da borda.
+Selecionar um título deve navegar dentro da nota sem sair do Modo Zen.
 
-Zen mode does not persist across plugin reloads. Settings schema version `2`
-drops the legacy `tabBarHidden` field while preserving profiles, scales, line
-height, enabled state, and control side.
+O Modo Zen não persiste após recarregar o plugin. A versão `2` do esquema de
+configurações descarta o campo antigo `tabBarHidden` e preserva perfis, escalas,
+altura da linha, estado ativado e lado do controle.
 
-## Interaction and recovery
+## Interação e recuperação
 
-- Inactive button: Lucide `focus`, `Ativar modo zen`, `aria-pressed=false`.
-- Active button: Lucide `minimize-2`, `Sair do modo zen`, `aria-pressed=true`.
-- Activating or leaving from the panel closes the temporary panel.
-- The universal accessibility launcher stays mounted and announces when Zen
-  mode is active.
-- `Escape` closes an open panel first; with the panel closed it leaves Zen mode.
-- A command-palette toggle remains available.
-- Changing to a non-Markdown view or unloading the plugin exits automatically.
-- Sidebar API errors are isolated; plugin-owned CSS is always removed.
+- Botão inativo: Lucide `focus`, `Ativar modo zen`, `aria-pressed=false`.
+- Botão ativo: Lucide `minimize-2`, `Sair do modo zen`, `aria-pressed=true`.
+- Ativar ou sair pelo painel fecha o painel temporário.
+- O acionador universal de acessibilidade continua montado e anuncia quando o Modo Zen está ativo.
+- `Escape` fecha primeiro um painel aberto; com o painel fechado, sai do Modo Zen.
+- Um botão na paleta de comandos continua disponível.
+- Mudar para uma visualização que não seja Markdown ou descarregar o plugin encerra o modo automaticamente.
+- Erros da API das barras laterais ficam isolados; o CSS pertencente ao plugin sempre é removido.
 
-## Validation contract
+## Contrato de validação
 
-Automated coverage must include all four initial open/closed sidebar
-combinations, opening the right drawer during Zen mode, exact restoration,
-repeated toggles, API failure, accessible state and icon changes, Escape,
-settings migration, scoped CSS, and absence of drawer-hiding rules.
+A cobertura automatizada deve incluir as quatro combinações iniciais de barras
+laterais abertas ou fechadas, abertura da gaveta direita durante o Modo Zen,
+restauração exata, ativações repetidas, falha da API, mudanças acessíveis de
+estado e ícone, `Escape`, migração de configurações, CSS delimitado e ausência
+de regras que ocultem gavetas.
 
-Physical iPad validation remains mandatory because the native edge gesture is
-not guaranteed by the TypeScript API contract. Test portrait, landscape, Split
-View, Reading view, Live Preview, software keyboard, left/right control
-placement, safe areas, touch, VoiceOver, and the actual target theme. The
-release must remain a pre-release until right-to-left swipe opens the overlaid
-right drawer, the Outline navigates headings without leaving Zen mode, and all
-recovery routes work.
+A validação física no iPad continua obrigatória porque o gesto nativo a partir
+da borda não é garantido pelo contrato da API TypeScript. Testar orientação
+vertical e horizontal, Split View, modo de Leitura, Pré-visualização em tempo
+real, teclado virtual, controle à esquerda e à direita, áreas seguras, toque,
+VoiceOver e o tema realmente usado. O lançamento deve permanecer como
+pré-lançamento até que o gesto da direita para a esquerda abra a gaveta direita
+sobreposta, o Outline navegue pelos títulos sem sair do Modo Zen e todas as
+rotas de recuperação funcionem.
