@@ -32,18 +32,20 @@ export class FontScaleControl {
         type: 'button',
         'aria-expanded': 'false',
         'aria-controls': PANEL_ID,
-        'aria-label': 'Ajustar tamanho do texto',
-        title: 'Ajustar tamanho do texto',
+        'aria-label': 'Abrir controles de acessibilidade',
+        title: 'Abrir controles de acessibilidade',
       },
     });
-    this.trigger.createSpan({ cls: 'oa-font-scale-trigger__glyph', text: 'A↕' });
+    const triggerIcon = this.trigger.createSpan({ cls: 'oa-font-scale-trigger__icon' });
+    triggerIcon.setAttribute('aria-hidden', 'true');
+    setIcon(triggerIcon, 'accessibility');
 
     this.panel = this.root.createEl('section', {
       cls: 'oa-font-scale-panel',
       attr: {
         id: PANEL_ID,
         role: 'group',
-        'aria-label': 'Ajuste do tamanho do texto. Toque fora ou pressione escape para fechar',
+        'aria-label': 'Controles de acessibilidade. Toque fora ou pressione escape para fechar',
       },
     });
     this.panel.hidden = true;
@@ -127,6 +129,7 @@ export class FontScaleControl {
     this.opened = true;
     this.panel.hidden = false;
     this.trigger.setAttribute('aria-expanded', 'true');
+    this.setTriggerLabel('Fechar controles de acessibilidade');
     window.requestAnimationFrame(() => {
       this.alignResetLabel();
       this.positionPanel();
@@ -187,7 +190,13 @@ export class FontScaleControl {
     this.opened = false;
     this.panel.hidden = true;
     this.trigger.setAttribute('aria-expanded', 'false');
+    this.setTriggerLabel('Abrir controles de acessibilidade');
     if (returnFocus) this.trigger.focus();
+  }
+
+  private setTriggerLabel(label: string): void {
+    this.trigger.setAttribute('aria-label', label);
+    this.trigger.setAttribute('title', label);
   }
 
   private step(delta: number): void {

@@ -43,7 +43,7 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
   place-items: center;
   padding: 0;
   border: 3px solid var(--interactive-accent);
-  border-radius: 24px;
+  border-radius: 50%;
   background: var(--background-primary-alt, var(--background-primary));
   color: var(--text-normal);
   box-shadow: 0 9px 33px rgb(0 0 0 / 28%);
@@ -73,12 +73,16 @@ body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container
   outline-offset: 4.5px;
 }
 
-.oa-font-scale-trigger__glyph {
-  font-family: var(--font-interface);
-  font-size: 25.5px;
-  font-weight: 750;
-  letter-spacing: -0.04em;
-  line-height: 1;
+.oa-font-scale-trigger__icon {
+  display: grid;
+  width: 33px;
+  height: 33px;
+  place-items: center;
+}
+
+.oa-font-scale-trigger__icon svg {
+  width: 33px;
+  height: 33px;
 }
 
 .oa-font-scale-panel {

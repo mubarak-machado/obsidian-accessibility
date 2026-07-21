@@ -75,15 +75,22 @@ describe('FontScaleControl', () => {
   it('abre e fecha pelo mesmo botão sem reservar layout', () => {
     const { control, container } = setup();
     const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
+    const triggerIcon = container.querySelector<HTMLElement>('.oa-font-scale-trigger__icon');
     const panel = container.querySelector<HTMLElement>('.oa-font-scale-panel');
 
     expect(trigger).not.toBeNull();
+    expect(trigger?.getAttribute('aria-label')).toBe('Abrir controles de acessibilidade');
+    expect(triggerIcon?.dataset.icon).toBe('accessibility');
+    expect(triggerIcon?.getAttribute('aria-hidden')).toBe('true');
+    expect(trigger?.textContent).toBe('');
     expect(panel?.hidden).toBe(true);
     trigger?.click();
     expect(trigger?.getAttribute('aria-expanded')).toBe('true');
+    expect(trigger?.getAttribute('aria-label')).toBe('Fechar controles de acessibilidade');
     expect(panel?.hidden).toBe(false);
     trigger?.click();
     expect(trigger?.getAttribute('aria-expanded')).toBe('false');
+    expect(trigger?.getAttribute('aria-label')).toBe('Abrir controles de acessibilidade');
     expect(panel?.hidden).toBe(true);
     control.destroy();
   });

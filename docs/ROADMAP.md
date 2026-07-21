@@ -49,6 +49,12 @@ keeps a command-palette recovery route and restores the tab bar on unload.
 150% of its original dimensions using intrinsic layout rather than a transform.
 See [`RESEARCH-control-scale-2026-07.md`](RESEARCH-control-scale-2026-07.md).
 
+**Accessibility launcher refinement completed 2026-07-21:** the typography-specific
+`A↕` glyph was replaced by Obsidian's universal Lucide `accessibility` icon. The
+stable circular launcher now represents the expanding accessibility suite while
+the existing panel remains its first focused module. See
+[`RESEARCH-accessibility-launcher-2026-07.md`](RESEARCH-accessibility-launcher-2026-07.md).
+
 **Human gate:** rehearse with a real long-form note on iPad without modifying it.
 
 ## Milestone 2 — Interaction safety

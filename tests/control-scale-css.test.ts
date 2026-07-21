@@ -9,7 +9,8 @@ describe('escala visual do controle', () => {
     expect(styles).toContain('width: 72px;');
     expect(styles).toContain('width: 75px;');
     expect(styles).toContain('width: 66px;');
-    expect(styles).toContain('font-size: 25.5px;');
+    expect(styles).toContain('.oa-font-scale-trigger__icon svg');
+    expect(styles).toContain('border-radius: 50%;');
     expect(styles).toContain('font-size: 45px;');
     expect(styles).toContain('font-size: 16.5px;');
     expect(styles).toContain('height: clamp(222px, 27vh, 255px);');
