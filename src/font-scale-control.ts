@@ -93,6 +93,7 @@ export class FontScaleControl {
       attr: {
         type: 'range',
         step: '1',
+        orient: 'vertical',
         'aria-label': 'Tamanho do texto',
         'aria-orientation': 'vertical',
       },

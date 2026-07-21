@@ -59,6 +59,7 @@ Primary references:
 - A narrow vertical panel opens temporarily over the button without reserving page width.
 - Order: current value, separator, Zen mode, `+`, vertical range, `−`, icon-only reset.
 - Minimum is at the bottom; maximum is at the top.
+- Use the native vertical writing mode for the range where supported; keep transform-based rotation isolated to the older-browser fallback.
 - Reading range: 32–75 px. Live Preview range: 40–60 px.
 - Outside interaction, `Escape`, repeated activation, or context change closes the panel.
 - Scaling preserves reading position and never modifies the note.

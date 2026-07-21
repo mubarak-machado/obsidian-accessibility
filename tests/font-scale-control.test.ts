@@ -146,6 +146,20 @@ describe('FontScaleControl', () => {
     control.destroy();
   });
 
+  it('aceita uma redução direta a partir de um valor intermediário', () => {
+    const { control, store, controller, container } = setup();
+    const range = container.querySelector<HTMLInputElement>('.oa-font-scale-panel__range');
+    if (!range) throw new Error('Range não foi criado');
+
+    expect(range.value).toBe('55');
+    range.value = '54';
+    range.dispatchEvent(new Event('input', { bubbles: true }));
+
+    expect(store.activeProfile.readingSize).toBe(54);
+    expect(controller.applyScaleWithAnchor).toHaveBeenCalledOnce();
+    control.destroy();
+  });
+
   it('organiza o painel em uma única coluna com slider vertical', () => {
     const { control, container } = setup();
     const panel = container.querySelector<HTMLElement>('.oa-font-scale-panel');
@@ -155,6 +169,7 @@ describe('FontScaleControl', () => {
     expect(panel).not.toBeNull();
     expect(range?.parentElement).toBe(frame);
     expect(range?.getAttribute('aria-orientation')).toBe('vertical');
+    expect(range?.getAttribute('orient')).toBe('vertical');
     expect(panel?.querySelector('.oa-font-scale-panel__actions')).toBeNull();
     expect(panel?.querySelectorAll(':scope > button')).toHaveLength(4);
     expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe(

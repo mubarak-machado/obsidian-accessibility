@@ -73,7 +73,17 @@ substituída por um botão inferior padronizado, com o ícone `rotate-ccw`, as
 mesmas dimensões do botão do Modo Zen e nome acessível explícito. Consulte
 [`RESEARCH-reset-control-2026-07.md`](RESEARCH-reset-control-2026-07.md).
 
-**Etapa humana:** ensaiar com uma nota longa real no iPad sem modificá-la.
+**Interação vertical corrigida em 2026-07-21:** o slider deixou de ser um
+controle horizontal apenas girado por CSS e passou a usar a orientação vertical
+nativa do navegador, com máximo no topo, mínimo embaixo e rotação limitada ao
+fallback de navegadores antigos. A mudança elimina a divergência entre a
+geometria visual e a área de toque interpretada pelo WebKit. Consulte
+[`RESEARCH-native-vertical-slider-2026-07.md`](RESEARCH-native-vertical-slider-2026-07.md).
+
+**Etapa humana:** ensaiar com uma nota longa real no iPad sem modificá-la e
+confirmar que o primeiro arrasto para baixo funciona diretamente em 55 px e
+65 px na leitura, além de 50 px na visualização ao vivo, em retrato, paisagem e
+Split View.
 
 ## Marco 2 — Segurança da interação
 

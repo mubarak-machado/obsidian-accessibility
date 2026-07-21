@@ -20,8 +20,18 @@ if (/processFrontMatter|fileManager\.processFrontMatter|vault\.modify/.test(bund
 if (!styles.includes('safe-area-inset-left') || !styles.includes('safe-area-inset-right')) {
   failures.push('CSS não contempla as safe areas laterais');
 }
-if (!styles.includes('top: 50%') || !styles.includes('rotate(-90deg)')) {
-  failures.push('controle não está centralizado com slider vertical');
+if (
+  !styles.includes('writing-mode: vertical-lr') ||
+  !styles.includes('direction: rtl') ||
+  !styles.includes('inline-size: clamp(222px, 27vh, 255px)')
+) {
+  failures.push('controle não usa a geometria vertical nativa com máximo no topo');
+}
+if (
+  !styles.includes('@supports not (writing-mode: vertical-lr)') ||
+  !styles.includes('rotate(-90deg)')
+) {
+  failures.push('controle não preserva o fallback vertical para WebKit antigo');
 }
 if (
   !styles.includes('::-webkit-slider-runnable-track') ||
@@ -55,7 +65,8 @@ if (
   !styles.includes('width: 72px;') ||
   !styles.includes('width: 75px;') ||
   !styles.includes('width: 66px;') ||
-  !styles.includes('height: clamp(222px, 27vh, 255px);')
+  !styles.includes('height: clamp(222px, 27vh, 255px);') ||
+  !styles.includes('block-size: 66px;')
 ) {
   failures.push('controle não preserva a ampliação mecânica de 150%');
 }

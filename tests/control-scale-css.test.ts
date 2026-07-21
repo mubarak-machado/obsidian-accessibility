@@ -14,9 +14,23 @@ describe('escala visual do controle', () => {
     expect(styles).toContain('font-size: 45px;');
     expect(styles).toContain('font-size: 16.5px;');
     expect(styles).toContain('height: clamp(222px, 27vh, 255px);');
-    expect(styles).toContain('width: clamp(222px, 27vh, 255px);');
-    expect(styles).toContain('width: 33px;');
+    expect(styles).toContain('inline-size: clamp(222px, 27vh, 255px);');
+    expect(styles).toContain('inline-size: 33px;');
     expect(styles).toContain('@media (max-height: 840px)');
     expect(styles).toContain('height: 180px;');
+  });
+
+  it('usa um range vertical nativo com máximo no topo e rotação apenas no fallback', () => {
+    const rangeRule = styles.match(
+      /\.oa-font-scale-panel input\[type='range'\]\.oa-font-scale-panel__range \{(?<rule>[\s\S]*?)\n\}/,
+    )?.groups?.rule;
+    const fallback = styles.match(
+      /@supports not \(writing-mode: vertical-lr\) \{(?<rule>[\s\S]*?)\n\}/,
+    )?.groups?.rule;
+
+    expect(rangeRule).toContain('writing-mode: vertical-lr;');
+    expect(rangeRule).toContain('direction: rtl;');
+    expect(rangeRule).not.toContain('rotate(');
+    expect(fallback).toContain('rotate(-90deg)');
   });
 });
