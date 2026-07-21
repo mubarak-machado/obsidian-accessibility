@@ -1,6 +1,6 @@
 {
   "name": "obsidian-accessibility",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Controles acessíveis de leitura e apresentação para o Obsidian no iPad.",
   "main": "main.js",
   "type": "module",
