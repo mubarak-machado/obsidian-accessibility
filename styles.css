@@ -10,6 +10,10 @@ body .workspace-leaf-content[data-type='markdown'].oa-scale-active .markdown-sou
   line-height: var(--oa-scale-line-height);
 }
 
+body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container {
+  display: none;
+}
+
 .oa-font-scale-root {
   position: absolute;
   inset: 0;
@@ -117,6 +121,16 @@ body .workspace-leaf-content[data-type='markdown'].oa-scale-active .markdown-sou
 .oa-font-scale-panel__button:is(:hover, :active, :focus-visible) {
   background: var(--background-modifier-hover);
   color: var(--interactive-accent);
+}
+
+.oa-font-scale-panel__tab-bar.is-active {
+  background: var(--interactive-accent);
+  color: var(--text-on-accent);
+}
+
+.oa-font-scale-panel__tab-bar svg {
+  width: 22px;
+  height: 22px;
 }
 
 .oa-font-scale-panel__step {

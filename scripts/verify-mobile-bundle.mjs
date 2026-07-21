@@ -32,6 +32,16 @@ if (
 if (!bundle.includes('aria-orientation') || !bundle.includes('vertical')) {
   failures.push('bundle não expõe a orientação vertical para acessibilidade');
 }
+if (!bundle.includes('aria-pressed') || !bundle.includes('oa-tab-bar-hidden')) {
+  failures.push('bundle não expõe estado acessível nem limpeza da barra de abas');
+}
+if (
+  !styles.includes(
+    'body.oa-tab-bar-hidden .mod-root .workspace-tabs .workspace-tab-header-container',
+  )
+) {
+  failures.push('CSS não restringe a ocultação da barra de abas à área principal');
+}
 if (!styles.includes('prefers-reduced-motion')) failures.push('CSS não respeita movimento reduzido');
 
 if (failures.length > 0) {

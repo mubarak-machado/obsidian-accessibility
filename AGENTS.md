@@ -35,6 +35,12 @@ Primary references:
 - [Obsidian community plugin requirements](https://github.com/obsidianmd/obsidian-releases)
 - [BRAT developer guide](https://github.com/TfTHacker/obsidian42-brat/blob/main/BRAT-DEVELOPER-GUIDE.md)
 
+## Product collaboration
+
+- Proactively suggest adjacent features and alternatives that fit the plugin's accessibility, reading, and presentation goals, including ideas that differ from the immediate request.
+- Clearly separate suggestions from authorized implementation scope; do not implement an additional feature without Mubarak's explicit approval.
+- Keep proposals compatible with the mobile-first invariants, validation gates, and sequenced roadmap below.
+
 ## Product invariants
 
 - Mobile-first; keep `isDesktopOnly: false`.

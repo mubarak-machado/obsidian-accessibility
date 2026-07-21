@@ -36,8 +36,14 @@ Node.js 20, 22, and 24.
 - [ ] Provide an obvious recovery route.
 - [ ] Simulate failure and verify the interface never becomes trapped.
 - [ ] Preserve reading position and the approved slider.
+- [x] Add the first presentation control: a persistent tab-bar toggle inside the approved slider panel.
 
 **Already complete:** the left/right floating button and vertical panel are the baseline.
+
+**First feature slice completed 2026-07-21:** the tab-bar toggle adapts the
+body-class and scoped-CSS pattern documented in
+[`RESEARCH-tab-bar-toggle-2026-07.md`](RESEARCH-tab-bar-toggle-2026-07.md). It
+keeps a command-palette recovery route and restores the tab bar on unload.
 
 **Human gate:** rehearse with a real long-form note on iPad without modifying it.
 

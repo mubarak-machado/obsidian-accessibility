@@ -5,6 +5,7 @@ Mobile-friendly accessibility controls for Obsidian, designed primarily for read
 ## Features
 
 - a small floating button that opens a compact vertical font-size control;
+- a persistent, accessible button in that control to show or hide the main tab bar;
 - independent scales for Reading view and Live Preview;
 - configurable left or right placement;
 - persistent settings with a one-tap reset;

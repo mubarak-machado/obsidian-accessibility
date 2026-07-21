@@ -136,14 +136,32 @@ describe('FontScaleControl', () => {
     expect(range?.parentElement).toBe(frame);
     expect(range?.getAttribute('aria-orientation')).toBe('vertical');
     expect(panel?.querySelector('.oa-font-scale-panel__actions')).toBeNull();
-    expect(panel?.querySelectorAll(':scope > button')).toHaveLength(3);
+    expect(panel?.querySelectorAll(':scope > button')).toHaveLength(4);
     expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe(
       '55 px',
     );
+    expect(panel?.children[1]?.classList.contains('oa-font-scale-panel__tab-bar')).toBe(true);
+    expect(panel?.children[2]?.textContent).toBe('+');
     expect(panel?.querySelector('.oa-font-scale-panel__separator')?.getAttribute('aria-hidden')).toBe(
       'true',
     );
     expect(panel?.querySelector('.oa-font-scale-panel__reset-label')?.textContent).toBe('Reset');
+    control.destroy();
+  });
+
+  it('alterna e expõe o estado persistente da barra de abas', () => {
+    const { control, store, container } = setup();
+    const button = container.querySelector<HTMLButtonElement>(
+      '.oa-font-scale-panel__tab-bar',
+    );
+
+    expect(button?.getAttribute('aria-pressed')).toBe('false');
+    expect(button?.dataset.icon).toBe('panel-top');
+    button?.click();
+
+    expect(store.snapshot.tabBarHidden).toBe(true);
+    expect(button?.getAttribute('aria-pressed')).toBe('true');
+    expect(button?.classList.contains('is-active')).toBe(true);
     control.destroy();
   });
 

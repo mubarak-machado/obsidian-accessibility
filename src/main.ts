@@ -3,6 +3,7 @@ import { FontScaleControl } from './font-scale-control';
 import { ScaleController } from './scale-controller';
 import { ScaleStore } from './scale-store';
 import { AccessibilitySettingTab } from './settings-tab';
+import { TabBarVisibility } from './tab-bar-visibility';
 import {
   PROFILE_CLASSES,
   PROFILE_IDS,
@@ -19,6 +20,7 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
   private control: FontScaleControl | null = null;
   private mountedView: MarkdownView | null = null;
   private profileObserver: MutationObserver | null = null;
+  private tabBarVisibility: TabBarVisibility | null = null;
   private unsubscribeStore: (() => void) | null = null;
   private applyingProfileClass = false;
   private originalProfileClass: string | null = null;
@@ -39,6 +41,7 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
 
     this.store = new ScaleStore(migrated, async (settings) => this.saveData(settings));
     this.controller = new ScaleController(this.store);
+    this.tabBarVisibility = new TabBarVisibility(doc.body);
     await this.store.flush();
 
     this.addSettingTab(new AccessibilitySettingTab(this.app, this, this.store));
@@ -47,10 +50,12 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     this.observeExternalProfileChanges(doc);
     this.unsubscribeStore = this.store.subscribe(() => {
       this.applyProfileClass(doc.body);
+      this.tabBarVisibility?.sync(this.store.snapshot.tabBarHidden);
       this.control?.refreshContext();
     });
 
     this.applyProfileClass(doc.body);
+    this.tabBarVisibility?.sync(this.store.snapshot.tabBarHidden);
     this.app.workspace.onLayoutReady(() => this.syncActiveView());
   }
 
@@ -60,6 +65,8 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     this.unsubscribeStore?.();
     this.unsubscribeStore = null;
     this.destroyControl();
+    this.tabBarVisibility?.destroy();
+    this.tabBarVisibility = null;
     const body = this.app.workspace.containerEl.ownerDocument.body;
     this.removeProfileClasses(body);
     if (this.originalProfileClass) body.classList.add(this.originalProfileClass);
@@ -103,6 +110,13 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
           this.controller.applyScaleWithAnchor();
         }
         return true;
+      },
+    });
+    this.addCommand({
+      id: 'toggle-tab-bar',
+      name: 'Ocultar ou exibir barra de abas',
+      callback: () => {
+        this.store.setTabBarHidden(!this.store.snapshot.tabBarHidden);
       },
     });
     this.addCommand({

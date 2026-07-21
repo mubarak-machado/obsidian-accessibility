@@ -1,4 +1,4 @@
-import { MarkdownView } from 'obsidian';
+import { MarkdownView, setIcon } from 'obsidian';
 import { computePanelPosition } from './positioning';
 import { ScaleController } from './scale-controller';
 import { ScaleStore } from './scale-store';
@@ -11,6 +11,7 @@ export class FontScaleControl {
   private readonly trigger: HTMLButtonElement;
   private readonly panel: HTMLElement;
   private readonly modeLabel: HTMLDivElement;
+  private readonly tabBarButton: HTMLButtonElement;
   private readonly resetLabel: HTMLSpanElement;
   private readonly range: HTMLInputElement;
   private readonly abortController = new AbortController();
@@ -51,6 +52,16 @@ export class FontScaleControl {
       cls: 'oa-font-scale-panel__mode oa-font-scale-panel__text',
     });
     this.modeLabel.setAttribute('aria-live', 'polite');
+    this.tabBarButton = this.panel.createEl('button', {
+      cls: 'oa-font-scale-panel__button oa-font-scale-panel__tab-bar',
+      attr: {
+        type: 'button',
+        'aria-label': 'Ocultar barra de abas',
+        'aria-pressed': 'false',
+        title: 'Ocultar barra de abas',
+      },
+    });
+    setIcon(this.tabBarButton, 'panel-top');
     const increase = this.textButton(this.panel, '+', 'Aumentar um pixel');
 
     const rangeFrame = this.panel.createDiv({ cls: 'oa-font-scale-panel__range-frame' });
@@ -82,6 +93,7 @@ export class FontScaleControl {
 
     const signal = this.abortController.signal;
     this.trigger.addEventListener('click', (event) => this.toggle(event.detail === 0), { signal });
+    this.tabBarButton.addEventListener('click', () => this.toggleTabBar(), { signal });
     increase.addEventListener('click', () => this.step(1), { signal });
     decrease.addEventListener('click', () => this.step(-1), { signal });
     reset.addEventListener('click', () => this.reset(), { signal });
@@ -145,6 +157,8 @@ export class FontScaleControl {
     this.range.setAttribute('aria-valuetext', `${value} pixels`);
     this.modeLabel.setText(`${value} px`);
     this.modeLabel.setAttribute('title', `${value} pixels`);
+    this.tabBarButton.setAttribute('aria-pressed', `${settings.tabBarHidden}`);
+    this.tabBarButton.classList.toggle('is-active', settings.tabBarHidden);
 
     if (!settings.enabled && this.opened) this.close(false);
   }
@@ -189,6 +203,10 @@ export class FontScaleControl {
   private reset(): void {
     this.store.resetScale(this.controller.mode());
     this.controller.applyScaleWithAnchor();
+  }
+
+  private toggleTabBar(): void {
+    this.store.setTabBarHidden(!this.store.snapshot.tabBarHidden);
   }
 
   private alignResetLabel(): void {

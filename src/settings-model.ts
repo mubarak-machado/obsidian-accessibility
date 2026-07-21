@@ -13,6 +13,7 @@ export interface ProfileScaleSettings {
 export interface AccessibilitySettings {
   schemaVersion: number;
   enabled: boolean;
+  tabBarHidden: boolean;
   side: ControlSide;
   activeProfile: ProfileId;
   profiles: Record<ProfileId, ProfileScaleSettings>;
@@ -39,6 +40,7 @@ export const PROFILE_CLASSES: Record<ProfileId, string> = {
 export const DEFAULT_SETTINGS: AccessibilitySettings = {
   schemaVersion: SETTINGS_SCHEMA_VERSION,
   enabled: true,
+  tabBarHidden: false,
   side: 'right',
   activeProfile: 'preparation',
   profiles: {
@@ -98,6 +100,10 @@ export function normalizeSettings(value: unknown): AccessibilitySettings {
   return {
     schemaVersion: SETTINGS_SCHEMA_VERSION,
     enabled: typeof source.enabled === 'boolean' ? source.enabled : DEFAULT_SETTINGS.enabled,
+    tabBarHidden:
+      typeof source.tabBarHidden === 'boolean'
+        ? source.tabBarHidden
+        : DEFAULT_SETTINGS.tabBarHidden,
     side: side(source.side),
     activeProfile: profileId(source.activeProfile),
     profiles: {
