@@ -5,9 +5,9 @@ This file defines the operating contract for agents working on **Obsidian Access
 ## Project state
 
 - The approved baseline is version `0.1.1`.
-- This repository currently contains distributable artifacts, not the TypeScript development source.
-- The first engineering task is the source migration in [the handoff](docs/HANDOFF-v0.1.1.md).
-- Do not combine that migration with a feature, refactor, dependency upgrade, or version bump.
+- The authorized TypeScript source migration is complete and reproduces the approved artifacts byte for byte.
+- Preserve the migration evidence in [the research record](docs/RESEARCH-source-migration-2026-07.md) and [reproducibility record](docs/REPRODUCIBILITY-v0.1.1.md).
+- Do not combine a feature with a refactor, dependency upgrade, source migration, or version bump.
 
 ## Git workflow
 
@@ -59,7 +59,7 @@ Primary references:
 
 ## Validation contract
 
-After source migration, every code change must pass the equivalent of:
+Every code change must pass the equivalent of:
 
 ```bash
 npm ci

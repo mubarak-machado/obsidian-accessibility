@@ -25,17 +25,23 @@ BRAT handles installation and updates. Obsidian Sync can continue syncing the va
 
 The plugin runs locally, does not collect analytics, does not send note contents over the network, and does not write visual preferences into notes.
 
-This repository contains only the distributable plugin files. Development records and the private project repository are not included.
+This repository is the development source of truth and also keeps the three distributable plugin files required by Obsidian releases. It does not include private project records or note contents.
 
 ## Development
 
-Version `0.1.1` is the approved behavioral and visual baseline. Before changing it, read:
+Version `0.1.1` is the approved behavioral and visual baseline. The authorized TypeScript source, tests, lockfile, build, and CI are reproducible in this repository. Before changing it, read:
 
 - [AGENTS.md](AGENTS.md) — repository workflow, safety constraints, and validation rules;
 - [Version 0.1.1 handoff](docs/HANDOFF-v0.1.1.md) — technical baseline and mandatory source-migration task;
+- [Development and rollback](docs/DEVELOPMENT.md) — clean setup, isolated test-vault installation, and recovery;
 - [Roadmap](docs/ROADMAP.md) — sequenced improvements and human validation gates.
 
-The repository currently contains distributable artifacts only. Its first development task is to migrate the approved TypeScript source, tests, and build configuration without changing runtime behavior or the published `0.1.1` release.
+```bash
+npm ci
+npm run check
+```
+
+The source migration reproduced `main.js`, `manifest.json`, and `styles.css` byte for byte; see the [reproducibility record](docs/REPRODUCIBILITY-v0.1.1.md).
 
 ## License
 

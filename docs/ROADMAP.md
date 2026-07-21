@@ -10,14 +10,19 @@ Work directly on `main` under the single-maintainer workflow in [`AGENTS.md`](..
 
 **Goal:** make this repository the complete source of truth without changing `0.1.1`.
 
-- [ ] Migrate TypeScript source, tests, lockfile, scripts, and build configuration.
-- [ ] Establish clean-clone `npm ci` and `npm run check`.
-- [ ] Rebuild the three artifacts and compare hashes with the handoff.
-- [ ] Document unavoidable build differences.
-- [ ] Add CI after local reproducibility is proven.
-- [ ] Document development installation and rollback.
+- [x] Migrate TypeScript source, tests, lockfile, scripts, and build configuration.
+- [x] Establish clean-clone `npm ci` and `npm run check`.
+- [x] Rebuild the three artifacts and compare hashes with the handoff.
+- [x] Document unavoidable build differences (none were found).
+- [x] Add CI after local reproducibility is proven.
+- [x] Document development installation and rollback.
 
 **Exit gate:** one isolated migration commit with no behavioral or visual change.
+
+**Completed 2026-07-21:** research `ce127a8`, isolated source migration
+`f176807`, and reproducibility evidence `f658a96`. The production bundle and
+release assets remained byte-identical to `0.1.1`; CI and development guidance
+were added only after the clean-clone gate passed.
 
 ## Milestone 1 — Presentation mode
 
