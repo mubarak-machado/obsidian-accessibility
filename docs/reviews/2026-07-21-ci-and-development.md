@@ -65,7 +65,8 @@ changing the dependency graph or approved bundle.
 
 ## Verdict
 
-Approve, subject to the first remote CI run completing successfully after push.
+Approve. GitHub Actions run `29852766796` passed the complete pipeline and
+artifact-drift check on Node.js 20, 22, and 24 with npm `11.11.0`.
 
 Local validation: `npm ci`, `npm run check`, `npm run verify:baseline`, isolated
 test-vault installation, artifact SHA-256 comparison, and `git diff --check`.

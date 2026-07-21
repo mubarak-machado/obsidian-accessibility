@@ -22,7 +22,9 @@ Work directly on `main` under the single-maintainer workflow in [`AGENTS.md`](..
 **Completed 2026-07-21:** research `ce127a8`, isolated source migration
 `f176807`, and reproducibility evidence `f658a96`. The production bundle and
 release assets remained byte-identical to `0.1.1`; CI and development guidance
-were added only after the clean-clone gate passed.
+were added only after the clean-clone gate passed. CI commits `6de769c` and
+`c4b983a` culminated in successful GitHub Actions run `29852766796` across
+Node.js 20, 22, and 24.
 
 ## Milestone 1 — Presentation mode
 
