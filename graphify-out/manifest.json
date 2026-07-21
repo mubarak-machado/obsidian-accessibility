@@ -1,0 +1,37 @@
+{
+  "main.js": {
+    "mtime": 1784651495.127486,
+    "ast_hash": "fa5a79e761b5f76fa7170f96f0ae5192",
+    "semantic_hash": "fa5a79e761b5f76fa7170f96f0ae5192"
+  },
+  "manifest.json": {
+    "mtime": 1784651495.1275766,
+    "ast_hash": "066277f2ac75d5752d2bba996bf49774",
+    "semantic_hash": "066277f2ac75d5752d2bba996bf49774"
+  },
+  "versions.json": {
+    "mtime": 1784651495.12778,
+    "ast_hash": "a9ef9f1f1e9e57cd7e1aada0a11a5c6d",
+    "semantic_hash": "a9ef9f1f1e9e57cd7e1aada0a11a5c6d"
+  },
+  "AGENTS.md": {
+    "mtime": 1784652368.5824785,
+    "ast_hash": "94c73639c7d6f9537ebb620f2fd95074",
+    "semantic_hash": "94c73639c7d6f9537ebb620f2fd95074"
+  },
+  "README.md": {
+    "mtime": 1784652368.5824091,
+    "ast_hash": "87e0201cceb6f56743a2b46e1ed67f5a",
+    "semantic_hash": "87e0201cceb6f56743a2b46e1ed67f5a"
+  },
+  "docs/HANDOFF-v0.1.1.md": {
+    "mtime": 1784652368.5826976,
+    "ast_hash": "0847ae34635975289470db9ada94f176",
+    "semantic_hash": "0847ae34635975289470db9ada94f176"
+  },
+  "docs/ROADMAP.md": {
+    "mtime": 1784652368.582752,
+    "ast_hash": "285503e771178fb24dc94fd3c63cd128",
+    "semantic_hash": "285503e771178fb24dc94fd3c63cd128"
+  }
+}
