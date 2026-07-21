@@ -1,0 +1,9 @@
+{
+  "id": "obsidian-accessibility",
+  "name": "Obsidian Accessibility",
+  "version": "0.1.1",
+  "minAppVersion": "1.12.0",
+  "description": "Perfis e controles acessíveis de escala para leitura e apresentação no iPad.",
+  "author": "Mubarak",
+  "isDesktopOnly": false
+}
