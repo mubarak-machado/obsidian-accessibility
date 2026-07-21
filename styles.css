@@ -134,7 +134,8 @@ body.oa-zen-mode .status-bar {
   color: var(--text-on-accent);
 }
 
-.oa-font-scale-panel__zen-mode svg {
+.oa-font-scale-panel__zen-mode svg,
+.oa-font-scale-panel__reset svg {
   width: 33px;
   height: 33px;
 }
@@ -189,46 +190,8 @@ body.oa-zen-mode .status-bar {
   content: '';
 }
 
-.oa-font-scale-panel__separator {
-  width: 42px;
-  height: 1.5px;
-  margin-block: 0;
-  border-radius: 999px;
-  background: var(--background-modifier-border-focus);
-  flex: 0 0 auto;
-}
-
 .oa-font-scale-panel__reset {
-  -webkit-appearance: none;
-  appearance: none;
-  width: auto;
-  height: auto;
-  min-width: 0;
-  min-height: 0;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: transparent !important;
-  box-shadow: none !important;
-  touch-action: manipulation;
-}
-
-.oa-font-scale-panel__reset:is(:hover, :active, :focus) {
-  background: transparent !important;
-  box-shadow: none !important;
-  outline: 0;
-}
-
-.oa-font-scale-panel__reset:focus-visible {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-.oa-font-scale-panel__reset-label {
-  display: inline-block;
-  transform: scaleX(var(--oa-reset-scale-x, 1));
-  transform-origin: center;
+  flex: 0 0 auto;
 }
 
 .oa-font-scale-panel__range-frame {

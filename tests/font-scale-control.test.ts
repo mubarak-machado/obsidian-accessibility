@@ -162,10 +162,13 @@ describe('FontScaleControl', () => {
     );
     expect(panel?.children[1]?.classList.contains('oa-font-scale-panel__zen-mode')).toBe(true);
     expect(panel?.children[2]?.textContent).toBe('+');
-    expect(panel?.querySelector('.oa-font-scale-panel__separator')?.getAttribute('aria-hidden')).toBe(
-      'true',
-    );
-    expect(panel?.querySelector('.oa-font-scale-panel__reset-label')?.textContent).toBe('Reset');
+    expect(panel?.querySelector('.oa-font-scale-panel__separator')).toBeNull();
+    const reset = panel?.querySelector<HTMLButtonElement>('.oa-font-scale-panel__reset');
+    expect(reset).toBe(panel?.lastElementChild);
+    expect(reset?.classList.contains('oa-font-scale-panel__button')).toBe(true);
+    expect(reset?.dataset.icon).toBe('rotate-ccw');
+    expect(reset?.getAttribute('aria-label')).toBe('Restaurar tamanho do perfil');
+    expect(reset?.textContent).toBe('');
     control.destroy();
   });
 
@@ -225,7 +228,7 @@ describe('FontScaleControl', () => {
     zenMode.destroy();
   });
 
-  it('restaura o tamanho do perfil pela ação textual inferior', () => {
+  it('restaura o tamanho pelo botão inferior padronizado', () => {
     const { control, store, controller, container } = setup();
     store.setScale('reading', 66);
 

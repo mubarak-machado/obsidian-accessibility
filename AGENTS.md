@@ -57,7 +57,7 @@ Primary references:
 
 - One small persistent floating button.
 - A narrow vertical panel opens temporarily over the button without reserving page width.
-- Order: current value, separator, `+`, vertical range, `−`, separator, text-only `Reset`.
+- Order: current value, separator, Zen mode, `+`, vertical range, `−`, icon-only reset.
 - Minimum is at the bottom; maximum is at the top.
 - Reading range: 32–75 px. Live Preview range: 40–60 px.
 - Outside interaction, `Escape`, repeated activation, or context change closes the panel.

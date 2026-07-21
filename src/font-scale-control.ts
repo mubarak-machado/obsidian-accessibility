@@ -33,7 +33,6 @@ export class FontScaleControl {
   private readonly modeLabel: HTMLDivElement;
   private readonly zenModeButton: HTMLButtonElement;
   private readonly statusLive: HTMLDivElement;
-  private readonly resetLabel: HTMLSpanElement;
   private readonly range: HTMLInputElement;
   private readonly abortController = new AbortController();
   private readonly unsubscribe: () => void;
@@ -100,20 +99,15 @@ export class FontScaleControl {
     });
 
     const decrease = this.textButton(this.panel, '−', 'Diminuir um pixel');
-    const separator = this.panel.createDiv({ cls: 'oa-font-scale-panel__separator' });
-    separator.setAttribute('aria-hidden', 'true');
     const reset = this.panel.createEl('button', {
-      cls: 'oa-font-scale-panel__reset',
+      cls: 'oa-font-scale-panel__button oa-font-scale-panel__reset',
       attr: {
         type: 'button',
         'aria-label': 'Restaurar tamanho do perfil',
         title: 'Restaurar tamanho do perfil',
       },
     });
-    this.resetLabel = reset.createSpan({
-      cls: 'oa-font-scale-panel__reset-label oa-font-scale-panel__text',
-      text: 'Reset',
-    });
+    setIcon(reset, 'rotate-ccw');
     this.statusLive = this.root.createDiv({
       cls: 'oa-visually-hidden',
       attr: { 'aria-live': 'polite', 'aria-atomic': 'true' },
@@ -162,7 +156,6 @@ export class FontScaleControl {
     this.trigger.setAttribute('aria-expanded', 'true');
     this.updateTriggerLabel();
     window.requestAnimationFrame(() => {
-      this.alignResetLabel();
       this.positionPanel();
       if (focusRange) this.range.focus();
     });
@@ -262,25 +255,6 @@ export class FontScaleControl {
     const action = this.opened ? 'Fechar' : 'Abrir';
     const state = this.zenMode.active ? 'Modo zen ativo. ' : '';
     this.setTriggerLabel(`${state}${action} controles de acessibilidade`);
-  }
-
-  private alignResetLabel(): void {
-    const valueNode = this.modeLabel.firstChild;
-    const resetNode = this.resetLabel.firstChild;
-    if (!valueNode || !resetNode) return;
-
-    this.resetLabel.setCssProps({ '--oa-reset-scale-x': '1' });
-    const doc = this.view.containerEl.ownerDocument;
-    const valueRange = doc.createRange();
-    const resetRange = doc.createRange();
-    valueRange.selectNodeContents(valueNode);
-    resetRange.selectNodeContents(resetNode);
-    const valueWidth = valueRange.getBoundingClientRect().width;
-    const resetWidth = resetRange.getBoundingClientRect().width;
-    if (valueWidth <= 0 || resetWidth <= 0) return;
-
-    const scale = Math.min(1.25, Math.max(0.75, valueWidth / resetWidth));
-    this.resetLabel.setCssProps({ '--oa-reset-scale-x': `${scale}` });
   }
 
   private onOutsidePointer(event: PointerEvent): void {
