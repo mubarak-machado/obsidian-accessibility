@@ -160,6 +160,50 @@ describe('FontScaleControl', () => {
     control.destroy();
   });
 
+  it.each([55, 65])(
+    'reduz no primeiro arrasto para baixo a partir de %i px sem movimento preparatório',
+    (initialValue) => {
+      const { control, store, controller, container } = setup();
+      const frame = container.querySelector<HTMLElement>('.oa-font-scale-panel__range-frame');
+      if (!frame) throw new Error('Moldura do range não foi criada');
+      store.setScale('reading', initialValue);
+      vi.spyOn(frame, 'getBoundingClientRect').mockReturnValue({
+        top: 100,
+        bottom: 355,
+        left: 0,
+        right: 66,
+        width: 66,
+        height: 255,
+        x: 0,
+        y: 100,
+        toJSON: () => ({}),
+      });
+      const thumbCenter = 100 + 33 / 2 + ((75 - initialValue) / (75 - 32)) * (255 - 33);
+
+      frame.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          button: 0,
+          clientY: thumbCenter,
+          pointerId: 7,
+        }),
+      );
+      frame.dispatchEvent(
+        new PointerEvent('pointermove', {
+          bubbles: true,
+          button: 0,
+          clientY: thumbCenter + 12,
+          pointerId: 7,
+        }),
+      );
+      frame.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 7 }));
+
+      expect(store.activeProfile.readingSize).toBeLessThan(initialValue);
+      expect(controller.applyScaleWithAnchor).toHaveBeenCalledOnce();
+      control.destroy();
+    },
+  );
+
   it('organiza o painel em uma única coluna com slider vertical', () => {
     const { control, container } = setup();
     const panel = container.querySelector<HTMLElement>('.oa-font-scale-panel');
@@ -170,6 +214,9 @@ describe('FontScaleControl', () => {
     expect(range?.parentElement).toBe(frame);
     expect(range?.getAttribute('aria-orientation')).toBe('vertical');
     expect(range?.getAttribute('orient')).toBe('vertical');
+    expect(frame?.querySelector('.oa-font-scale-panel__range-track')).not.toBeNull();
+    expect(frame?.querySelector('.oa-font-scale-panel__range-thumb')).not.toBeNull();
+    expect(frame?.style.getPropertyValue('--oa-font-scale-range-position')).toMatch(/%$/);
     expect(panel?.querySelector('.oa-font-scale-panel__actions')).toBeNull();
     expect(panel?.querySelectorAll(':scope > button')).toHaveLength(4);
     expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe(

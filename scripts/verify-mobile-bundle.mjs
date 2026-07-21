@@ -23,21 +23,18 @@ if (!styles.includes('safe-area-inset-left') || !styles.includes('safe-area-inse
 if (
   !styles.includes('writing-mode: vertical-lr') ||
   !styles.includes('direction: rtl') ||
-  !styles.includes('inline-size: clamp(222px, 27vh, 255px)')
+  !styles.includes('.oa-font-scale-panel__range-track') ||
+  !styles.includes('.oa-font-scale-panel__range-thumb')
 ) {
-  failures.push('controle não usa a geometria vertical nativa com máximo no topo');
+  failures.push('controle não preserva semântica e pintura vertical separadas');
 }
 if (
-  !styles.includes('@supports not (writing-mode: vertical-lr)') ||
-  !styles.includes('rotate(-90deg)')
+  !styles.includes('top: var(--oa-font-scale-range-position, 50%)') ||
+  !styles.includes('transform: translate(-50%, -50%)') ||
+  !bundle.includes('setPointerCapture') ||
+  !bundle.includes('releasePointerCapture')
 ) {
-  failures.push('controle não preserva o fallback vertical para WebKit antigo');
-}
-if (
-  !styles.includes('::-webkit-slider-runnable-track') ||
-  !styles.includes('::-webkit-slider-thumb')
-) {
-  failures.push('slider não define trilho e puxador visíveis no WebKit/Blink');
+  failures.push('slider não alinha nem captura o arrasto vertical explicitamente');
 }
 if (!bundle.includes('aria-orientation') || !bundle.includes('vertical')) {
   failures.push('bundle não expõe a orientação vertical para acessibilidade');
@@ -66,7 +63,7 @@ if (
   !styles.includes('width: 75px;') ||
   !styles.includes('width: 66px;') ||
   !styles.includes('height: clamp(222px, 27vh, 255px);') ||
-  !styles.includes('block-size: 66px;')
+  !styles.includes('--oa-font-scale-thumb-size: 33px;')
 ) {
   failures.push('controle não preserva a ampliação mecânica de 150%');
 }

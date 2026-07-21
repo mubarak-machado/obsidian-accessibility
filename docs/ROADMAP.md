@@ -73,12 +73,17 @@ substituída por um botão inferior padronizado, com o ícone `rotate-ccw`, as
 mesmas dimensões do botão do Modo Zen e nome acessível explícito. Consulte
 [`RESEARCH-reset-control-2026-07.md`](RESEARCH-reset-control-2026-07.md).
 
-**Interação vertical corrigida em 2026-07-21:** o slider deixou de ser um
-controle horizontal apenas girado por CSS e passou a usar a orientação vertical
-nativa do navegador, com máximo no topo, mínimo embaixo e rotação limitada ao
-fallback de navegadores antigos. A mudança elimina a divergência entre a
-geometria visual e a área de toque interpretada pelo WebKit. Consulte
+**Tentativa de correção vertical em 2026-07-21:** na versão 0.4.2, o slider
+deixou de ser um controle horizontal apenas girado por CSS e passou a usar a
+orientação vertical nativa do navegador. O ensaio físico posterior invalidou
+essa abordagem para o controle personalizado. Consulte
 [`RESEARCH-native-vertical-slider-2026-07.md`](RESEARCH-native-vertical-slider-2026-07.md).
+
+**Correção anterior invalidada no iPad em 2026-07-21:** a versão 0.4.2 não
+resolveu o primeiro arrasto para baixo e introduziu desalinhamento entre o
+puxador e o trilho. A substituição corretiva separa a semântica nativa da
+pintura e da captura do ponteiro, conforme
+[`RESEARCH-pointer-driven-slider-2026-07.md`](RESEARCH-pointer-driven-slider-2026-07.md).
 
 **Etapa humana:** ensaiar com uma nota longa real no iPad sem modificá-la e
 confirmar que o primeiro arrasto para baixo funciona diretamente em 55 px e

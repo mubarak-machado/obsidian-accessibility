@@ -59,7 +59,7 @@ Primary references:
 - A narrow vertical panel opens temporarily over the button without reserving page width.
 - Order: current value, separator, Zen mode, `+`, vertical range, `−`, icon-only reset.
 - Minimum is at the bottom; maximum is at the top.
-- Use the native vertical writing mode for the range where supported; keep transform-based rotation isolated to the older-browser fallback.
+- Keep a native range input for keyboard and assistive-technology semantics, but use one plugin-owned vertical geometry for touch, track, and thumb rendering.
 - Reading range: 32–75 px. Live Preview range: 40–60 px.
 - Outside interaction, `Escape`, repeated activation, or context change closes the panel.
 - Scaling preserves reading position and never modifies the note.
@@ -77,6 +77,8 @@ git diff --check
 The pipeline must cover lint, tests, TypeScript, production build, and mobile-bundle inspection for Node/Electron imports and note-writing routes.
 
 Appearance, touch, orientation, safe-area, focus, VoiceOver, or position changes require physical iPad validation before release.
+
+Every interface correction, improvement, or feature also requires a browser-rendered visual inspection before commit and release. Inspect representative values, states, and compact sizing; record the evidence in the handoff. This visual gate complements but never replaces physical iPad validation for touch and VoiceOver.
 
 ## Release and documentation
 

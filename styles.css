@@ -70,7 +70,7 @@ body.oa-zen-mode .status-bar {
 
 .oa-font-scale-trigger:focus-visible,
 .oa-font-scale-panel__button:focus-visible,
-.oa-font-scale-panel__range:focus-visible {
+.oa-font-scale-panel__range-frame:has(.oa-font-scale-panel__range:focus-visible) {
   outline: 4.5px solid var(--interactive-accent);
   outline-offset: 4.5px;
 }
@@ -195,65 +195,69 @@ body.oa-zen-mode .status-bar {
 }
 
 .oa-font-scale-panel__range-frame {
-  display: grid;
-  place-items: center;
+  --oa-font-scale-thumb-size: 33px;
+
+  position: relative;
   width: 66px;
   height: clamp(222px, 27vh, 255px);
-}
-
-.oa-font-scale-panel input[type='range'].oa-font-scale-panel__range {
-  -webkit-appearance: none;
-  appearance: none;
-  display: block;
-  inline-size: clamp(222px, 27vh, 255px);
-  block-size: 66px;
-  min-width: 0;
-  max-width: none;
-  margin: 0;
-  box-sizing: border-box;
-  padding-block: 0;
-  padding-inline: var(--oa-font-scale-gap);
-  background: transparent;
+  border-radius: 999px;
   cursor: ns-resize;
-  direction: rtl;
   touch-action: none;
-  writing-mode: vertical-lr;
 }
 
-.oa-font-scale-panel input[type='range'].oa-font-scale-panel__range::-webkit-slider-runnable-track {
-  inline-size: 100%;
-  block-size: 15px;
+.oa-font-scale-panel__range-visual {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.oa-font-scale-panel__range-rail {
+  position: absolute;
+  inset-block: calc(var(--oa-font-scale-thumb-size) / 2);
+  inset-inline: 0;
+}
+
+.oa-font-scale-panel__range-track {
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  width: 15px;
+  box-sizing: border-box;
   border: 1.5px solid var(--interactive-accent);
   border-radius: 999px;
   background: var(--background-modifier-border-focus);
   box-shadow: inset 0 0 0 1.5px var(--background-primary);
+  transform: translateX(-50%);
 }
 
-.oa-font-scale-panel input[type='range'].oa-font-scale-panel__range::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  inline-size: 33px;
-  block-size: 33px;
-  margin-top: 0;
+.oa-font-scale-panel__range-thumb {
+  position: absolute;
+  top: var(--oa-font-scale-range-position, 50%);
+  left: 50%;
+  width: var(--oa-font-scale-thumb-size);
+  height: var(--oa-font-scale-thumb-size);
+  box-sizing: border-box;
   border: 4.5px solid var(--background-primary);
   border-radius: 50%;
   background: var(--interactive-accent);
   box-shadow: 0 0 0 3px var(--text-normal), 0 3px 12px rgb(0 0 0 / 42%);
+  transform: translate(-50%, -50%);
 }
 
-.oa-font-scale-panel input[type='range'].oa-font-scale-panel__range::-moz-range-track {
-  block-size: 15px;
-  border: 1.5px solid var(--interactive-accent);
-  border-radius: 999px;
-  background: var(--background-modifier-border-focus);
+.oa-font-scale-panel__range-frame.is-dragging .oa-font-scale-panel__range-thumb {
+  box-shadow: 0 0 0 4.5px var(--text-normal), 0 3px 12px rgb(0 0 0 / 42%);
 }
 
-.oa-font-scale-panel input[type='range'].oa-font-scale-panel__range::-moz-range-thumb {
-  inline-size: 33px;
-  block-size: 33px;
-  border: 4.5px solid var(--background-primary);
-  border-radius: 50%;
-  background: var(--interactive-accent);
-  box-shadow: 0 0 0 3px var(--text-normal), 0 3px 12px rgb(0 0 0 / 42%);
+.oa-font-scale-panel input[type='range'].oa-font-scale-panel__range {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+  direction: rtl;
+  writing-mode: vertical-lr;
 }
 
 .oa-settings-profile-heading,
@@ -271,34 +275,6 @@ body.oa-zen-mode .status-bar {
 
   .oa-font-scale-panel__range-frame {
     height: 180px;
-  }
-
-  .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range {
-    inline-size: 180px;
-  }
-}
-
-@supports not (writing-mode: vertical-lr) {
-  .oa-font-scale-panel__range-frame {
-    position: relative;
-  }
-
-  .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: clamp(222px, 27vh, 255px);
-    height: 66px;
-    direction: ltr;
-    transform: translate(-50%, -50%) rotate(-90deg);
-    transform-origin: center;
-    writing-mode: horizontal-tb;
-  }
-
-  @media (max-height: 840px) {
-    .oa-font-scale-panel input[type='range'].oa-font-scale-panel__range {
-      width: 180px;
-    }
   }
 }
 

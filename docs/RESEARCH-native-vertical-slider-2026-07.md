@@ -40,6 +40,12 @@ vertical em controles. O alvo comprovado do caminho principal é Safari 17.4 ou
 superior; não será introduzida detecção por versão nem uma simulação manual do
 slider, pois ambas aumentariam o risco de acessibilidade.
 
+> **Decisão invalidada no ensaio físico de 21/07/2026.** A versão 0.4.2 manteve
+> o problema do primeiro arrasto para baixo e deslocou o puxador para a direita
+> do trilho no iPad. A hipótese de que `writing-mode` resolveria também a
+> interação de um range extensamente personalizado estava errada. Consulte a
+> [pesquisa corretiva](RESEARCH-pointer-driven-slider-2026-07.md).
+
 ## Validação
 
 Automatizada:

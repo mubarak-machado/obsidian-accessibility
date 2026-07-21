@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verificação visual do slider</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+      :root {
+        --interactive-accent: #00e600;
+        --background-modifier-border: #14532d;
+        --background-modifier-border-focus: #00e600;
+        --background-primary: #30002f;
+        --text-normal: #fff;
+      }
+
+      body {
+        margin: 0;
+        background: #210020;
+        color: #fff;
+        font: 16px system-ui, sans-serif;
+      }
+
+      main {
+        display: flex;
+        min-height: 100vh;
+        box-sizing: border-box;
+        align-items: flex-start;
+        gap: 36px;
+        padding: 32px;
+      }
+
+      figure {
+        margin: 0;
+        text-align: center;
+      }
+
+      figcaption {
+        margin-bottom: 12px;
+      }
+
+      .visual-stage .oa-font-scale-panel {
+        position: relative;
+        left: auto;
+        top: auto;
+        display: flex;
+        max-height: none;
+        overflow: visible;
+      }
+
+      .visual-stage .compact .oa-font-scale-panel__range-frame {
+        height: 180px;
+      }
+
+      output {
+        display: block;
+        margin-top: 12px;
+        font-variant-numeric: tabular-nums;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="visual-stage"></main>
+    <script>
+      const states = [
+        ['Máximo · 75 px', '0%', false],
+        ['Intermediário · 55 px', `${(20 / 43) * 100}%`, false],
+        ['Mínimo · 32 px', '100%', false],
+        ['Compacto · 50 px', '50%', true],
+      ];
+      const stage = document.querySelector('.visual-stage');
+
+      for (const [label, position, compact] of states) {
+        const figure = document.createElement('figure');
+        if (compact) figure.className = 'compact';
+        figure.innerHTML = `
+          <figcaption>${label}</figcaption>
+          <section class="oa-font-scale-panel">
+            <div class="oa-font-scale-panel__range-frame" style="--oa-font-scale-range-position:${position}">
+              <div class="oa-font-scale-panel__range-visual" aria-hidden="true">
+                <div class="oa-font-scale-panel__range-rail">
+                  <div class="oa-font-scale-panel__range-track"></div>
+                  <div class="oa-font-scale-panel__range-thumb"></div>
+                </div>
+              </div>
+              <input class="oa-font-scale-panel__range" type="range" min="32" max="75" value="55" orient="vertical" aria-orientation="vertical">
+            </div>
+          </section>
+          <output></output>`;
+        stage.append(figure);
+
+        const track = figure.querySelector('.oa-font-scale-panel__range-track').getBoundingClientRect();
+        const thumb = figure.querySelector('.oa-font-scale-panel__range-thumb').getBoundingClientRect();
+        const deviation = Math.abs(track.left + track.width / 2 - (thumb.left + thumb.width / 2));
+        figure.querySelector('output').textContent = `desvio horizontal: ${deviation.toFixed(2)} px`;
+        figure.dataset.alignmentDeviation = deviation.toFixed(2);
+      }
+    </script>
+  </body>
+</html>

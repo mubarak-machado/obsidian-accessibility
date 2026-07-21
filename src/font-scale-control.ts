@@ -7,6 +7,13 @@ import { ZenModeController } from './zen-mode-controller';
 
 const PANEL_ID = 'oa-font-scale-panel';
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
+const RANGE_THUMB_SIZE = 33;
+const RANGE_TOUCH_RADIUS = 30;
+
+interface RangeDragState {
+  pointerId: number;
+  grabOffset: number;
+}
 
 /*! Material Design icon "accessibility_new" Copyright Google LLC, Apache-2.0. */
 const ACCESSIBILITY_LAUNCHER_PATH =
@@ -33,10 +40,12 @@ export class FontScaleControl {
   private readonly modeLabel: HTMLDivElement;
   private readonly zenModeButton: HTMLButtonElement;
   private readonly statusLive: HTMLDivElement;
+  private readonly rangeFrame: HTMLDivElement;
   private readonly range: HTMLInputElement;
   private readonly abortController = new AbortController();
   private readonly unsubscribe: () => void;
   private readonly unsubscribeZenMode: () => void;
+  private rangeDrag: RangeDragState | null = null;
   private opened = false;
 
   constructor(
@@ -87,8 +96,15 @@ export class FontScaleControl {
     });
     const increase = this.textButton(this.panel, '+', 'Aumentar um pixel');
 
-    const rangeFrame = this.panel.createDiv({ cls: 'oa-font-scale-panel__range-frame' });
-    this.range = rangeFrame.createEl('input', {
+    this.rangeFrame = this.panel.createDiv({ cls: 'oa-font-scale-panel__range-frame' });
+    const rangeVisual = this.rangeFrame.createDiv({
+      cls: 'oa-font-scale-panel__range-visual',
+      attr: { 'aria-hidden': 'true' },
+    });
+    const rangeRail = rangeVisual.createDiv({ cls: 'oa-font-scale-panel__range-rail' });
+    rangeRail.createDiv({ cls: 'oa-font-scale-panel__range-track' });
+    rangeRail.createDiv({ cls: 'oa-font-scale-panel__range-thumb' });
+    this.range = this.rangeFrame.createEl('input', {
       cls: 'oa-font-scale-panel__range',
       attr: {
         type: 'range',
@@ -121,6 +137,18 @@ export class FontScaleControl {
     decrease.addEventListener('click', () => this.step(-1), { signal });
     reset.addEventListener('click', () => this.reset(), { signal });
     this.range.addEventListener('input', () => this.setScale(Number(this.range.value)), { signal });
+    this.rangeFrame.addEventListener('pointerdown', (event) => this.startRangeDrag(event), {
+      signal,
+    });
+    this.rangeFrame.addEventListener('pointermove', (event) => this.moveRangeDrag(event), {
+      signal,
+    });
+    this.rangeFrame.addEventListener('pointerup', (event) => this.stopRangeDrag(event), {
+      signal,
+    });
+    this.rangeFrame.addEventListener('pointercancel', (event) => this.stopRangeDrag(event), {
+      signal,
+    });
     doc.addEventListener('pointerdown', (event) => this.onOutsidePointer(event), {
       capture: true,
       signal,
@@ -184,6 +212,8 @@ export class FontScaleControl {
     this.range.max = `${limits.maximum}`;
     this.range.value = `${value}`;
     this.range.setAttribute('aria-valuetext', `${value} pixels`);
+    const position = (limits.maximum - value) / (limits.maximum - limits.minimum);
+    this.rangeFrame.style.setProperty('--oa-font-scale-range-position', `${position * 100}%`);
     this.modeLabel.setText(`${value} px`);
     this.modeLabel.setAttribute('title', `${value} pixels`);
     if (!settings.enabled && this.opened) this.close(false);
@@ -230,6 +260,62 @@ export class FontScaleControl {
     const mode = this.controller.mode();
     this.store.setScale(mode, value);
     this.controller.applyScaleWithAnchor();
+  }
+
+  private startRangeDrag(event: PointerEvent): void {
+    if (this.rangeDrag || event.button !== 0) return;
+    const bounds = this.rangeFrame.getBoundingClientRect();
+    const travel = bounds.height - RANGE_THUMB_SIZE;
+    if (travel <= 0) return;
+
+    const minimum = Number(this.range.min);
+    const maximum = Number(this.range.max);
+    const value = Number(this.range.value);
+    const position = (maximum - value) / (maximum - minimum);
+    const thumbCenter = bounds.top + RANGE_THUMB_SIZE / 2 + position * travel;
+    if (Math.abs(event.clientY - thumbCenter) > RANGE_TOUCH_RADIUS) return;
+
+    event.preventDefault();
+    this.range.focus({ preventScroll: true });
+    this.rangeDrag = {
+      pointerId: event.pointerId,
+      grabOffset: event.clientY - thumbCenter,
+    };
+    this.rangeFrame.classList.add('is-dragging');
+    try {
+      this.rangeFrame.setPointerCapture(event.pointerId);
+    } catch {
+      // Pointer capture is an enhancement; document-level movement is not required here.
+    }
+  }
+
+  private moveRangeDrag(event: PointerEvent): void {
+    if (!this.rangeDrag || event.pointerId !== this.rangeDrag.pointerId) return;
+    event.preventDefault();
+
+    const bounds = this.rangeFrame.getBoundingClientRect();
+    const travel = bounds.height - RANGE_THUMB_SIZE;
+    if (travel <= 0) return;
+    const minimum = Number(this.range.min);
+    const maximum = Number(this.range.max);
+    const thumbCenter = event.clientY - this.rangeDrag.grabOffset;
+    const position = Math.min(
+      1,
+      Math.max(0, (thumbCenter - bounds.top - RANGE_THUMB_SIZE / 2) / travel),
+    );
+    const nextValue = Math.round(maximum - position * (maximum - minimum));
+    if (nextValue !== Number(this.range.value)) this.setScale(nextValue);
+  }
+
+  private stopRangeDrag(event: PointerEvent): void {
+    if (!this.rangeDrag || event.pointerId !== this.rangeDrag.pointerId) return;
+    this.rangeDrag = null;
+    this.rangeFrame.classList.remove('is-dragging');
+    try {
+      this.rangeFrame.releasePointerCapture(event.pointerId);
+    } catch {
+      // The pointer may already have been released by the browser.
+    }
   }
 
   private reset(): void {

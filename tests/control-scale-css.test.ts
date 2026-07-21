@@ -14,23 +14,35 @@ describe('escala visual do controle', () => {
     expect(styles).toContain('font-size: 45px;');
     expect(styles).toContain('font-size: 16.5px;');
     expect(styles).toContain('height: clamp(222px, 27vh, 255px);');
-    expect(styles).toContain('inline-size: clamp(222px, 27vh, 255px);');
-    expect(styles).toContain('inline-size: 33px;');
+    expect(styles).toContain('--oa-font-scale-thumb-size: 33px;');
     expect(styles).toContain('@media (max-height: 840px)');
     expect(styles).toContain('height: 180px;');
   });
 
-  it('usa um range vertical nativo com máximo no topo e rotação apenas no fallback', () => {
+  it('alinha trilho e puxador pela mesma linha central', () => {
+    const trackRule = styles.match(
+      /\.oa-font-scale-panel__range-track \{(?<rule>[\s\S]*?)\n\}/,
+    )?.groups?.rule;
+    const thumbRule = styles.match(
+      /\.oa-font-scale-panel__range-thumb \{(?<rule>[\s\S]*?)\n\}/,
+    )?.groups?.rule;
+
+    expect(trackRule).toContain('left: 50%;');
+    expect(trackRule).toContain('transform: translateX(-50%);');
+    expect(thumbRule).toContain('left: 50%;');
+    expect(thumbRule).toContain('transform: translate(-50%, -50%);');
+    expect(thumbRule).toContain('top: var(--oa-font-scale-range-position, 50%);');
+  });
+
+  it('mantém o range nativo acessível sem delegar a ele a pintura ou o toque', () => {
     const rangeRule = styles.match(
       /\.oa-font-scale-panel input\[type='range'\]\.oa-font-scale-panel__range \{(?<rule>[\s\S]*?)\n\}/,
-    )?.groups?.rule;
-    const fallback = styles.match(
-      /@supports not \(writing-mode: vertical-lr\) \{(?<rule>[\s\S]*?)\n\}/,
     )?.groups?.rule;
 
     expect(rangeRule).toContain('writing-mode: vertical-lr;');
     expect(rangeRule).toContain('direction: rtl;');
-    expect(rangeRule).not.toContain('rotate(');
-    expect(fallback).toContain('rotate(-90deg)');
+    expect(rangeRule).toContain('opacity: 0;');
+    expect(rangeRule).toContain('pointer-events: none;');
+    expect(styles).not.toContain('::-webkit-slider-thumb');
   });
 });
