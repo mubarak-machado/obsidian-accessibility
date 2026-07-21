@@ -13,6 +13,7 @@
     "test:watch": "vitest",
     "check": "npm run lint && npm run test && npm run build && npm run verify:mobile",
     "verify:mobile": "node scripts/verify-mobile-bundle.mjs",
+    "verify:baseline": "node scripts/verify-release-baseline.mjs",
     "install:test": "node scripts/install-test-vault.mjs"
   },
   "devDependencies": {
