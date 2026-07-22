@@ -1,6 +1,8 @@
 import {
   AccessibilitySettings,
+  ControlScale,
   ControlSide,
+  ControlVerticalPosition,
   DEFAULT_SETTINGS,
   ProfileId,
   ProfileScaleSettings,
@@ -47,6 +49,14 @@ export class ScaleStore {
 
   setSide(side: ControlSide): void {
     this.update({ ...this.settings, side });
+  }
+
+  setVerticalPosition(verticalPosition: ControlVerticalPosition): void {
+    this.update({ ...this.settings, verticalPosition });
+  }
+
+  setControlScale(controlScale: ControlScale): void {
+    this.update({ ...this.settings, controlScale });
   }
 
   setActiveProfile(activeProfile: ProfileId): void {

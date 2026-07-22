@@ -90,6 +90,23 @@ confirmar que o primeiro arrasto para baixo funciona diretamente em 55 px e
 65 px na leitura, além de 50 px na visualização ao vivo, em retrato, paisagem e
 Split View.
 
+**Mínimo unificado concluído em 2026-07-22:** Leitura e edição agora aceitam
+32 px como valor mínimo nos perfis Apresentação, Preparação e Pesquisa, mantendo
+os máximos próprios de 75 px e 60 px. A alteração preserva os valores padrão e
+não exige migração destrutiva. Consulte
+[`RESEARCH-unified-font-minimum-2026-07.md`](RESEARCH-unified-font-minimum-2026-07.md).
+
+**Personalização do controle concluída em 2026-07-22:** o botão flutuante combina
+Direita ou Esquerda com Inferior, Meio ou Superior, sem posição horizontal
+central. O componente completo oferece Mínima (50%), Média (100%) e Grande
+(150%), preservando Grande como padrão. Após dois segundos fechado e sem
+interação, o acionador fica com 50% de opacidade e recupera a visibilidade ao
+toque ou foco. O painel parte do botão e permanece contido na nota e na área
+visível. Consulte
+[`RESEARCH-control-position-2026-07.md`](RESEARCH-control-position-2026-07.md).
+Consulte também
+[`RESEARCH-control-scale-2026-07.md`](RESEARCH-control-scale-2026-07.md).
+
 ## Marco 2 — Segurança da interação
 
 - [ ] Pesquisar edição segura e proteção contra ações acidentais do teclado.

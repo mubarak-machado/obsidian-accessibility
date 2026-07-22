@@ -2,13 +2,21 @@ import { MarkdownView, setIcon } from 'obsidian';
 import { computePanelPosition } from './positioning';
 import { ScaleController } from './scale-controller';
 import { ScaleStore } from './scale-store';
-import { scaleLimits } from './settings-model';
+import {
+  CONTROL_SCALE_FACTORS,
+  CONTROL_SCALES,
+  CONTROL_SIDES,
+  CONTROL_VERTICAL_POSITIONS,
+  scaleLimits,
+} from './settings-model';
 import { ZenModeController } from './zen-mode-controller';
 
 const PANEL_ID = 'oa-font-scale-panel';
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
-const RANGE_THUMB_SIZE = 33;
-const RANGE_TOUCH_RADIUS = 30;
+const BASE_RANGE_THUMB_SIZE = 22;
+const BASE_RANGE_TOUCH_RADIUS = 20;
+const MINIMUM_RANGE_TOUCH_RADIUS = 12;
+const TRIGGER_IDLE_DELAY_MS = 2_000;
 
 interface RangeDragState {
   pointerId: number;
@@ -46,6 +54,7 @@ export class FontScaleControl {
   private readonly unsubscribe: () => void;
   private readonly unsubscribeZenMode: () => void;
   private rangeDrag: RangeDragState | null = null;
+  private idleTimer: number | null = null;
   private opened = false;
 
   constructor(
@@ -132,6 +141,11 @@ export class FontScaleControl {
 
     const signal = this.abortController.signal;
     this.trigger.addEventListener('click', (event) => this.toggle(event.detail === 0), { signal });
+    this.root.addEventListener('pointerdown', () => this.wakeTrigger(), { signal });
+    this.root.addEventListener('pointerenter', () => this.wakeTrigger(), { signal });
+    this.root.addEventListener('pointerleave', () => this.scheduleTriggerIdle(), { signal });
+    this.root.addEventListener('focusin', () => this.wakeTrigger(), { signal });
+    this.root.addEventListener('focusout', () => this.scheduleTriggerIdle(), { signal });
     this.zenModeButton.addEventListener('click', () => this.toggleZenMode(), { signal });
     increase.addEventListener('click', () => this.step(1), { signal });
     decrease.addEventListener('click', () => this.step(-1), { signal });
@@ -176,6 +190,7 @@ export class FontScaleControl {
   }
 
   toggle(focusRange = false): void {
+    this.wakeTrigger();
     if (this.opened) {
       this.close(false);
       return;
@@ -185,6 +200,7 @@ export class FontScaleControl {
     this.trigger.setAttribute('aria-expanded', 'true');
     this.updateTriggerLabel();
     window.requestAnimationFrame(() => {
+      if (!this.opened) return;
       this.positionPanel();
       if (focusRange) this.range.focus();
     });
@@ -195,6 +211,7 @@ export class FontScaleControl {
     this.unsubscribe();
     this.unsubscribeZenMode();
     this.close(false);
+    this.clearIdleTimer();
     this.root.remove();
   }
 
@@ -205,8 +222,21 @@ export class FontScaleControl {
     const value = mode === 'reading' ? profile.readingSize : profile.editingSize;
     const limits = scaleLimits(mode);
 
-    this.root.classList.toggle('is-left', settings.side === 'left');
-    this.root.classList.toggle('is-right', settings.side === 'right');
+    for (const side of CONTROL_SIDES) {
+      this.root.classList.toggle(`is-${side}`, settings.side === side);
+    }
+    for (const verticalPosition of CONTROL_VERTICAL_POSITIONS) {
+      this.root.classList.toggle(
+        `is-${verticalPosition}`,
+        settings.verticalPosition === verticalPosition,
+      );
+    }
+    for (const controlScale of CONTROL_SCALES) {
+      this.root.classList.toggle(
+        `is-scale-${controlScale}`,
+        settings.controlScale === controlScale,
+      );
+    }
     this.root.hidden = !settings.enabled;
     this.range.min = `${limits.minimum}`;
     this.range.max = `${limits.maximum}`;
@@ -216,7 +246,13 @@ export class FontScaleControl {
     this.rangeFrame.style.setProperty('--oa-font-scale-range-position', `${position * 100}%`);
     this.modeLabel.setText(`${value} px`);
     this.modeLabel.setAttribute('title', `${value} pixels`);
-    if (!settings.enabled && this.opened) this.close(false);
+    if (!settings.enabled) {
+      if (this.opened) this.close(false);
+      this.clearIdleTimer();
+      this.root.classList.remove('is-idle');
+    } else if (!this.opened && this.idleTimer === null && !this.root.classList.contains('is-idle')) {
+      this.scheduleTriggerIdle();
+    }
   }
 
   private positionPanel(): void {
@@ -233,6 +269,7 @@ export class FontScaleControl {
       containerRect,
       { width: win.innerWidth, height: win.innerHeight },
       this.store.snapshot.side,
+      this.store.snapshot.verticalPosition,
     );
     this.panel.style.left = `${position.left}px`;
     this.panel.style.top = `${position.top}px`;
@@ -245,6 +282,7 @@ export class FontScaleControl {
     this.trigger.setAttribute('aria-expanded', 'false');
     this.updateTriggerLabel();
     if (returnFocus) this.trigger.focus();
+    this.scheduleTriggerIdle();
   }
 
   private setTriggerLabel(label: string): void {
@@ -265,15 +303,16 @@ export class FontScaleControl {
   private startRangeDrag(event: PointerEvent): void {
     if (this.rangeDrag || event.button !== 0) return;
     const bounds = this.rangeFrame.getBoundingClientRect();
-    const travel = bounds.height - RANGE_THUMB_SIZE;
+    const thumbSize = this.rangeThumbSize();
+    const travel = bounds.height - thumbSize;
     if (travel <= 0) return;
 
     const minimum = Number(this.range.min);
     const maximum = Number(this.range.max);
     const value = Number(this.range.value);
     const position = (maximum - value) / (maximum - minimum);
-    const thumbCenter = bounds.top + RANGE_THUMB_SIZE / 2 + position * travel;
-    if (Math.abs(event.clientY - thumbCenter) > RANGE_TOUCH_RADIUS) return;
+    const thumbCenter = bounds.top + thumbSize / 2 + position * travel;
+    if (Math.abs(event.clientY - thumbCenter) > this.rangeTouchRadius()) return;
 
     event.preventDefault();
     this.range.focus({ preventScroll: true });
@@ -294,14 +333,15 @@ export class FontScaleControl {
     event.preventDefault();
 
     const bounds = this.rangeFrame.getBoundingClientRect();
-    const travel = bounds.height - RANGE_THUMB_SIZE;
+    const thumbSize = this.rangeThumbSize();
+    const travel = bounds.height - thumbSize;
     if (travel <= 0) return;
     const minimum = Number(this.range.min);
     const maximum = Number(this.range.max);
     const thumbCenter = event.clientY - this.rangeDrag.grabOffset;
     const position = Math.min(
       1,
-      Math.max(0, (thumbCenter - bounds.top - RANGE_THUMB_SIZE / 2) / travel),
+      Math.max(0, (thumbCenter - bounds.top - thumbSize / 2) / travel),
     );
     const nextValue = Math.round(maximum - position * (maximum - minimum));
     if (nextValue !== Number(this.range.value)) this.setScale(nextValue);
@@ -316,6 +356,39 @@ export class FontScaleControl {
     } catch {
       // The pointer may already have been released by the browser.
     }
+  }
+
+  private rangeThumbSize(): number {
+    return BASE_RANGE_THUMB_SIZE * CONTROL_SCALE_FACTORS[this.store.snapshot.controlScale];
+  }
+
+  private rangeTouchRadius(): number {
+    return Math.max(
+      MINIMUM_RANGE_TOUCH_RADIUS,
+      BASE_RANGE_TOUCH_RADIUS * CONTROL_SCALE_FACTORS[this.store.snapshot.controlScale],
+    );
+  }
+
+  private wakeTrigger(): void {
+    this.clearIdleTimer();
+    this.root.classList.remove('is-idle');
+  }
+
+  private scheduleTriggerIdle(): void {
+    this.clearIdleTimer();
+    if (this.opened || !this.store.snapshot.enabled) return;
+    const win = this.view.containerEl.ownerDocument.defaultView;
+    if (!win) return;
+    this.idleTimer = win.setTimeout(() => {
+      this.idleTimer = null;
+      if (!this.opened && this.store.snapshot.enabled) this.root.classList.add('is-idle');
+    }, TRIGGER_IDLE_DELAY_MS);
+  }
+
+  private clearIdleTimer(): void {
+    if (this.idleTimer === null) return;
+    this.view.containerEl.ownerDocument.defaultView?.clearTimeout(this.idleTimer);
+    this.idleTimer = null;
   }
 
   private reset(): void {

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Proposta visual — personalização do controle</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+      :root {
+        --interactive-accent: #7c5cff;
+        --background-primary-alt: #292633;
+        --background-primary: #201e27;
+        --background-secondary: #18171d;
+        --background-modifier-border: #4b4657;
+        --background-modifier-border-focus: #8f79ff;
+        --background-modifier-hover: #35313f;
+        --text-normal: #f5f2fa;
+        --text-muted: #b2abbc;
+        --text-on-accent: #fff;
+        --font-interface: Inter, ui-sans-serif, system-ui, sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        background: #111015;
+        color: var(--text-normal);
+        font: 15px/1.45 var(--font-interface);
+      }
+
+      main {
+        display: grid;
+        min-height: 100vh;
+        grid-template-columns: minmax(560px, 1.2fr) minmax(460px, 0.8fr);
+        gap: 28px;
+        padding: 32px;
+      }
+
+      .surface {
+        border: 1px solid #3c3845;
+        border-radius: 18px;
+        background: var(--background-secondary);
+        box-shadow: 0 24px 70px rgb(0 0 0 / 34%);
+        overflow: hidden;
+      }
+
+      header {
+        padding: 24px 26px 18px;
+        border-bottom: 1px solid #34313b;
+      }
+
+      h1, h2, p { margin: 0; }
+      h1 { font-size: 22px; }
+      h2 { font-size: 18px; }
+      header p, .description { color: var(--text-muted); }
+
+      .settings-body { padding: 10px 26px 26px; }
+      .group-title { margin-top: 18px; color: #d9d3e2; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; }
+
+      .setting-row {
+        display: grid;
+        min-height: 74px;
+        grid-template-columns: 1fr 210px;
+        align-items: center;
+        gap: 20px;
+        border-bottom: 1px solid #302d36;
+      }
+
+      .setting-name { margin-bottom: 3px; font-weight: 650; }
+
+      select {
+        width: 100%;
+        height: 38px;
+        padding: 0 36px 0 12px;
+        border: 1px solid #565061;
+        border-radius: 8px;
+        background: #292631;
+        color: var(--text-normal);
+        font: inherit;
+      }
+
+      .toggle {
+        justify-self: end;
+        width: 42px;
+        height: 24px;
+        padding: 3px;
+        border-radius: 99px;
+        background: var(--interactive-accent);
+      }
+
+      .toggle::after {
+        display: block;
+        width: 18px;
+        height: 18px;
+        margin-left: 18px;
+        border-radius: 50%;
+        background: #fff;
+        content: '';
+      }
+
+      .note {
+        margin-top: 18px;
+        padding: 12px 14px;
+        border: 1px solid #544a82;
+        border-radius: 10px;
+        background: #28233b;
+        color: #d8cffd;
+      }
+
+      .preview-body { padding: 24px; }
+      .preview-grid { display: grid; gap: 18px; margin-top: 20px; }
+
+      .preview-card {
+        display: grid;
+        min-height: 126px;
+        grid-template-columns: 1fr 180px;
+        align-items: center;
+        gap: 18px;
+        padding: 18px;
+        border: 1px solid #3b3743;
+        border-radius: 14px;
+        background: #211f27;
+      }
+
+      .preview-card strong { display: block; margin-bottom: 3px; font-size: 16px; }
+      .preview-card small { color: var(--text-muted); }
+
+      .button-stage {
+        position: relative;
+        height: 92px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #292632, #1a1920);
+        overflow: hidden;
+      }
+
+      .button-stage .oa-font-scale-root {
+        position: absolute;
+        inset: 0;
+        contain: none;
+      }
+
+      .button-stage .oa-font-scale-trigger { box-sizing: border-box; }
+
+      .idle-label {
+        display: inline-block;
+        margin-top: 7px;
+        padding: 2px 7px;
+        border-radius: 99px;
+        background: #34303e;
+        color: #c7bfce;
+        font-size: 11px;
+      }
+
+      footer {
+        padding: 14px 24px;
+        border-top: 1px solid #34313b;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="surface">
+        <header>
+          <h1>Obsidian Accessibility</h1>
+          <p>Ajustes aplicados somente à nota Markdown ativa.</p>
+        </header>
+        <div class="settings-body">
+          <h2 class="group-title">Controle flutuante</h2>
+          <div class="setting-row">
+            <div><div class="setting-name">Mostrar controle</div><div class="description">Exibe o botão na nota ativa.</div></div>
+            <div class="toggle" aria-label="Ativado"></div>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-name">Posição horizontal</div><div class="description">Direita ou Esquerda, nunca no centro.</div></div>
+            <select><option>Direita</option><option>Esquerda</option></select>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-name">Posição vertical</div><div class="description">Inferior, Meio ou Superior.</div></div>
+            <select><option>Meio</option><option>Superior</option><option>Inferior</option></select>
+          </div>
+          <div class="setting-row">
+            <div><div class="setting-name">Escala do controle</div><div class="description">Redimensiona o botão, o slider, ícones e espaçamentos.</div></div>
+            <select><option>Grande — 150%</option><option>Média — 100%</option><option>Mínima — 50%</option></select>
+          </div>
+          <div class="note">Após 2 segundos sem interação, o botão fechado fica com 50% de opacidade. Ao tocar ou focar, recupera a visibilidade total imediatamente.</div>
+        </div>
+        <footer>Os ajustes de tamanho da fonte permanecem organizados abaixo, por perfil.</footer>
+      </section>
+
+      <section class="surface">
+        <header>
+          <h2>Prévia do botão</h2>
+          <p>Mesma forma e comportamento em três escalas.</p>
+        </header>
+        <div class="preview-body">
+          <div class="preview-grid" id="previews"></div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const icon = `<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M20.75 6.99c-.14-.55-.69-.87-1.24-.75C17.13 6.77 14.48 7 12 7s-5.13-.23-7.51-.76c-.55-.12-1.1.2-1.24.75-.14.56.2 1.13.75 1.26 1.61.36 3.35.61 5 .75v12c0 .55.45 1 1 1s1-.45 1-1v-5h2v5c0 .55.45 1 1 1s1-.45 1-1V9c1.65-.14 3.39-.39 4.99-.75.56-.13.9-.7.76-1.26zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"/></svg>`;
+      const states = [
+        ['Grande', '150%', 'large', false],
+        ['Média', '100%', 'medium', false],
+        ['Mínima', '50%', 'small', true],
+      ];
+      const previews = document.querySelector('#previews');
+
+      for (const [name, percentage, scale, idle] of states) {
+        const card = document.createElement('article');
+        card.className = 'preview-card';
+        card.innerHTML = `
+          <div><strong>${name} · ${percentage}</strong><small>${idle ? 'Exemplo em repouso após 2 s' : 'Visibilidade ativa'}</small>${idle ? '<br><span class="idle-label">50% de opacidade</span>' : ''}</div>
+          <div class="button-stage">
+            <div class="oa-font-scale-root is-right is-center is-scale-${scale}${idle ? ' is-idle' : ''}">
+              <button class="oa-font-scale-trigger" type="button" aria-expanded="false">
+                <span class="oa-font-scale-trigger__icon">${icon}</span>
+              </button>
+            </div>
+          </div>`;
+        previews.append(card);
+      }
+    </script>
+  </body>
+</html>

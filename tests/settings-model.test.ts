@@ -24,6 +24,8 @@ describe('normalizeSettings', () => {
     const settings = normalizeSettings({
       enabled: false,
       side: 'left',
+      verticalPosition: 'top',
+      controlScale: 'medium',
       activeProfile: 'presentation',
       profiles: {
         presentation: { readingSize: 999, editingSize: 1, lineHeight: 9 },
@@ -32,13 +34,29 @@ describe('normalizeSettings', () => {
 
     expect(settings.enabled).toBe(false);
     expect(settings.side).toBe('left');
+    expect(settings.verticalPosition).toBe('top');
+    expect(settings.controlScale).toBe('medium');
     expect(settings.activeProfile).toBe('presentation');
     expect(settings.profiles.presentation).toEqual({
       readingSize: 75,
-      editingSize: 40,
+      editingSize: 32,
       lineHeight: 1.6,
     });
   });
+
+  it.each(['presentation', 'preparation', 'research'] as const)(
+    'normaliza leitura e edição de %s para o mínimo comum de 32 px',
+    (profileId) => {
+      const settings = normalizeSettings({
+        profiles: {
+          [profileId]: { readingSize: 1, editingSize: 1, lineHeight: 1.2 },
+        },
+      });
+
+      expect(settings.profiles[profileId].readingSize).toBe(32);
+      expect(settings.profiles[profileId].editingSize).toBe(32);
+    },
+  );
 
   it('descarta o estado persistente legado da barra de abas', () => {
     const migrated = normalizeSettings({
@@ -48,8 +66,50 @@ describe('normalizeSettings', () => {
     });
 
     expect(migrated).not.toHaveProperty('tabBarHidden');
-    expect(migrated.schemaVersion).toBe(2);
+    expect(migrated.schemaVersion).toBe(3);
     expect(hasCurrentSettingsSchema({ ...DEFAULT_SETTINGS, schemaVersion: 1 })).toBe(false);
+  });
+
+  it.each(['right', 'left'] as const)(
+    'migra a posição lateral %s do esquema anterior',
+    (side) => {
+      const migrated = normalizeSettings({
+        ...DEFAULT_SETTINGS,
+        schemaVersion: 2,
+        side,
+      });
+
+      expect(migrated.side).toBe(side);
+      expect(migrated.verticalPosition).toBe('center');
+      expect(migrated.controlScale).toBe('large');
+      expect(migrated.schemaVersion).toBe(3);
+    },
+  );
+
+  it.each(['bottom', 'center', 'top'] as const)(
+    'preserva a posição vertical válida %s',
+    (verticalPosition) => {
+      expect(normalizeSettings({ verticalPosition }).verticalPosition).toBe(verticalPosition);
+    },
+  );
+
+  it.each(['large', 'medium', 'small'] as const)(
+    'preserva a escala válida %s',
+    (controlScale) => {
+      expect(normalizeSettings({ controlScale }).controlScale).toBe(controlScale);
+    },
+  );
+
+  it('normaliza posicionamento e escala inválidos para os padrões seguros', () => {
+    const settings = normalizeSettings({
+      side: 'center',
+      verticalPosition: 'middle',
+      controlScale: 'tiny',
+    });
+
+    expect(settings.side).toBe('right');
+    expect(settings.verticalPosition).toBe('center');
+    expect(settings.controlScale).toBe('large');
   });
 
   it('distingue migração inicial de dados já versionados', () => {
@@ -84,10 +144,10 @@ describe('migração do Style Settings', () => {
 });
 
 describe('clampScale', () => {
-  it('mantém as faixas aprovadas de leitura e edição', () => {
+  it('mantém mínimo comum e máximos próprios de leitura e edição', () => {
     expect(clampScale('reading', 10)).toBe(32);
     expect(clampScale('reading', 90)).toBe(75);
-    expect(clampScale('editing', 10)).toBe(40);
+    expect(clampScale('editing', 10)).toBe(32);
     expect(clampScale('editing', 90)).toBe(60);
   });
 });

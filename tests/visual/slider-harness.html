@@ -26,6 +26,7 @@
         min-height: 100vh;
         box-sizing: border-box;
         align-items: flex-start;
+        flex-wrap: wrap;
         gap: 36px;
         padding: 32px;
       }
@@ -48,6 +49,14 @@
         overflow: visible;
       }
 
+      .visual-stage .oa-font-scale-root {
+        position: relative;
+        inset: auto;
+        width: max-content;
+        height: max-content;
+        contain: none;
+      }
+
       .visual-stage .compact .oa-font-scale-panel__range-frame {
         height: 180px;
       }
@@ -63,29 +72,35 @@
     <main class="visual-stage"></main>
     <script>
       const states = [
-        ['Máximo · 75 px', '0%', false],
-        ['Intermediário · 55 px', `${(20 / 43) * 100}%`, false],
-        ['Mínimo · 32 px', '100%', false],
-        ['Compacto · 50 px', '50%', true],
+        ['Leitura máxima · 75 px', 32, 75, 75, false],
+        ['Leitura intermediária · 55 px', 32, 75, 55, false],
+        ['Leitura mínima · 32 px', 32, 75, 32, false],
+        ['Edição máxima · 60 px', 32, 60, 60, false],
+        ['Edição intermediária · 50 px', 32, 60, 50, false],
+        ['Edição mínima · 32 px', 32, 60, 32, false],
+        ['Compacto · edição 50 px', 32, 60, 50, true],
       ];
       const stage = document.querySelector('.visual-stage');
 
-      for (const [label, position, compact] of states) {
+      for (const [label, minimum, maximum, value, compact] of states) {
+        const position = `${((maximum - value) / (maximum - minimum)) * 100}%`;
         const figure = document.createElement('figure');
         if (compact) figure.className = 'compact';
         figure.innerHTML = `
           <figcaption>${label}</figcaption>
-          <section class="oa-font-scale-panel">
-            <div class="oa-font-scale-panel__range-frame" style="--oa-font-scale-range-position:${position}">
-              <div class="oa-font-scale-panel__range-visual" aria-hidden="true">
-                <div class="oa-font-scale-panel__range-rail">
-                  <div class="oa-font-scale-panel__range-track"></div>
-                  <div class="oa-font-scale-panel__range-thumb"></div>
+          <div class="oa-font-scale-root is-scale-large">
+            <section class="oa-font-scale-panel">
+              <div class="oa-font-scale-panel__range-frame" style="--oa-font-scale-range-position:${position}">
+                <div class="oa-font-scale-panel__range-visual" aria-hidden="true">
+                  <div class="oa-font-scale-panel__range-rail">
+                    <div class="oa-font-scale-panel__range-track"></div>
+                    <div class="oa-font-scale-panel__range-thumb"></div>
+                  </div>
                 </div>
+                <input class="oa-font-scale-panel__range" type="range" min="${minimum}" max="${maximum}" value="${value}" orient="vertical" aria-orientation="vertical">
               </div>
-              <input class="oa-font-scale-panel__range" type="range" min="32" max="75" value="55" orient="vertical" aria-orientation="vertical">
-            </div>
-          </section>
+            </section>
+          </div>
           <output></output>`;
         stage.append(figure);
 

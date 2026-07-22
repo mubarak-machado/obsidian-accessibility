@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Verificação visual das seis combinações do controle</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+      :root {
+        --interactive-accent: #8b6df4;
+        --background-primary-alt: #25232d;
+        --background-primary: #1f1d26;
+        --text-normal: #f5f2fa;
+      }
+
+      body {
+        margin: 0;
+        background: #121117;
+        color: #f5f2fa;
+        font: 16px system-ui, sans-serif;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: repeat(3, 340px);
+        gap: 28px;
+        padding: 32px;
+      }
+
+      figure {
+        margin: 0;
+      }
+
+      figcaption {
+        margin-bottom: 10px;
+        font-weight: 650;
+      }
+
+      .mock-leaf {
+        position: relative;
+        width: 340px;
+        height: 260px;
+        border: 1px solid #484351;
+        border-radius: 18px;
+        background: #201e27;
+        overflow: hidden;
+      }
+
+      .mock-note {
+        padding: 28px;
+        color: #8d8796;
+      }
+
+      .mock-note strong {
+        display: block;
+        margin-bottom: 18px;
+        color: #d6d0dd;
+        font-size: 24px;
+      }
+
+      .mock-note span {
+        display: block;
+        width: 82%;
+        height: 7px;
+        margin-bottom: 12px;
+        border-radius: 99px;
+        background: #4b4653;
+      }
+
+      .mock-leaf .oa-font-scale-trigger {
+        box-sizing: border-box;
+      }
+
+      .oa-font-scale-trigger__icon {
+        color: currentcolor;
+        font-size: 34px;
+        font-weight: 750;
+      }
+    </style>
+  </head>
+  <body>
+    <main></main>
+    <script>
+      const positions = [
+        ['Esquerda · Superior', 'left top'],
+        ['Direita · Superior', 'right top'],
+        ['Esquerda · Meio', 'left center'],
+        ['Direita · Meio', 'right center'],
+        ['Esquerda · Inferior', 'left bottom'],
+        ['Direita · Inferior', 'right bottom'],
+      ];
+      const stage = document.querySelector('main');
+
+      for (const [label, classes] of positions) {
+        const figure = document.createElement('figure');
+        figure.innerHTML = `
+          <figcaption>${label}</figcaption>
+          <section class="mock-leaf">
+            <div class="mock-note" aria-hidden="true">
+              <strong>Nota ativa</strong>
+              <span></span><span></span><span></span><span></span>
+            </div>
+            <div class="oa-font-scale-root is-scale-large is-${classes.replace(' ', ' is-')}">
+              <button class="oa-font-scale-trigger" type="button" aria-label="Abrir controles de acessibilidade">
+                <span class="oa-font-scale-trigger__icon" aria-hidden="true">●</span>
+              </button>
+            </div>
+          </section>`;
+        stage.append(figure);
+      }
+    </script>
+  </body>
+</html>

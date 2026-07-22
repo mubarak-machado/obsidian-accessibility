@@ -1,7 +1,9 @@
-export const SETTINGS_SCHEMA_VERSION = 2;
+export const SETTINGS_SCHEMA_VERSION = 3;
 
 export type ProfileId = 'presentation' | 'preparation' | 'research';
 export type ControlSide = 'left' | 'right';
+export type ControlVerticalPosition = 'top' | 'center' | 'bottom';
+export type ControlScale = 'small' | 'medium' | 'large';
 export type ScaleMode = 'reading' | 'editing';
 
 export interface ProfileScaleSettings {
@@ -14,6 +16,8 @@ export interface AccessibilitySettings {
   schemaVersion: number;
   enabled: boolean;
   side: ControlSide;
+  verticalPosition: ControlVerticalPosition;
+  controlScale: ControlScale;
   activeProfile: ProfileId;
   profiles: Record<ProfileId, ProfileScaleSettings>;
 }
@@ -36,10 +40,26 @@ export const PROFILE_CLASSES: Record<ProfileId, string> = {
   research: 'oa-f1-profile-pesquisa',
 };
 
+export const CONTROL_SIDES: readonly ControlSide[] = ['right', 'left'];
+export const CONTROL_VERTICAL_POSITIONS: readonly ControlVerticalPosition[] = [
+  'bottom',
+  'center',
+  'top',
+];
+export const CONTROL_SCALES: readonly ControlScale[] = ['large', 'medium', 'small'];
+
+export const CONTROL_SCALE_FACTORS: Record<ControlScale, number> = {
+  large: 1.5,
+  medium: 1,
+  small: 0.5,
+};
+
 export const DEFAULT_SETTINGS: AccessibilitySettings = {
   schemaVersion: SETTINGS_SCHEMA_VERSION,
   enabled: true,
   side: 'right',
+  verticalPosition: 'center',
+  controlScale: 'large',
   activeProfile: 'preparation',
   profiles: {
     presentation: { readingSize: 65, editingSize: 50, lineHeight: 1.2 },
@@ -50,7 +70,7 @@ export const DEFAULT_SETTINGS: AccessibilitySettings = {
 
 const READING_MIN = 32;
 const READING_MAX = 75;
-const EDITING_MIN = 40;
+const EDITING_MIN = 32;
 const EDITING_MAX = 60;
 const LINE_HEIGHT_MIN = 1.1;
 const LINE_HEIGHT_MAX = 1.6;
@@ -70,8 +90,22 @@ function profileId(value: unknown): ProfileId {
     : DEFAULT_SETTINGS.activeProfile;
 }
 
-function side(value: unknown): ControlSide {
-  return value === 'left' || value === 'right' ? value : DEFAULT_SETTINGS.side;
+function controlSide(value: unknown): ControlSide {
+  return CONTROL_SIDES.includes(value as ControlSide)
+    ? (value as ControlSide)
+    : DEFAULT_SETTINGS.side;
+}
+
+function controlVerticalPosition(value: unknown): ControlVerticalPosition {
+  return CONTROL_VERTICAL_POSITIONS.includes(value as ControlVerticalPosition)
+    ? (value as ControlVerticalPosition)
+    : DEFAULT_SETTINGS.verticalPosition;
+}
+
+function controlScale(value: unknown): ControlScale {
+  return CONTROL_SCALES.includes(value as ControlScale)
+    ? (value as ControlScale)
+    : DEFAULT_SETTINGS.controlScale;
 }
 
 function normalizedProfile(
@@ -98,7 +132,9 @@ export function normalizeSettings(value: unknown): AccessibilitySettings {
   return {
     schemaVersion: SETTINGS_SCHEMA_VERSION,
     enabled: typeof source.enabled === 'boolean' ? source.enabled : DEFAULT_SETTINGS.enabled,
-    side: side(source.side),
+    side: controlSide(source.side),
+    verticalPosition: controlVerticalPosition(source.verticalPosition),
+    controlScale: controlScale(source.controlScale),
     activeProfile: profileId(source.activeProfile),
     profiles: {
       presentation: normalizedProfile(

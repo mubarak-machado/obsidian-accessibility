@@ -18,6 +18,7 @@ describe('computePanelPosition', () => {
       container,
       { width: 1024, height: 768 },
       'right',
+      'center',
     );
 
     expect(position).toEqual({ left: 931, top: 159 });
@@ -30,6 +31,7 @@ describe('computePanelPosition', () => {
       container,
       { width: 1024, height: 768 },
       'left',
+      'center',
     );
 
     expect(position.top).toBe(174);
@@ -43,6 +45,7 @@ describe('computePanelPosition', () => {
       container,
       { width: 1024, height: 768 },
       'left',
+      'center',
     );
 
     expect(position.top).toBe(12);
@@ -56,9 +59,56 @@ describe('computePanelPosition', () => {
       narrow,
       { width: 320, height: 640 },
       'right',
+      'center',
     );
 
     expect(position.left).toBeLessThanOrEqual(233);
     expect(position.left).toBeGreaterThanOrEqual(12);
+  });
+
+  it('sobrepõe o botão à direita a partir do topo', () => {
+    const position = computePanelPosition(
+      { top: 18, right: 1006, bottom: 90, left: 934, width: 72, height: 72 },
+      { width: 75, height: 450 },
+      container,
+      { width: 1024, height: 768 },
+      'right',
+      'top',
+    );
+
+    expect(position).toEqual({ left: 931, top: 18 });
+  });
+
+  it('sobrepõe o botão à esquerda a partir da base', () => {
+    const position = computePanelPosition(
+      { top: 678, right: 90, bottom: 750, left: 18, width: 72, height: 72 },
+      { width: 75, height: 450 },
+      container,
+      { width: 1024, height: 768 },
+      'left',
+      'bottom',
+    );
+
+    expect(position).toEqual({ left: 18, top: 300 });
+  });
+
+  it.each([
+    ['left', 'top'],
+    ['left', 'center'],
+    ['left', 'bottom'],
+    ['right', 'top'],
+    ['right', 'center'],
+    ['right', 'bottom'],
+  ] as const)('aceita a combinação %s/%s', (side, verticalPosition) => {
+    expect(() =>
+      computePanelPosition(
+        { top: 348, right: 1006, bottom: 420, left: 934, width: 72, height: 72 },
+        { width: 75, height: 450 },
+        container,
+        { width: 1024, height: 768 },
+        side,
+        verticalPosition,
+      ),
+    ).not.toThrow();
   });
 });

@@ -2,8 +2,14 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import type ObsidianAccessibilityPlugin from './main';
 import { ScaleStore } from './scale-store';
 import {
+  CONTROL_SCALES,
+  CONTROL_SIDES,
+  CONTROL_VERTICAL_POSITIONS,
   PROFILE_IDS,
   PROFILE_LABELS,
+  ControlScale,
+  ControlSide,
+  ControlVerticalPosition,
   ProfileId,
   ScaleMode,
   scaleLimits,
@@ -28,6 +34,12 @@ export class AccessibilitySettingTab extends PluginSettingTab {
     });
 
     const settings = this.store.snapshot;
+    new Setting(containerEl).setName('Controle flutuante').setHeading();
+    containerEl.createEl('p', {
+      text: 'Defina visibilidade, posição e tamanho do botão e do slider.',
+      cls: 'setting-item-description',
+    });
+
     new Setting(containerEl)
       .setName('Controle flutuante')
       .setDesc('Mostra o controle de escala na nota Markdown ativa.')
@@ -36,15 +48,63 @@ export class AccessibilitySettingTab extends PluginSettingTab {
       );
 
     new Setting(containerEl)
-      .setName('Lado do controle')
-      .setDesc('O painel sobrepõe o botão junto à borda e não reserva largura.')
+      .setName('Posição horizontal')
+      .setDesc('Coloca o controle à direita ou à esquerda, nunca no centro.')
       .addDropdown((dropdown) =>
         dropdown
           .addOption('right', 'Direita')
           .addOption('left', 'Esquerda')
           .setValue(settings.side)
-          .onChange((side) => this.store.setSide(side === 'left' ? 'left' : 'right')),
+          .onChange((side) => {
+            if (CONTROL_SIDES.includes(side as ControlSide)) {
+              this.store.setSide(side as ControlSide);
+            }
+          }),
       );
+
+    new Setting(containerEl)
+      .setName('Posição vertical')
+      .setDesc('Coloca o controle na parte inferior, no meio ou na parte superior.')
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption('bottom', 'Inferior')
+          .addOption('center', 'Meio')
+          .addOption('top', 'Superior')
+          .setValue(settings.verticalPosition)
+          .onChange((verticalPosition) => {
+            if (
+              CONTROL_VERTICAL_POSITIONS.includes(
+                verticalPosition as ControlVerticalPosition,
+              )
+            ) {
+              this.store.setVerticalPosition(
+                verticalPosition as ControlVerticalPosition,
+              );
+            }
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName('Escala do controle')
+      .setDesc('Redimensiona o botão de abertura e todo o slider.')
+      .addDropdown((dropdown) =>
+        dropdown
+          .addOption('large', 'Grande — 150%')
+          .addOption('medium', 'Média — 100%')
+          .addOption('small', 'Mínima — 50%')
+          .setValue(settings.controlScale)
+          .onChange((controlScale) => {
+            if (CONTROL_SCALES.includes(controlScale as ControlScale)) {
+              this.store.setControlScale(controlScale as ControlScale);
+            }
+          }),
+      );
+
+    new Setting(containerEl).setName('Tamanhos por perfil').setHeading();
+    containerEl.createEl('p', {
+      text: 'Leitura e edição têm mínimo comum de 32 px; os valores permanecem independentes em cada perfil.',
+      cls: 'setting-item-description',
+    });
 
     new Setting(containerEl)
       .setName('Perfil ativo')

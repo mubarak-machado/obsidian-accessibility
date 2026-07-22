@@ -27,6 +27,7 @@ function decorate(element: HTMLElement, options?: string | CreateOptions): HTMLE
 }
 
 beforeEach(() => {
+  vi.useRealTimers();
   Object.assign(HTMLElement.prototype, {
     createDiv(this: HTMLElement, options?: string | CreateOptions) {
       return this.appendChild(decorate(document.createElement('div'), options));
@@ -50,7 +51,7 @@ beforeEach(() => {
   document.body.innerHTML = '';
 });
 
-function setup(): {
+function setup(mode: 'reading' | 'editing' = 'reading'): {
   control: FontScaleControl;
   store: ScaleStore;
   controller: ScaleController;
@@ -61,13 +62,13 @@ function setup(): {
   document.body.appendChild(container);
   const store = new ScaleStore(DEFAULT_SETTINGS, async () => undefined);
   const controller = {
-    mode: vi.fn(() => 'reading'),
+    mode: vi.fn(() => mode),
     refresh: vi.fn(),
     applyScaleWithAnchor: vi.fn(),
   } as unknown as ScaleController;
   const view = {
     containerEl: container,
-    getMode: () => 'preview',
+    getMode: () => (mode === 'reading' ? 'preview' : 'source'),
   };
   const zenMode = new ZenModeController(document.body, {
     leftSplit: { collapsed: false, collapse() { this.collapsed = true; }, expand() { this.collapsed = false; } },
@@ -78,6 +79,18 @@ function setup(): {
 }
 
 describe('FontScaleControl', () => {
+  it.each([
+    ['reading', '75'],
+    ['editing', '60'],
+  ] as const)('expõe mínimo de 32 px no modo %s', (mode, maximum) => {
+    const { control, container } = setup(mode);
+    const range = container.querySelector<HTMLInputElement>('.oa-font-scale-panel__range');
+
+    expect(range?.min).toBe('32');
+    expect(range?.max).toBe(maximum);
+    control.destroy();
+  });
+
   it('abre e fecha pelo mesmo botão sem reservar layout', () => {
     const { control, container } = setup();
     const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
@@ -105,6 +118,42 @@ describe('FontScaleControl', () => {
     expect(trigger?.getAttribute('aria-expanded')).toBe('false');
     expect(trigger?.getAttribute('aria-label')).toBe('Abrir controles de acessibilidade');
     expect(panel?.hidden).toBe(true);
+    control.destroy();
+  });
+
+  it('combina lado, altura e escala sem criar uma posição horizontal central', () => {
+    const { control, store, container } = setup();
+    const root = container.querySelector<HTMLElement>('.oa-font-scale-root');
+
+    store.setSide('left');
+    store.setVerticalPosition('bottom');
+    store.setControlScale('small');
+
+    expect(root?.classList.contains('is-left')).toBe(true);
+    expect(root?.classList.contains('is-right')).toBe(false);
+    expect(root?.classList.contains('is-bottom')).toBe(true);
+    expect(root?.classList.contains('is-center')).toBe(false);
+    expect(root?.classList.contains('is-scale-small')).toBe(true);
+    control.destroy();
+  });
+
+  it('deixa o acionador semitransparente após dois segundos de repouso', () => {
+    vi.useFakeTimers();
+    const { control, container } = setup();
+    const root = container.querySelector<HTMLElement>('.oa-font-scale-root');
+    const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
+
+    vi.advanceTimersByTime(1_999);
+    expect(root?.classList.contains('is-idle')).toBe(false);
+    vi.advanceTimersByTime(1);
+    expect(root?.classList.contains('is-idle')).toBe(true);
+
+    trigger?.click();
+    expect(root?.classList.contains('is-idle')).toBe(false);
+    document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    vi.advanceTimersByTime(2_000);
+    expect(root?.classList.contains('is-idle')).toBe(true);
+
     control.destroy();
   });
 
@@ -203,6 +252,47 @@ describe('FontScaleControl', () => {
       control.destroy();
     },
   );
+
+  it('preserva ao menos 24 px de diâmetro para capturar o polegar na escala mínima', () => {
+    const { control, store, controller, container } = setup();
+    const frame = container.querySelector<HTMLElement>('.oa-font-scale-panel__range-frame');
+    if (!frame) throw new Error('Moldura do range não foi criada');
+    store.setControlScale('small');
+    vi.spyOn(frame, 'getBoundingClientRect').mockReturnValue({
+      top: 100,
+      bottom: 185,
+      left: 0,
+      right: 22,
+      width: 22,
+      height: 85,
+      x: 0,
+      y: 100,
+      toJSON: () => ({}),
+    });
+    const thumbCenter = 100 + 11 / 2 + ((75 - 55) / (75 - 32)) * (85 - 11);
+
+    frame.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        button: 0,
+        clientY: thumbCenter + 11,
+        pointerId: 8,
+      }),
+    );
+    frame.dispatchEvent(
+      new PointerEvent('pointermove', {
+        bubbles: true,
+        button: 0,
+        clientY: thumbCenter + 20,
+        pointerId: 8,
+      }),
+    );
+    frame.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, pointerId: 8 }));
+
+    expect(store.activeProfile.readingSize).toBeLessThan(55);
+    expect(controller.applyScaleWithAnchor).toHaveBeenCalledOnce();
+    control.destroy();
+  });
 
   it('organiza o painel em uma única coluna com slider vertical', () => {
     const { control, container } = setup();

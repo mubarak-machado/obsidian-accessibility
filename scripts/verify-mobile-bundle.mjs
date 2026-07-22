@@ -59,13 +59,18 @@ if (!bundle.includes('leftSplit') || !bundle.includes('rightSplit')) {
   failures.push('bundle não captura as duas sidebars para restauração determinística');
 }
 if (
-  !styles.includes('width: 72px;') ||
-  !styles.includes('width: 75px;') ||
-  !styles.includes('width: 66px;') ||
-  !styles.includes('height: clamp(222px, 27vh, 255px);') ||
-  !styles.includes('--oa-font-scale-thumb-size: 33px;')
+  !styles.includes('--oa-launcher-size: 72px;') ||
+  !styles.includes('--oa-panel-width: 75px;') ||
+  !styles.includes('--oa-control-size: 66px;') ||
+  !styles.includes('--oa-launcher-size: 48px;') ||
+  !styles.includes('--oa-launcher-size: 24px;') ||
+  !styles.includes('height: clamp(var(--oa-range-min), 27vh, var(--oa-range-max));') ||
+  !styles.includes('--oa-thumb-size: 33px;')
 ) {
-  failures.push('controle não preserva a ampliação mecânica de 150%');
+  failures.push('controle não preserva as escalas intrínsecas de 50%, 100% e 150%');
+}
+if (!styles.includes('prefers-reduced-transparency')) {
+  failures.push('CSS não respeita transparência reduzida');
 }
 if (!styles.includes('prefers-reduced-motion')) failures.push('CSS não respeita movimento reduzido');
 

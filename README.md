@@ -7,7 +7,10 @@ Controles de acessibilidade para o Obsidian, desenvolvidos primeiro para leitura
 - botão circular persistente de acessibilidade, com ícone preenchido de alta visibilidade, que abre um controle vertical compacto;
 - Modo Zen recuperável, que reduz os elementos de navegação sem bloquear o Outline (sumário) na barra lateral direita;
 - escalas independentes para o modo de Leitura e a Pré-visualização em tempo real;
-- posicionamento configurável à esquerda ou à direita;
+- fonte mínima de 32 px em Leitura e edição para os três perfis;
+- posicionamento configurável em seis combinações: Direita ou Esquerda com Inferior, Meio ou Superior;
+- escala completa do controle em Mínima (50%), Média (100%) ou Grande (150%);
+- acionador semitransparente após dois segundos de repouso, com retorno imediato ao toque ou foco;
 - configurações persistentes e restauração com um toque;
 - nenhuma alteração nos arquivos Markdown;
 - nenhuma dependência de Node.js ou Electron no pacote móvel.

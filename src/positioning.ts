@@ -1,4 +1,4 @@
-import { ControlSide } from './settings-model';
+import { ControlSide, ControlVerticalPosition } from './settings-model';
 
 export interface RectLike {
   top: number;
@@ -25,6 +25,7 @@ export function computePanelPosition(
   container: RectLike,
   viewport: { width: number; height: number },
   side: ControlSide,
+  verticalPosition: ControlVerticalPosition,
   edge = 12,
 ): PanelPosition {
   const minimumLeft = Math.max(container.left + edge, edge);
@@ -34,7 +35,12 @@ export function computePanelPosition(
 
   const minimumTop = Math.max(container.top + edge, edge);
   const maximumBottom = Math.min(container.bottom - edge, viewport.height - edge);
-  const desiredTop = button.top + button.height / 2 - panel.height / 2;
+  const desiredTop =
+    verticalPosition === 'top'
+      ? button.top
+      : verticalPosition === 'bottom'
+        ? button.bottom - panel.height
+        : button.top + button.height / 2 - panel.height / 2;
   const absoluteTop = clamp(desiredTop, minimumTop, maximumBottom - panel.height);
 
   return {
