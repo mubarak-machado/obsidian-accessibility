@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Proposta visual — modo de anotação rápida</title>
+    <link rel="stylesheet" href="../../styles.css">
+    <style>
+      :root {
+        --interactive-accent: #8b6df4;
+        --background-primary: #201e27;
+        --background-primary-alt: #292633;
+        --background-modifier-border: #4b4657;
+        --background-modifier-border-focus: #8b6df4;
+        --background-modifier-hover: #35313f;
+        --text-normal: #f5f2fa;
+        --text-muted: #b7b0c1;
+        --text-on-accent: #fff;
+        --text-highlight-bg: rgb(255 208 0 / 45%);
+        --font-interface: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: #121117;
+        color: var(--text-normal);
+        font: 15px/1.5 var(--font-interface);
+      }
+
+      .proposal {
+        width: min(1440px, 100%);
+        min-height: 100vh;
+        margin: 0 auto;
+        padding: 34px;
+      }
+
+      .proposal-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(290px, 390px);
+        gap: 30px;
+        align-items: end;
+        padding: 0 4px 24px;
+        border-bottom: 1px solid #34313b;
+      }
+
+      .eyebrow {
+        margin: 0 0 5px;
+        color: #bcaeff;
+        font-size: 12px;
+        font-weight: 750;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 780px;
+        margin: 0;
+        font-size: clamp(30px, 4vw, 52px);
+        font-weight: 720;
+        letter-spacing: -0.04em;
+        line-height: 0.98;
+      }
+
+      .proposal-header p {
+        margin: 0;
+        color: var(--text-muted);
+      }
+
+      .states {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+        padding-top: 28px;
+      }
+
+      .state-card {
+        min-width: 0;
+        overflow: hidden;
+        border: 1px solid #34313b;
+        border-radius: 20px;
+        background: #18161e;
+        box-shadow: 0 20px 60px rgb(0 0 0 / 28%);
+      }
+
+      .state-heading {
+        display: flex;
+        min-height: 82px;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        padding: 18px 22px;
+        border-bottom: 1px solid #34313b;
+        background: #1d1a23;
+      }
+
+      .state-heading h2 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: -0.015em;
+      }
+
+      .state-heading p {
+        max-width: 320px;
+        margin: 2px 0 0;
+        color: var(--text-muted);
+        font-size: 13px;
+      }
+
+      .state-chip {
+        flex: 0 0 auto;
+        padding: 5px 9px;
+        border: 1px solid #514a61;
+        border-radius: 999px;
+        color: #cfc5ff;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .note-stage {
+        position: relative;
+        min-height: 690px;
+        padding: 48px 128px 48px 44px;
+        background:
+          radial-gradient(circle at 15% 0%, rgb(139 109 244 / 8%), transparent 34%),
+          #211f27;
+      }
+
+      .note-stage h3 {
+        margin: 0 0 22px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 30px;
+        font-weight: 500;
+        letter-spacing: -0.025em;
+      }
+
+      .note-stage p {
+        max-width: 500px;
+        margin: 0 0 20px;
+        color: #e4dfea;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 18px;
+        line-height: 1.72;
+      }
+
+      .selection {
+        border-radius: 3px;
+        background: rgb(110 153 255 / 35%);
+        box-shadow: 0 0 0 1px rgb(148 181 255 / 35%);
+      }
+
+      mark {
+        border-radius: 3px;
+        background: var(--text-highlight-bg);
+        color: inherit;
+      }
+
+      .oa-font-scale-root.prototype-root {
+        position: absolute;
+        inset: 28px 18px auto auto;
+        width: 75px;
+        height: max-content;
+        contain: none;
+      }
+
+      .prototype-root .oa-font-scale-panel {
+        position: relative;
+        left: auto;
+        top: auto;
+        max-height: none;
+        overflow: visible;
+      }
+
+      .prototype-button {
+        font: 700 26px/1 var(--font-interface);
+      }
+
+      .prototype-button svg {
+        width: var(--oa-inner-icon-size);
+        height: var(--oa-inner-icon-size);
+        stroke: currentcolor;
+        stroke-width: 1.8;
+        fill: none;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .prototype-annotation-entry svg,
+      .prototype-annotation-toggle svg,
+      .prototype-marker svg,
+      .prototype-eraser svg {
+        width: var(--oa-inner-icon-size);
+        height: var(--oa-inner-icon-size);
+      }
+
+      .prototype-annotation-toggle.is-active {
+        background: var(--interactive-accent);
+        color: var(--text-on-accent);
+      }
+
+      .prototype-annotation-label::after {
+        height: 5px;
+        border: 1px solid rgb(255 255 255 / 28%);
+        background: var(--text-highlight-bg);
+      }
+
+      .prototype-legend {
+        display: grid;
+        gap: 8px;
+        padding: 16px 20px 20px;
+        border-top: 1px solid #34313b;
+        background: #1d1a23;
+      }
+
+      .legend-row {
+        display: grid;
+        grid-template-columns: 92px 1fr;
+        gap: 12px;
+        align-items: baseline;
+      }
+
+      .legend-row strong {
+        color: #f4f0f8;
+        font-size: 12px;
+      }
+
+      .legend-row span {
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+
+      .proposal-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 22px 4px 0;
+        color: var(--text-muted);
+        font-size: 12px;
+      }
+
+      @media (max-width: 900px) {
+        .proposal {
+          padding: 20px;
+        }
+
+        .proposal-header,
+        .states {
+          grid-template-columns: 1fr;
+        }
+
+        .note-stage {
+          min-height: 620px;
+          padding-left: 28px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="proposal">
+      <header class="proposal-header">
+        <div>
+          <p class="eyebrow">Obsidian Accessibility · proposta inicial</p>
+          <h1>Do ajuste de leitura à anotação, sem abrir o teclado.</h1>
+        </div>
+        <p>
+          O mesmo controle aprendido muda de função durante uma sessão curta.
+          Somente uma cor e borracha.
+        </p>
+      </header>
+
+      <section class="states" aria-label="Comparação dos estados propostos">
+        <article class="state-card">
+          <header class="state-heading">
+            <div>
+              <h2>1. Painel de leitura</h2>
+              <p>O novo botão entra abaixo do Modo Zen; o restante não muda.</p>
+            </div>
+            <span class="state-chip">entrada</span>
+          </header>
+          <div class="note-stage">
+            <h3>Leitura sem interrupções</h3>
+            <p>
+              O ajuste de escala continua disponível como hoje. O novo botão de
+              anotação inicia uma sessão separada, sem alterar automaticamente a nota.
+            </p>
+            <p>
+              A pessoa pode aumentar o texto, ativar o Modo Zen ou entrar em
+              anotação rápida a partir do mesmo ponto conhecido.
+            </p>
+
+            <div class="oa-font-scale-root prototype-root">
+              <section class="oa-font-scale-panel" aria-label="Painel de leitura proposto">
+                <div class="oa-font-scale-panel__mode oa-font-scale-panel__text">55 px</div>
+                <button class="oa-font-scale-panel__button prototype-button" aria-label="Ativar modo zen">◇</button>
+                <button class="oa-font-scale-panel__button prototype-button prototype-annotation-entry" aria-label="Ativar anotação rápida">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
+                    <path d="m15 5 3 3"></path>
+                  </svg>
+                </button>
+                <button class="oa-font-scale-panel__button oa-font-scale-panel__step" aria-label="Aumentar">+</button>
+                <div class="oa-font-scale-panel__range-frame" style="--oa-font-scale-range-position:46.5%">
+                  <div class="oa-font-scale-panel__range-visual" aria-hidden="true">
+                    <div class="oa-font-scale-panel__range-rail">
+                      <div class="oa-font-scale-panel__range-track"></div>
+                      <div class="oa-font-scale-panel__range-thumb"></div>
+                    </div>
+                  </div>
+                  <input class="oa-font-scale-panel__range" type="range" min="32" max="75" value="55" aria-orientation="vertical">
+                </div>
+                <button class="oa-font-scale-panel__button oa-font-scale-panel__step" aria-label="Diminuir">−</button>
+                <button class="oa-font-scale-panel__button prototype-button" aria-label="Restaurar">↺</button>
+              </section>
+            </div>
+          </div>
+          <div class="prototype-legend">
+            <div class="legend-row"><strong>Lápis</strong><span>Ativa uma sessão de anotação rápida.</span></div>
+            <div class="legend-row"><strong>Posição</strong><span>Logo abaixo do Modo Zen, antes do ajuste tipográfico.</span></div>
+          </div>
+        </article>
+
+        <article class="state-card">
+          <header class="state-heading">
+            <div>
+              <h2>2. Anotação ativa</h2>
+              <p>A paleta menor permanece enquanto a pessoa seleciona novos trechos.</p>
+            </div>
+            <span class="state-chip">sessão</span>
+          </header>
+          <div class="note-stage">
+            <h3>Leitura sem interrupções</h3>
+            <p>
+              O ajuste de escala dá lugar a duas ferramentas deliberadas.
+              <span class="selection">Este trecho está selecionado e ainda não foi alterado.</span>
+            </p>
+            <p>
+              Um trecho já marcado aparece com
+              <mark>a única cor definida pelo tema</mark>.
+            </p>
+
+            <div class="oa-font-scale-root prototype-root">
+              <section class="oa-font-scale-panel" aria-label="Paleta de anotação rápida">
+                <div class="oa-font-scale-panel__mode oa-font-scale-panel__text prototype-annotation-label">Anotar</div>
+                <button class="oa-font-scale-panel__button prototype-button prototype-annotation-toggle is-active" aria-label="Sair da anotação rápida" aria-pressed="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
+                    <path d="m15 5 3 3"></path>
+                  </svg>
+                </button>
+                <button class="oa-font-scale-panel__button prototype-button prototype-marker" aria-label="Marcar seleção">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m9 11-6 6v3h9l3-3"></path>
+                    <path d="m22 12-6.5 6.5-10-10L12 2Z"></path>
+                    <path d="m15 5 4 4"></path>
+                  </svg>
+                </button>
+                <button class="oa-font-scale-panel__button prototype-button prototype-eraser" aria-label="Apagar marcação">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="m7 21-4-4L14.5 5.5a2.1 2.1 0 0 1 3 0l1 1a2.1 2.1 0 0 1 0 3L7 21Z"></path>
+                    <path d="m12 8 6 6"></path>
+                    <path d="M7 21h13"></path>
+                  </svg>
+                </button>
+              </section>
+            </div>
+          </div>
+          <div class="prototype-legend">
+            <div class="legend-row"><strong>Lápis ativo</strong><span>Tocar novamente encerra e restaura o painel anterior.</span></div>
+            <div class="legend-row"><strong>Marca-texto</strong><span>Aplica `==texto==` com a cor padrão do tema.</span></div>
+            <div class="legend-row"><strong>Borracha</strong><span>Remove apenas o formato externo selecionado.</span></div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="proposal-footer">
+        <span>Escala mostrada: Grande · 150% · tema escuro.</span>
+        <span>Protótipo visual; nenhum comportamento do plugin foi alterado.</span>
+      </footer>
+    </main>
+  </body>
+</html>
