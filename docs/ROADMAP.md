@@ -132,10 +132,10 @@ inválida, preserva seleção anterior ao acionamento e mantém marcador ou borr
 ativos para aplicar automaticamente ao fim do arrasto. Publicar e testar uma
 nova candidata antes de qualquer promoção estável.
 
-**Próximo gate:** distribuir a correção `1.0.1` como pré-lançamento pelo BRAT.
-Validar fisicamente no iPad, com dedo e Apple Pencil, a seleção por palavra e
-por alças, os botões de marcar/apagar, retrato, paisagem, Split View e VoiceOver
-antes de promover esse mesmo lançamento a estável.
+**Gate da candidata `1.0.1`:** esta correção é destinada exclusivamente a
+pré-lançamento pelo BRAT. Validar fisicamente no iPad, com dedo e Apple Pencil,
+a seleção por palavra e por alças, os botões de marcar/apagar, retrato, paisagem,
+Split View e VoiceOver antes de promover esse mesmo lançamento a estável.
 
 **Contraste auditado em 2026-07-23:** temas claro e escuro, estados
 ativo/inativo/foco, seleção, painel, acionador e slider passam os limites WCAG

@@ -1,7 +1,7 @@
 {
   "id": "obsidian-accessibility",
   "name": "Obsidian Accessibility",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minAppVersion": "1.12.0",
   "description": "Controles acessíveis de leitura, apresentação e anotação no iPad.",
   "author": "Mubarak",
