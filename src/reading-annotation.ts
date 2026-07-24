@@ -10,7 +10,6 @@ export interface ReadingSectionAnchor {
   sourcePath: string;
   lineStart: number;
   lineEnd: number;
-  text: string;
 }
 
 interface RegisteredSection {
@@ -28,6 +27,8 @@ export interface ReadingAnnotationState {
   busy: boolean;
   hasSelection: boolean;
   message: string;
+  announcementId: number;
+  tool: ReadingAnnotationAction;
 }
 
 export type AnnotationEditResult =
@@ -40,6 +41,8 @@ type AnnotationVault = Pick<Vault, 'cachedRead' | 'getFileByPath' | 'process'>;
 
 const ALLOWED_BLOCK_SELECTOR = 'p, li, blockquote, h1, h2, h3, h4, h5, h6';
 const UNSAFE_SELECTED_TEXT = /[\r\n`*_~[\]<>]/;
+const AUTOMATIC_APPLY_DELAY_MS = 350;
+const POINTER_SETTLE_DELAY_MS = 80;
 const PROTECTED_INLINE_PATTERNS = [
   /`[^`\n]+`/g,
   /!?\[\[[^\]\n]+\]\]/g,
@@ -69,7 +72,6 @@ export class ReadingSectionRegistry {
         sourcePath: context.sourcePath,
         lineStart: section.lineStart,
         lineEnd: section.lineEnd,
-        text: section.text,
       };
     });
   }
@@ -97,6 +99,13 @@ export class ReadingAnnotationController {
   private activeState = false;
   private busyState = false;
   private message = '';
+  private announcementId = 0;
+  private toolState: ReadingAnnotationAction = 'mark';
+  private activePointerId: number | null = null;
+  private automaticApplyTimer: number | null = null;
+  private preserveCollapsedSelection = false;
+  private activeSourcePath: string | null = null;
+  private sessionGeneration = 0;
 
   constructor(
     private readonly view: MarkdownView,
@@ -108,6 +117,21 @@ export class ReadingAnnotationController {
       'selectionchange',
       () => this.captureSelection(),
       { signal: this.abortController.signal },
+    );
+    this.view.containerEl.ownerDocument.addEventListener(
+      'pointerdown',
+      (event) => this.onPointerDown(event),
+      { capture: true, signal: this.abortController.signal },
+    );
+    this.view.containerEl.ownerDocument.addEventListener(
+      'pointerup',
+      (event) => this.onPointerEnd(event),
+      { capture: true, signal: this.abortController.signal },
+    );
+    this.view.containerEl.ownerDocument.addEventListener(
+      'pointercancel',
+      (event) => this.onPointerEnd(event),
+      { capture: true, signal: this.abortController.signal },
     );
   }
 
@@ -122,6 +146,8 @@ export class ReadingAnnotationController {
       busy: this.busyState,
       hasSelection: this.selection !== null,
       message: this.message,
+      announcementId: this.announcementId,
+      tool: this.toolState,
     };
   }
 
@@ -141,22 +167,39 @@ export class ReadingAnnotationController {
       return;
     }
     this.activeState = true;
-    this.selection = null;
-    this.announce('Anotação rápida ativada');
+    this.sessionGeneration += 1;
+    this.activeSourcePath = this.view.file?.path ?? null;
+    this.toolState = 'mark';
+    this.syncInteractionClasses();
+    if (!this.selection) this.captureSelection(true, false);
+    this.announce('Marcador ativo. Selecione ou arraste sobre o texto para marcar');
+    if (this.selection) this.scheduleAutomaticApply(0);
   }
 
   exit(message = 'Anotação rápida desativada'): void {
     if (!this.activeState) return;
+    this.clearAutomaticApply();
+    this.sessionGeneration += 1;
     this.activeState = false;
     this.busyState = false;
+    this.activePointerId = null;
+    this.preserveCollapsedSelection = false;
+    this.activeSourcePath = null;
     this.selection = null;
+    this.syncInteractionClasses();
     this.announce(message);
   }
 
   refreshContext(): void {
-    if (this.activeState && !this.isAvailable()) {
-      this.exit('Anotação rápida encerrada ao sair do modo leitura');
-      return;
+    if (this.activeState) {
+      if (!this.isAvailable()) {
+        this.exit('Anotação rápida encerrada ao sair do modo leitura');
+        return;
+      }
+      if (this.activeSourcePath !== this.view.file?.path) {
+        this.exit('Anotação rápida encerrada ao mudar de nota');
+        return;
+      }
     }
     this.emit();
   }
@@ -169,26 +212,54 @@ export class ReadingAnnotationController {
     return this.apply('erase');
   }
 
+  rememberCurrentSelection(): void {
+    this.clearAutomaticApply();
+    const hadSelection = this.selection !== null;
+    const captured = this.captureSelection(true, false);
+    this.preserveCollapsedSelection = captured || (hadSelection && this.selection !== null);
+  }
+
+  selectTool(tool: ReadingAnnotationAction): void {
+    if (!this.activeState || this.busyState) return;
+    this.clearAutomaticApply();
+    this.toolState = tool;
+    this.syncInteractionClasses();
+    this.announce(
+      tool === 'mark'
+        ? 'Marcador ativo. Selecione ou arraste sobre o texto para marcar'
+        : 'Borracha ativa. Selecione ou arraste sobre uma marcação para apagar',
+    );
+    if (this.selection) this.scheduleAutomaticApply(0);
+  }
+
   destroy(): void {
+    this.clearAutomaticApply();
+    this.sessionGeneration += 1;
     this.abortController.abort();
     this.listeners.clear();
     this.selection = null;
     this.activeState = false;
     this.busyState = false;
+    this.activePointerId = null;
+    this.preserveCollapsedSelection = false;
+    this.activeSourcePath = null;
+    this.syncInteractionClasses();
   }
 
-  private captureSelection(): void {
-    if (!this.activeState || !this.isAvailable() || this.busyState) return;
+  private captureSelection(allowInactive = false, scheduleApply = true): boolean {
+    if ((!this.activeState && !allowInactive) || !this.isAvailable() || this.busyState) {
+      return false;
+    }
     const documentSelection = this.view.containerEl.ownerDocument.getSelection();
     if (!documentSelection || documentSelection.rangeCount !== 1 || documentSelection.isCollapsed) {
-      // Tocar em um botão pode recolher as alças no iPad. A última seleção válida
-      // permanece disponível até a ação, saída do modo ou mudança de contexto.
-      return;
+      if (!this.preserveCollapsedSelection) this.clearSelection();
+      return false;
     }
 
     const range = documentSelection.getRangeAt(0);
-    const startSection = this.registry.find(range.startContainer, this.view.containerEl);
-    const endSection = this.registry.find(range.endContainer, this.view.containerEl);
+    const boundary = this.view.contentEl;
+    const startSection = this.registry.find(range.startContainer, boundary);
+    const endSection = this.registry.find(range.endContainer, boundary);
     if (
       !startSection ||
       !endSection ||
@@ -196,36 +267,49 @@ export class ReadingAnnotationController {
       startSection.anchor.sourcePath !== endSection.anchor.sourcePath
     ) {
       this.clearSelection();
-      return;
+      return false;
     }
 
     const startBlock = closestAllowedBlock(range.startContainer, startSection.element);
     const endBlock = closestAllowedBlock(range.endContainer, startSection.element);
-    const selectedText = documentSelection.toString();
+    const selectedText = documentSelection.toString().trim();
     const activePath = this.view.file?.path;
     if (
       !startBlock ||
       startBlock !== endBlock ||
       !selectedText ||
-      selectedText !== selectedText.trim() ||
       UNSAFE_SELECTED_TEXT.test(selectedText) ||
       activePath !== startSection.anchor.sourcePath
     ) {
       this.clearSelection();
-      return;
+      return false;
     }
 
+    this.preserveCollapsedSelection = false;
     this.selection = {
       ...startSection.anchor,
       selectedText,
     };
     this.emit();
+    if (this.activeState && scheduleApply) this.scheduleAutomaticApply();
+    return true;
   }
 
   private async apply(action: ReadingAnnotationAction): Promise<boolean> {
+    this.clearAutomaticApply();
     const snapshot = this.selection;
+    const sessionGeneration = this.sessionGeneration;
     if (!this.activeState || !snapshot || this.busyState) {
-      this.announce('Selecione um trecho simples dentro de um único bloco', true);
+      this.announce(
+        action === 'mark'
+          ? 'Selecione ou arraste sobre um trecho simples para marcar'
+          : 'Selecione ou arraste sobre uma marcação para apagar',
+        true,
+      );
+      return false;
+    }
+    if (!this.matchesCurrentContext(snapshot, sessionGeneration)) {
+      this.exit('Anotação rápida encerrada após mudança de contexto');
       return false;
     }
     const file = this.vault.getFileByPath(snapshot.sourcePath);
@@ -235,9 +319,16 @@ export class ReadingAnnotationController {
     }
 
     this.busyState = true;
+    this.preserveCollapsedSelection = false;
     this.emit();
     try {
       const current = await this.vault.cachedRead(file);
+      if (!this.matchesCurrentContext(snapshot, sessionGeneration)) {
+        if (this.sessionGeneration === sessionGeneration) {
+          this.announce('A anotação foi cancelada porque o contexto de leitura mudou', true);
+        }
+        return false;
+      }
       const preflight = applyReadingAnnotation(current, snapshot, action);
       if (!preflight.ok) {
         this.announce(preflight.message, true);
@@ -246,11 +337,20 @@ export class ReadingAnnotationController {
 
       let transaction: AnnotationEditResult = failure('A anotação não pôde ser aplicada');
       await this.vault.process(file, (latest) => {
+        if (!this.matchesCurrentContext(snapshot, sessionGeneration)) {
+          transaction = failure('A anotação foi cancelada porque o contexto de leitura mudou');
+          return latest;
+        }
         transaction = applyReadingAnnotation(latest, snapshot, action);
         return transaction.ok ? transaction.content : latest;
       });
       if (!transaction.ok) {
-        this.announce(transaction.message, true);
+        if (this.sessionGeneration === sessionGeneration) {
+          this.announce(transaction.message, true);
+        }
+        return false;
+      }
+      if (!this.matchesCurrentContext(snapshot, sessionGeneration)) {
         return false;
       }
 
@@ -259,11 +359,15 @@ export class ReadingAnnotationController {
       this.announce(transaction.message, true);
       return true;
     } catch {
-      this.announce('A anotação não pôde ser aplicada', true);
+      if (this.sessionGeneration === sessionGeneration) {
+        this.announce('A anotação não pôde ser aplicada', true);
+      }
       return false;
     } finally {
-      this.busyState = false;
-      this.emit();
+      if (this.sessionGeneration === sessionGeneration) {
+        this.busyState = false;
+        this.emit();
+      }
     }
   }
 
@@ -272,15 +376,21 @@ export class ReadingAnnotationController {
   }
 
   private clearSelection(message?: string, showNotice = false): void {
+    this.preserveCollapsedSelection = false;
     if (!this.selection && !message) return;
+    this.clearAutomaticApply();
     this.selection = null;
-    if (message) this.message = message;
+    if (message) {
+      this.message = message;
+      this.announcementId += 1;
+    }
     if (message && showNotice) this.notify(message);
     this.emit();
   }
 
   private announce(message: string, showNotice = false): void {
     this.message = message;
+    this.announcementId += 1;
     if (showNotice) this.notify(message);
     this.emit();
   }
@@ -288,6 +398,83 @@ export class ReadingAnnotationController {
   private emit(): void {
     const state = this.state;
     for (const listener of this.listeners) listener(state);
+  }
+
+  private onPointerDown(event: PointerEvent): void {
+    if (
+      !this.activeState ||
+      this.busyState ||
+      !event.isPrimary ||
+      !isNode(event.target) ||
+      !this.view.contentEl.contains(event.target)
+    ) {
+      return;
+    }
+    this.activePointerId = event.pointerId;
+    this.clearAutomaticApply();
+  }
+
+  private onPointerEnd(event: PointerEvent): void {
+    if (event.pointerId !== this.activePointerId) return;
+    this.activePointerId = null;
+    const captured = this.captureSelection(false, false);
+    if (captured) {
+      this.scheduleAutomaticApply(
+        event.type === 'pointercancel' ? AUTOMATIC_APPLY_DELAY_MS : POINTER_SETTLE_DELAY_MS,
+      );
+    }
+  }
+
+  private scheduleAutomaticApply(delay = AUTOMATIC_APPLY_DELAY_MS): void {
+    this.clearAutomaticApply();
+    if (
+      !this.activeState ||
+      this.busyState ||
+      !this.selection ||
+      this.activePointerId !== null
+    ) {
+      return;
+    }
+    this.automaticApplyTimer = this.ownerWindow().setTimeout(() => {
+      this.automaticApplyTimer = null;
+      if (!this.activeState || this.busyState || !this.selection) return;
+      void this.apply(this.toolState);
+    }, delay);
+  }
+
+  private clearAutomaticApply(): void {
+    if (this.automaticApplyTimer === null) return;
+    this.ownerWindow().clearTimeout(this.automaticApplyTimer);
+    this.automaticApplyTimer = null;
+  }
+
+  private ownerWindow(): Window {
+    return this.view.containerEl.ownerDocument.defaultView ?? window;
+  }
+
+  private matchesCurrentContext(
+    snapshot: ReadingSelectionSnapshot,
+    sessionGeneration: number,
+  ): boolean {
+    return (
+      this.activeState &&
+      this.sessionGeneration === sessionGeneration &&
+      this.isAvailable() &&
+      this.activeSourcePath === snapshot.sourcePath &&
+      this.view.file?.path === snapshot.sourcePath
+    );
+  }
+
+  private syncInteractionClasses(): void {
+    this.view.containerEl.classList.toggle('oa-reading-annotation-active', this.activeState);
+    this.view.containerEl.classList.toggle(
+      'oa-reading-annotation-mark',
+      this.activeState && this.toolState === 'mark',
+    );
+    this.view.containerEl.classList.toggle(
+      'oa-reading-annotation-erase',
+      this.activeState && this.toolState === 'erase',
+    );
   }
 }
 
@@ -307,8 +494,8 @@ export function applyReadingAnnotation(
   }
 
   const section = sectionRange(content, snapshot.lineStart, snapshot.lineEnd);
-  if (!section || section.text !== snapshot.text) {
-    return failure('A nota mudou depois da seleção; selecione o trecho novamente');
+  if (!section) {
+    return failure('O trecho não pôde ser relacionado ao Markdown atual; selecione novamente');
   }
 
   if (action === 'erase') {
@@ -381,7 +568,7 @@ function sectionRange(
     if (content[index] === '\n') starts.push(index + 1);
   }
   const start = starts[lineStart];
-  if (start === undefined) return null;
+  if (start === undefined || lineEnd >= starts.length) return null;
   const nextLine = starts[lineEnd + 1];
   const end = nextLine === undefined ? content.length : nextLine - 1;
   if (end < start) return null;
@@ -413,6 +600,10 @@ function protectedRanges(source: string): SourceRange[] {
 
 function overlaps(range: SourceRange, start: number, end: number): boolean {
   return start < range.end && end > range.start;
+}
+
+function isNode(target: EventTarget | null): target is Node {
+  return target !== null && 'nodeType' in target;
 }
 
 function success(content: string, message: string): AnnotationEditResult {

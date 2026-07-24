@@ -185,7 +185,7 @@
             <div><div class="setting-name">Escala do controle</div><div class="description">Redimensiona o botão, o slider, ícones e espaçamentos.</div></div>
             <select><option>Grande — 150%</option><option>Média — 100%</option><option>Mínima — 50%</option></select>
           </div>
-          <div class="note">Após 2 segundos sem interação, o botão fechado fica com 50% de opacidade. Ao tocar ou focar, recupera a visibilidade total imediatamente.</div>
+          <div class="note">Após 2 segundos sem interação, o botão fechado reduz somente a sombra. Ícone, borda e superfície conservam contraste integral.</div>
         </div>
         <footer>Os ajustes de tamanho da fonte permanecem organizados abaixo, por perfil.</footer>
       </section>
@@ -214,7 +214,7 @@
         const card = document.createElement('article');
         card.className = 'preview-card';
         card.innerHTML = `
-          <div><strong>${name} · ${percentage}</strong><small>${idle ? 'Exemplo em repouso após 2 s' : 'Visibilidade ativa'}</small>${idle ? '<br><span class="idle-label">50% de opacidade</span>' : ''}</div>
+          <div><strong>${name} · ${percentage}</strong><small>${idle ? 'Exemplo em repouso após 2 s' : 'Visibilidade ativa'}</small>${idle ? '<br><span class="idle-label">sombra reduzida</span>' : ''}</div>
           <div class="button-stage">
             <div class="oa-font-scale-root is-right is-center is-scale-${scale}${idle ? ' is-idle' : ''}">
               <button class="oa-font-scale-trigger" type="button" aria-expanded="false">

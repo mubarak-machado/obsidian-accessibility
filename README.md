@@ -11,26 +11,29 @@ Controles de acessibilidade para o Obsidian, desenvolvidos primeiro para leitura
 - fonte mínima de 32 px em Leitura e edição para os três perfis;
 - posicionamento configurável em seis combinações: Direita ou Esquerda com Inferior, Meio ou Superior;
 - escala completa do controle em Mínima (50%), Média (100%) ou Grande (150%);
-- acionador semitransparente após dois segundos de repouso, com retorno imediato ao toque ou foco;
+- acionador com contraste integral em repouso, reduzindo somente a sombra após
+  dois segundos e respondendo imediatamente ao toque ou foco;
 - configurações persistentes e restauração com um toque;
-- nenhuma alteração automática nos arquivos Markdown: somente as ações
-  explícitas de marcar e apagar escrevem o formato nativo `==texto==`;
+- nenhuma escrita fora do modo de anotação: somente a seleção deliberada com
+  marcador ou borracha ativos escreve o formato nativo `==texto==`;
 - nenhuma dependência de Node.js ou Electron no pacote móvel.
 
 ## Anotação rápida
 
 1. No modo de Leitura, abra o controle de acessibilidade.
 2. Toque no botão de lápis.
-3. Selecione texto simples dentro de um único parágrafo, título, item de lista
-   ou citação.
-4. Toque no marca-texto para aplicar `==texto==` ou na borracha para remover
-   essa marcação.
-5. Toque novamente no lápis para voltar ao controle de leitura.
+3. O marcador fica ativo por padrão. Selecione ou arraste sobre texto simples
+   dentro de um único parágrafo, título, item de lista ou citação; a marcação
+   `==texto==` é aplicada ao terminar a seleção.
+4. Para apagar, toque na borracha e selecione ou arraste sobre uma marcação.
+5. Marcador e borracha permanecem ativos entre seleções. Toque novamente no
+   lápis para voltar ao controle de leitura.
 
-A paleta permanece aberta entre as seleções. Trechos ambíguos, múltiplos
-blocos, transclusões e formatação aninhada são recusados para evitar alterações
-no lugar errado. O fluxo usa os mesmos botões com dedo, Apple Pencil, teclado e
-tecnologias assistivas.
+A seleção também pode ser feita antes de abrir o controle: ao ativar o lápis, o
+trecho existente é marcado. A paleta permanece aberta entre as seleções.
+Trechos ambíguos, múltiplos blocos, transclusões e formatação aninhada são
+recusados para evitar alterações no lugar errado. O fluxo usa os mesmos botões
+com dedo, Apple Pencil, teclado e tecnologias assistivas.
 
 ## Instalação no iPad com o BRAT
 
@@ -41,6 +44,10 @@ tecnologias assistivas.
 5. Abra **Configurações → Plugins da comunidade** e ative **Obsidian Accessibility**.
 
 O BRAT cuida da instalação e das atualizações. O Obsidian Sync pode continuar sincronizando normalmente o cofre e as configurações do plugin.
+
+Para uso por toque no iPad, prefira Grande (padrão) ou Média: ambas mantêm
+alvos de pelo menos `44 × 44`. Mínima preserva o desenho compacto preexistente,
+mas seus botões de `22 × 22` não são recomendados para toque.
 
 ## Privacidade e escopo
 

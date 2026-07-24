@@ -2,9 +2,10 @@
 
 Data: 2026-07-23
 
-Status: proposta aprovada e MVP implementado em 2026-07-23; validação
-automatizada e visual concluída, com ensaio físico no iPad ainda obrigatório
-antes do lançamento.
+Status: proposta aprovada e MVP implementado em 2026-07-23. O primeiro ensaio
+físico da candidata `1.0.0` revelou um falso conflito de conteúdo e uma
+interação inadequada em duas etapas. A correção foi implementada para uma nova
+candidata, ainda dependente de revalidação física no iPad.
 
 ## Objetivo autorizado
 
@@ -21,13 +22,13 @@ comentários, PDF, Canvas, exportação nem pesquisa global.
 
 ## Interpretação da interação
 
-O acionador universal de acessibilidade permanece inalterado. O painel normal
-ganha um botão `Ativar anotação rápida`, logo abaixo do Modo Zen.
+O acionador universal de acessibilidade conserva forma, posição e função. O
+painel normal ganha um botão `Ativar anotação rápida`, logo abaixo do Modo Zen.
 
 ```text
 Painel normal  ── transforma ──▶  Anotação rápida ativa
 ┌─────────┐                    ┌─────────┐
-│  55 px  │                    │ Anotar  │
+│  55 px  │                    │ Marcar  │
 │  foco   │ Modo Zen           │ lápis ● │ desativar o modo
 │  lápis  │ Anotação           │ marca   │ ==texto==
 │    +    │                    │ borracha│ remover formato
@@ -41,35 +42,39 @@ No estado ativo:
 
 1. a paleta compacta permanece aberta enquanto a pessoa toca e seleciona a
    nota;
-2. selecionar texto não altera o arquivo automaticamente;
-3. cada ação exige um toque explícito;
-4. depois da ação, a seleção é descartada e a paleta aguarda o próximo trecho;
-5. tocar novamente no botão de anotação retorna ao painel normal;
-6. `Escape` sai do modo e devolve o foco ao acionador;
-7. mudança de folha, arquivo ou modo invalida a seleção e encerra a sessão.
+2. o marcador é a ferramenta inicial;
+3. ao terminar uma seleção por arrasto, o trecho é marcado automaticamente;
+4. os botões de marcador e borracha alternam a ferramenta persistente;
+5. uma seleção feita antes de abrir o controle também é aplicada ao ativar o
+   lápis;
+6. depois da ação, a seleção é descartada e a paleta aguarda o próximo trecho;
+7. tocar novamente no botão de anotação retorna ao painel normal;
+8. `Escape` sai do modo e devolve o foco ao acionador;
+9. mudança de folha, arquivo ou modo invalida a seleção e encerra a sessão.
 
 Tocar fora não fecha a paleta enquanto a anotação estiver ativa. Essa exceção
 ao comportamento atual é necessária porque a seleção acontece fora do painel.
 
 ## Direção visual
 
-O controle continua herdando integralmente o tema do Obsidian e a escala
-configurada. A proposta não introduz uma nova paleta de produto.
+O controle continua herdando o tema do Obsidian e a escala configurada. A
+proposta não introduz uma nova paleta, mas deixa de confiar no acento do tema
+para contraste essencial.
 
 | Papel | Token do produto | Valor usado somente no protótipo escuro |
 | --- | --- | --- |
 | superfície | `--background-primary` | `#201e27` |
 | superfície elevada | `--background-primary-alt` | `#292633` |
-| borda | `--background-modifier-border` | `#4b4657` |
-| ação e foco | `--interactive-accent` | `#8b6df4` |
-| texto | `--text-normal` | `#f5f2fa` |
-| marcação | `--text-highlight-bg` | `rgb(255 208 0 / 45%)` |
+| estado ativo e hover | `--background-modifier-hover` | `#35313f` |
+| texto, ícones, bordas e foco | `--text-normal` | `#f5f2fa` |
+| marcação persistente | `--text-highlight-bg` | `rgb(255 208 0 / 45%)` |
+| seleção em andamento | cores de sistema `Highlight` e `HighlightText` | resolvidas pelo navegador |
 
-A tipografia continua sendo `--font-interface`; o rótulo curto `Anotar` ocupa o
-mesmo papel hoje usado por `55 px`. A assinatura visual é uma amostra fina da
-cor real de marcação logo abaixo desse rótulo. Ela comunica qual cor será
-aplicada sem oferecer uma paleta e sem depender somente da cor: o botão ativo,
-o ícone e o nome acessível também identificam o modo.
+A tipografia continua sendo `--font-interface`; o rótulo curto `Marcar` ou
+`Apagar` ocupa o mesmo papel hoje usado por `55 px`. A assinatura visual é uma
+amostra fina da cor real de marcação. O estado ativo combina fundo, anel interno
+e um ponto sólido no canto; o foco usa outro anel. Portanto, ativo, inativo e
+foco continuam distinguíveis sem depender somente da cor.
 
 O protótipo está em
 [`tests/visual/annotation-mode-proposal.html`](../tests/visual/annotation-mode-proposal.html).
@@ -86,8 +91,131 @@ O protótipo está em
 | [API do Obsidian](https://github.com/obsidianmd/obsidian-api/blob/cc1744324150c632416857c98964f87b1574a5fc/obsidian.d.ts) | API correspondente ao Obsidian `1.13.2`, commit `cc1744324150c632416857c98964f87b1574a5fc` | MIT | `MarkdownView`, pós-processamento e `Vault` não dependem de Node/Electron no runtime | **adotar** APIs públicas; isolar e evitar dependência obrigatória de atributos DOM não documentados |
 | [Selection API](https://developer.mozilla.org/en-US/docs/Web/API/Selection_API) | documentação vigente, avaliada em 2026-07-23 | conteúdo MDN | `selectionchange`, `Selection` e `Range` são amplamente disponíveis em WebViews móveis | **adotar** captura da última seleção válida; não conservar um `Range` como única fonte após rerenderização |
 | [WAI-ARIA APG — Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) | orientação vigente, avaliada em 2026-07-23 | W3C Software and Document License | define botão de alternância com estado perceptível | **adotar** botão nativo, `aria-pressed`, nome dinâmico e anúncio de estado |
+| [Obsidian Web Clipper](https://github.com/obsidianmd/obsidian-clipper/tree/c2fbae9645332ecf8d05dcf281483693b5054213) | `1.7.1`, commit `c2fbae9645332ecf8d05dcf281483693b5054213`, 2026-07-22 | MIT | o marcador oficial converte seleção já existente ao ser ativado e usa `mouseup`/`touchend`; no mobile observa também `selectionchange` | **adaptar** ativação sobre seleção existente, finalização automática e seleção nativa; **rejeitar** o modelo de armazenamento lateral do Clipper, pois aqui o destino é Markdown |
+| [Obsidian 1.13.3 Mobile](https://obsidian.md/changelog/2026-07-21-mobile-v1.13.3/) | candidata móvel de 2026-07-21 | licença do Obsidian | versão móvel mais recente examinada; inclui correções recentes de rolagem no modo leitura do iOS | **adotar como alvo de ensaio**, preservando compatibilidade declarada com Obsidian 1.12.0 |
+| [API do Obsidian no npm](https://www.npmjs.com/package/obsidian) | `1.13.1`, publicada em 2026-06 | MIT | tipos públicos mais recentes disponíveis no npm durante a correção | **adotar sem atualizar dependências nesta correção**; a atualização deve permanecer separada |
+| [Safari 26.5](https://developer.apple.com/documentation/safari-release-notes/safari-26_5-release-notes) | versão estável atual para iPadOS 26.5; avaliada em 2026-07-23 | termos da Apple | corrige interação entre `pointerdown` e rolagem; o WebView do Obsidian usa o WebKit do sistema | **adotar como alvo atual de teste**, sem depender exclusivamente dessa correção |
+| [WebKit para Safari 26.2](https://webkit.org/blog/17640/webkit-features-for-safari-26-2/) | Safari/iPadOS 26.2 | licença WebKit | introduziu `document.caretPositionFromPoint()` para editores e ferramentas de anotação | **rejeitar nesta correção**; uma seleção por coordenadas bloquearia ou redefiniria a rolagem e é desnecessária enquanto a seleção nativa atende ao gesto |
+| [Selection API](https://www.w3.org/TR/selection-api/) | Working Draft de 2026-06-05 | W3C Document License | `selectionchange` é agendado sempre que limites da seleção mudam | **adotar** captura imediata e espera curta de estabilização; não escrever em cada evento intermediário |
+| [Pointer Events Level 3](https://www.w3.org/TR/pointerevents3/) | Candidate Recommendation Draft de 2026 | W3C Document License | unifica `pen` e `touch`; `pointerup`/`pointercancel` delimitam o gesto e `touch-action` controla rolagem | **adotar** o fim do ponteiro como sinal preferencial; **rejeitar** `touch-action: none`, pois a correção não precisa sequestrar a rolagem |
+| [WCAG 2.2 — contraste mínimo](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html) e [contraste não textual](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) | recomendação e material explicativo vigentes, avaliados em 2026-07-23 | W3C Document License | exige `4,5:1` para texto normal e `3:1` para componentes, ícones e indicadores de estado | **adotar como gate mensurável** para rótulos, ícones, bordas, foco, seleção e estados |
+| [Apple HIG — Accessibility](https://developer.apple.com/design/human-interface-guidelines/accessibility) | orientação vigente, avaliada em 2026-07-23 | termos da Apple | recomenda alvo de `44 × 44 pt` no iOS/iPadOS | **adotar para Grande e Média**; registrar a escala Mínima preexistente como exceção opcional não recomendada para toque |
 
 Nenhum código externo foi copiado nesta etapa.
+
+## Investigação após o teste físico da candidata 1.0.0
+
+### Sintomas confirmados
+
+1. depois de selecionar texto, a ação exibia
+   `A nota mudou depois da seleção; selecione o trecho novamente`;
+2. nenhum Markdown era alterado;
+3. a interação exigia selecionar e depois tocar em outro botão, enquanto o
+   comportamento esperado era manter uma ferramenta ativa e aplicar ao fim do
+   arrasto.
+
+### Causa do falso conflito
+
+O snapshot guardava simultaneamente:
+
+- `lineStart` e `lineEnd`, retornados por `getSectionInfo()`;
+- `text`, retornado pelo mesmo método;
+- um segundo texto reconstruído dessas linhas a partir do arquivo.
+
+A implementação exigia igualdade byte a byte entre os dois textos. Essa
+suposição não faz parte do contrato da API e é falsa em estruturas reais. Há
+relatos reproduzíveis no fórum de desenvolvedores do Obsidian em que
+[`getSectionInfo()` retorna limites de um bloco e `text` de um escopo maior](https://forum.obsidian.md/t/using-getsectioninfo-looking-for-the-line-number-of-a-list-item/79299),
+além de limites externos em
+[callouts aninhados](https://forum.obsidian.md/t/bug-getsectioninfo-is-inaccurate-inside-callouts/104289).
+
+Os testes anteriores mascaravam o defeito porque o mock fornecia
+deliberadamente o mesmo texto nos dois lados. A notificação descrevia uma
+alteração concorrente que nunca havia sido comprovada.
+
+### Correção do localizador
+
+- `getSectionInfo()` continua fornecendo somente caminho e intervalo de linhas;
+- o campo `text` do renderizador deixa de participar da transação;
+- o trecho precisa continuar único dentro do intervalo atual;
+- pré-validação e transação repetem a localização sobre o conteúdo real;
+- caminho ativo e geração da sessão são conferidos antes e dentro de
+  `Vault.process()`, impedindo que uma operação antiga alcance outra nota ou
+  uma sessão reaberta;
+- uma âncora de linhas inválida produz uma mensagem sobre a impossibilidade de
+  relacionar o trecho ao Markdown, sem acusar alteração da nota.
+
+Essa mudança conserva a recusa ambígua e `Vault.process()`, mas elimina a
+comparação entre representações que não possuem equivalência garantida.
+
+### Correção da interação
+
+O padrão foi adaptado do Web Clipper oficial:
+
+1. ativar a anotação escolhe o marcador;
+2. uma seleção já existente é preservada ao abrir o controle e convertida ao
+   ativar o lápis;
+3. durante uma nova seleção, `selectionchange` atualiza o snapshot sem escrever;
+4. `pointerup` é o gatilho preferencial para dedo e Apple Pencil;
+5. `pointercancel`, comum quando o iPadOS assume um gesto nativo, nunca dispara
+   a escrita rápida de `pointerup`;
+6. quando a seleção nativa não expõe o ciclo completo do ponteiro, um atraso
+   curto após o último `selectionchange` funciona como fallback;
+7. marcador e borracha permanecem ativos entre seleções;
+8. a seleção em andamento usa `Highlight` e `HighlightText` do sistema, enquanto
+   a marcação persistente continua usando a cor nativa do tema.
+
+Não foi adotado um arrasto próprio por coordenadas. Embora Safari 26.2 tenha
+adicionado `caretPositionFromPoint()` exatamente para interfaces de anotação,
+essa alternativa exigiria controlar `touch-action`, competir com a rolagem e
+reimplementar seleção bidirecional, acessibilidade e autoscroll. Ela permanece
+como alternativa somente se o novo ensaio físico demonstrar que a seleção
+nativa do Obsidian não entrega eventos suficientes.
+
+## Auditoria de contraste e estados
+
+A auditoria renderizou o próprio `styles.css` em viewport de iPad
+(`1024 × 1366`) no protótipo claro e escuro, nas escalas Grande, Média e Mínima.
+Os testes automatizados reproduzem a fórmula de luminância relativa da WCAG.
+
+O primeiro passe encontrou três regressões possíveis:
+
+- o rótulo com `--text-muted` ficava em `3,67:1` no protótipo claro, abaixo de
+  `4,5:1`;
+- a borda baseada no token discreto do tema ficava entre `1,32:1` e `1,81:1`,
+  abaixo de `3:1`;
+- aplicar `opacity: 0.5` ao acionador interativo em repouso podia reduzi-lo a
+  `2,76:1` no tema claro.
+
+A correção usa `--text-normal` como referência também para ícones, bordas,
+trilho, foco e indicadores; mantém o acionador com opacidade integral e reduz
+somente a sombra; e usa cores de seleção do sistema. O estado ativo ganhou anel
+interno e ponto sólido, enquanto `aria-pressed` e o nome dinâmico preservam a
+equivalência não visual.
+
+| Elemento medido | Tema claro | Tema escuro | Limite | Resultado |
+| --- | ---: | ---: | ---: | --- |
+| rótulo e texto do painel | `12,75:1` | `14,86:1` | `4,5:1` | passa |
+| ícone inativo | `12,75:1` | `14,86:1` | `3:1` | passa |
+| ícone e anel ativos | `10,34:1` | `11,41:1` | `3:1` | passa |
+| anel de foco | `10,34:1` | `11,41:1` | `3:1` | passa |
+| acionador em repouso | `11,51:1` | `13,36:1` | `3:1` | passa |
+| borda do painel | `11,93:1` | `14,70:1` | `3:1` | passa |
+| seleção em andamento | `13,62:1` | `9,63:1` | `4,5:1` | passa |
+| trilho do slider | `12,75:1` | `14,86:1` | `3:1` | passa |
+
+Os contrastes são idênticos nas três escalas. A inspeção visual confirmou
+ícones sem corte, anéis distintos e foco com espessura de `4 px`, `3 px` e
+`2 px`, respectivamente.
+
+Há uma ressalva fora do contraste: Grande mede `66 px` por botão e Média mede
+`44 px`, mas Mínima mede `22 px` por botão e `24 px` no acionador. A escala
+Mínima preexistente não atende a recomendação Apple de `44 × 44 pt`. Seus
+botões ficam abaixo do tamanho direto de `24 × 24 px` da WCAG 2.2, embora o
+espaçamento de `2 px` possa enquadrá-los na exceção de espaçamento. Grande
+continua sendo o padrão; Média também atende ao alvo Apple. Contraste não
+compensa o texto e os alvos muito pequenos. Corrigir Mínima exigiria redesenhar
+sua geometria e fica registrado fora desta correção de marcação.
 
 ## Dedo e Apple Pencil
 
@@ -166,10 +294,9 @@ Markdown. A proposta usa camadas explícitas:
    âncoras DOM pertencentes ao plugin: caminho de origem, linha inicial e linha
    final.
 3. No `selectionchange`, aceitar somente uma seleção contida na folha ativa e
-   capturar texto, seção, contexto anterior/posterior e identidade do arquivo.
+   capturar texto, seção, identidade do arquivo e geração da sessão.
 4. Converter as linhas da seção em offsets do arquivo.
-5. Construir um mapa conservador entre texto visível e fonte, reconhecendo
-   somente os formatos liberados para a versão.
+5. Reconhecer somente texto simples e proteger intervalos de Markdown aninhado.
 6. Exigir uma correspondência única dentro da seção. Não usar busca aproximada.
 7. Executar a alteração em `Vault.process()`, recalcular o intervalo dentro do
    conteúdo atual e confirmar que o texto esperado continua presente.
@@ -199,9 +326,10 @@ separação acima deve ser introduzida incrementalmente e continuar montando uma
 - O modo não é persistido em `data.json`.
 - O botão usa `aria-pressed=true` quando ativo.
 - O rótulo muda entre `Ativar anotação rápida` e `Sair da anotação rápida`.
-- As ações sem seleção válida ficam desabilitadas.
-- O live region anuncia `Anotação rápida ativada`, `Trecho marcado`,
-  `Formatação removida` ou a causa da recusa.
+- Marcador e borracha ficam disponíveis como ferramentas persistentes; uma
+  seleção válida dispara a ferramenta ativa.
+- O live region anuncia `Marcador ativo`, `Borracha ativa`, `Trecho marcado`,
+  `Marcação removida` ou a causa da recusa.
 - O estado ativo não depende somente da amostra de cor.
 - O painel mantém os alvos de toque da escala selecionada.
 - `Escape`, mudança de contexto e descarregamento sempre oferecem saída.
@@ -242,9 +370,9 @@ separação acima deve ser introduzida incrementalmente e continuar montando uma
 
 ### Etapa 5 — distribuição
 
-- Depois da aprovação humana, registrar a conclusão no roteiro.
-- Fazer o incremento `MINOR` em commit separado.
-- Publicar apenas após o ensaio físico obrigatório.
+- Publicar a correção como nova candidata `PATCH`, sem alterar a tag reprovada.
+- Depois da aprovação humana no iPad, registrar a conclusão no roteiro.
+- Promover somente a candidata efetivamente ensaiada.
 
 ## Resultado da implementação
 
@@ -252,8 +380,11 @@ separação acima deve ser introduzida incrementalmente e continuar montando uma
   mantém as âncoras somente em memória.
 - `ReadingAnnotationController` preserva a última seleção válida quando tocar
   no painel recolhe as alças, inclusive para eventos com `pointerType: pen`.
-- `applyReadingAnnotation()` exige uma ocorrência única na seção atual e recusa
-  conteúdo alterado, quebra de bloco e formatação aninhada.
+- Cada sessão invalida timers e escritas assíncronas da sessão anterior; mudança
+  de nota, modo ou folha cancela a transação antes de escrever.
+- `applyReadingAnnotation()` exige uma ocorrência única na seção atual, tolera
+  mudanças alheias que não tornem o trecho ambíguo e recusa quebra de bloco e
+  formatação aninhada.
 - A única escrita autorizada usa `Vault.process()` e aplica ou remove apenas
   `==texto==`.
 - O painel existente alterna entre o slider e a paleta compacta sem criar outra
@@ -263,7 +394,8 @@ separação acima deve ser introduzida incrementalmente e continuar montando uma
 
 ## Decisões e gate restante
 
-1. A transformação visual foi aprovada sem ajustes.
+1. A direção visual foi aprovada; a auditoria posterior reforçou contraste,
+   foco e diferenciação de estado sem mudar a geometria.
 2. A recusa conservadora de seleção com formatação ou mais de um bloco foi
    adotada.
 3. A liberação continua condicionada ao ensaio físico em Obsidian no iPad, com

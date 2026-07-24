@@ -143,7 +143,7 @@ body.oa-zen-mode .status-bar {
   min-height: var(--oa-launcher-size);
   place-items: center;
   padding: 0;
-  border: var(--oa-launcher-border) solid var(--interactive-accent);
+  border: var(--oa-launcher-border) solid var(--text-normal);
   border-radius: 50%;
   background: var(--background-primary-alt, var(--background-primary));
   color: var(--text-normal);
@@ -174,21 +174,28 @@ body.oa-zen-mode .status-bar {
 }
 
 .oa-font-scale-root.is-idle .oa-font-scale-trigger:not([aria-expanded='true']) {
-  opacity: 0.5;
+  opacity: 1;
+  box-shadow: 0 calc(var(--oa-launcher-shadow-y) / 2)
+    calc(var(--oa-launcher-shadow-blur) / 2) rgb(0 0 0 / 14%);
 }
 
 .oa-font-scale-trigger:is(:hover, :focus-visible),
 .oa-font-scale-trigger[aria-expanded='true'] {
-  background: var(--interactive-accent);
-  color: var(--text-on-accent);
+  background: var(
+    --background-modifier-hover,
+    var(--background-primary-alt, var(--background-primary))
+  );
+  color: var(--text-normal);
   opacity: 1;
 }
 
 .oa-font-scale-trigger:focus-visible,
 .oa-font-scale-panel__button:focus-visible,
 .oa-font-scale-panel__range-frame:has(.oa-font-scale-panel__range:focus-visible) {
-  outline: var(--oa-focus-width) solid var(--interactive-accent);
-  outline-offset: var(--oa-focus-width);
+  outline-color: currentcolor;
+  outline-style: solid;
+  outline-width: max(2px, var(--oa-focus-width));
+  outline-offset: calc(max(2px, var(--oa-focus-width)) * -1);
 }
 
 .oa-font-scale-trigger__icon {
@@ -213,7 +220,7 @@ body.oa-zen-mode .status-bar {
   align-items: center;
   gap: var(--oa-gap);
   padding: var(--oa-panel-padding);
-  border: var(--oa-thin-border) solid var(--background-modifier-border);
+  border: var(--oa-thin-border) solid var(--text-normal);
   border-radius: var(--oa-panel-radius);
   background: var(--background-primary);
   color: var(--text-normal);
@@ -223,6 +230,7 @@ body.oa-zen-mode .status-bar {
 }
 
 .oa-font-scale-panel__button {
+  position: relative;
   display: grid;
   width: var(--oa-control-size);
   height: var(--oa-control-size);
@@ -255,14 +263,45 @@ body.oa-zen-mode .status-bar {
 }
 
 .oa-font-scale-panel__button:is(:hover, :active, :focus-visible) {
-  background: var(--background-modifier-hover);
-  color: var(--interactive-accent);
+  background: var(
+    --background-modifier-hover,
+    var(--background-primary-alt, var(--background-primary))
+  );
+  color: var(--text-normal);
 }
 
 .oa-font-scale-panel__zen-mode.is-active,
-.oa-font-scale-panel__annotation.is-active {
-  background: var(--interactive-accent);
-  color: var(--text-on-accent);
+.oa-font-scale-panel__annotation.is-active,
+.oa-font-scale-panel__mark.is-active,
+.oa-font-scale-panel__erase.is-active {
+  background: var(
+    --background-modifier-hover,
+    var(--background-primary-alt, var(--background-primary))
+  );
+  color: var(--text-normal);
+  box-shadow: inset 0 0 0 max(2px, calc(var(--oa-thin-border) * 2)) currentcolor;
+}
+
+.oa-font-scale-panel__zen-mode.is-active::after,
+.oa-font-scale-panel__annotation.is-active::after,
+.oa-font-scale-panel__mark.is-active::after,
+.oa-font-scale-panel__erase.is-active::after {
+  position: absolute;
+  top: max(2px, var(--oa-thin-border));
+  right: max(2px, var(--oa-thin-border));
+  width: max(4px, calc(var(--oa-thin-border) * 3));
+  height: max(4px, calc(var(--oa-thin-border) * 3));
+  border-radius: 50%;
+  background: currentcolor;
+  content: '';
+}
+
+body
+  .workspace-leaf-content[data-type='markdown'].oa-reading-annotation-active
+  .markdown-preview-view
+  ::selection {
+  background: Highlight;
+  color: HighlightText;
 }
 
 .oa-font-scale-panel__zen-mode svg,
@@ -296,7 +335,7 @@ body.oa-zen-mode .status-bar {
 
 .oa-font-scale-panel__text {
   -webkit-text-fill-color: currentcolor;
-  color: var(--text-muted);
+  color: var(--text-normal);
   font-family: var(--font-interface);
   font-size: var(--oa-label-font-size);
   font-style: normal;
@@ -320,13 +359,13 @@ body.oa-zen-mode .status-bar {
   height: var(--oa-thin-border);
   margin: var(--oa-gap) auto 0;
   border-radius: 999px;
-  background: var(--background-modifier-border-focus);
+  background: currentcolor;
   content: '';
 }
 
 .oa-font-scale-panel__mode.is-annotation-mode::after {
   height: max(3px, calc(var(--oa-thin-border) * 3));
-  border: var(--oa-thin-border) solid var(--background-modifier-border-focus);
+  border: var(--oa-thin-border) solid currentcolor;
   background: var(--text-highlight-bg);
 }
 
@@ -361,10 +400,10 @@ body.oa-zen-mode .status-bar {
   left: 50%;
   width: var(--oa-track-width);
   box-sizing: border-box;
-  border: var(--oa-thin-border) solid var(--interactive-accent);
+  border: var(--oa-thin-border) solid var(--text-normal);
   border-radius: 999px;
-  background: var(--background-modifier-border-focus);
-  box-shadow: inset 0 0 0 var(--oa-thin-border) var(--background-primary);
+  background: var(--text-normal);
+  box-shadow: none;
   transform: translateX(-50%);
 }
 
@@ -377,7 +416,7 @@ body.oa-zen-mode .status-bar {
   box-sizing: border-box;
   border: var(--oa-thumb-border) solid var(--background-primary);
   border-radius: 50%;
-  background: var(--interactive-accent);
+  background: var(--text-normal);
   box-shadow: 0 0 0 var(--oa-thumb-ring) var(--text-normal), 0 var(--oa-thumb-shadow-y) var(--oa-thumb-shadow-blur) rgb(0 0 0 / 42%);
   transform: translate(-50%, -50%);
 }
@@ -417,14 +456,24 @@ body.oa-zen-mode .status-bar {
 }
 
 @media (prefers-reduced-transparency: reduce) {
-  .oa-font-scale-root.is-idle .oa-font-scale-trigger:not([aria-expanded='true']) {
-    opacity: 1;
+  .oa-font-scale-trigger,
+  .oa-font-scale-root.is-idle .oa-font-scale-trigger:not([aria-expanded='true']),
+  .oa-font-scale-panel {
+    box-shadow: none;
+  }
+
+  .oa-font-scale-panel__range-thumb {
+    box-shadow: 0 0 0 var(--oa-thumb-ring) var(--text-normal);
+  }
+
+  .oa-font-scale-panel__range-frame.is-dragging .oa-font-scale-panel__range-thumb {
+    box-shadow: 0 0 0 var(--oa-thumb-ring-active) var(--text-normal);
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
   .oa-font-scale-trigger {
-    transition: background-color 120ms ease, color 120ms ease, opacity 180ms ease, transform 120ms ease;
+    transition: background-color 120ms ease, color 120ms ease, transform 120ms ease;
   }
 
   .oa-font-scale-root.is-center .oa-font-scale-trigger:active {

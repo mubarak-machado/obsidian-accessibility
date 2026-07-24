@@ -68,20 +68,49 @@ describe('escala visual do controle', () => {
     expect(styles).toContain('env(safe-area-inset-left, 0px)');
   });
 
-  it('reduz somente a opacidade do acionador em repouso', () => {
-    expect(styles).toContain(
-      ".oa-font-scale-root.is-idle .oa-font-scale-trigger:not([aria-expanded='true'])",
-    );
-    expect(styles).toContain('opacity: 0.5;');
-    expect(styles).toContain('opacity 180ms ease');
+  it('mantém o acionador em repouso com contraste integral e reduz somente a sombra', () => {
+    const idleRule = styles.match(
+      /\.oa-font-scale-root\.is-idle \.oa-font-scale-trigger:not\(\[aria-expanded='true'\]\) \{(?<rule>[\s\S]*?)\n\}/,
+    )?.groups?.rule;
+
+    expect(idleRule).toContain('opacity: 1;');
+    expect(idleRule).toContain('rgb(0 0 0 / 14%)');
+    expect(styles).not.toContain('opacity: 0.5;');
+    expect(styles).not.toContain('opacity 180ms ease');
     expect(styles).toContain('@media (prefers-reduced-transparency: reduce)');
+    expect(styles).toContain(
+      ".oa-font-scale-root.is-idle .oa-font-scale-trigger:not([aria-expanded='true']),",
+    );
+    expect(styles).toContain('.oa-font-scale-panel {\n    box-shadow: none;');
+    expect(styles).toContain(
+      'box-shadow: 0 0 0 var(--oa-thumb-ring-active) var(--text-normal);',
+    );
   });
 
   it('representa a anotação ativa sem nova paleta de cores ou redimensionamento', () => {
     expect(styles).toContain('.oa-font-scale-panel__annotation.is-active');
+    expect(styles).toContain('.oa-font-scale-panel__mark.is-active');
+    expect(styles).toContain('.oa-font-scale-panel__erase.is-active');
     expect(styles).toContain('.oa-font-scale-panel__mode.is-annotation-mode::after');
     expect(styles).toContain('background: var(--text-highlight-bg);');
+    expect(styles).toContain('.oa-reading-annotation-active');
+    expect(styles).toContain('::selection');
+    expect(styles).toContain('background: Highlight;');
+    expect(styles).toContain('color: HighlightText;');
     expect(styles).toContain('.oa-font-scale-panel__button:disabled');
     expect(styles).not.toContain('--oa-annotation-color');
+  });
+
+  it('usa o texto normal também como referência gráfica de contraste', () => {
+    expect(styles).toContain('border: var(--oa-launcher-border) solid var(--text-normal);');
+    expect(styles).toContain('border: var(--oa-thin-border) solid var(--text-normal);');
+    expect(styles).toContain('outline-color: currentcolor;');
+    expect(styles).toContain('outline-width: max(2px, var(--oa-focus-width));');
+    expect(styles).toContain('color: var(--text-normal);');
+    expect(styles).toContain(
+      'box-shadow: inset 0 0 0 max(2px, calc(var(--oa-thin-border) * 2)) currentcolor;',
+    );
+    expect(styles).toContain('.oa-font-scale-panel__mark.is-active::after');
+    expect(styles).toContain('width: max(4px, calc(var(--oa-thin-border) * 3));');
   });
 });

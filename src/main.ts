@@ -141,19 +141,19 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     });
     this.addCommand({
       id: 'mark-reading-selection',
-      name: 'Marcar seleção no modo leitura',
+      name: 'Ativar marcador no modo leitura',
       checkCallback: (checking) => {
         if (!this.annotation?.active) return false;
-        if (!checking) void this.annotation.mark();
+        if (!checking) this.annotation.selectTool('mark');
         return true;
       },
     });
     this.addCommand({
       id: 'erase-reading-highlight',
-      name: 'Apagar marcação selecionada no modo leitura',
+      name: 'Ativar borracha no modo leitura',
       checkCallback: (checking) => {
         if (!this.annotation?.active) return false;
-        if (!checking) void this.annotation.erase();
+        if (!checking) this.annotation.selectTool('erase');
         return true;
       },
     });

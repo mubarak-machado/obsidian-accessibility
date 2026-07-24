@@ -80,6 +80,7 @@ function setup(mode: 'reading' | 'editing' = 'reading'): {
   } as unknown as ScaleController;
   const view = {
     containerEl: container,
+    contentEl: section,
     file: { path: 'Notas/Teste.md' },
     getMode: () => (mode === 'reading' ? 'preview' : 'source'),
   };
@@ -389,12 +390,14 @@ describe('FontScaleControl', () => {
 
     expect(panel?.classList.contains('is-annotation-mode')).toBe(true);
     expect(annotation?.getAttribute('aria-pressed')).toBe('true');
-    expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe('Anotar');
+    expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe('Marcar');
     expect(range?.hidden).toBe(true);
     expect(mark?.hidden).toBe(false);
     expect(erase?.hidden).toBe(false);
-    expect(mark?.disabled).toBe(true);
-    expect(erase?.disabled).toBe(true);
+    expect(mark?.disabled).toBe(false);
+    expect(erase?.disabled).toBe(false);
+    expect(mark?.getAttribute('aria-pressed')).toBe('true');
+    expect(erase?.getAttribute('aria-pressed')).toBe('false');
 
     annotation?.click();
     expect(panel?.classList.contains('is-annotation-mode')).toBe(false);
@@ -403,13 +406,12 @@ describe('FontScaleControl', () => {
     control.destroy();
   });
 
-  it('mantém a paleta aberta e aceita marcar com eventos de Apple Pencil', async () => {
+  it('mantém a paleta aberta e marca pelo arrasto do Apple Pencil', async () => {
     const { control, container, paragraphText, getContent } = setup();
     const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
     const annotation = container.querySelector<HTMLButtonElement>(
       '.oa-font-scale-panel__annotation',
     );
-    const mark = container.querySelector<HTMLButtonElement>('.oa-font-scale-panel__mark');
     const panel = container.querySelector<HTMLElement>('.oa-font-scale-panel');
     trigger?.click();
 
@@ -418,7 +420,12 @@ describe('FontScaleControl', () => {
     );
     annotation?.click();
     paragraphText.parentElement?.dispatchEvent(
-      new PointerEvent('pointerdown', { bubbles: true, pointerType: 'pen' }),
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        isPrimary: true,
+        pointerId: 9,
+        pointerType: 'pen',
+      }),
     );
     expect(panel?.hidden).toBe(false);
 
@@ -427,17 +434,84 @@ describe('FontScaleControl', () => {
     range.setEnd(paragraphText, 17);
     document.getSelection()?.addRange(range);
     document.dispatchEvent(new Event('selectionchange'));
-    expect(mark?.disabled).toBe(false);
 
-    mark?.dispatchEvent(
-      new PointerEvent('pointerdown', { bubbles: true, pointerType: 'pen' }),
+    paragraphText.parentElement?.dispatchEvent(
+      new PointerEvent('pointerup', {
+        bubbles: true,
+        isPrimary: true,
+        pointerId: 9,
+        pointerType: 'pen',
+      }),
     );
-    mark?.click();
     await vi.waitFor(() => {
       expect(getContent()).toBe('Um ==trecho simples== para marcar.');
     });
     expect(panel?.hidden).toBe(false);
     expect(panel?.classList.contains('is-annotation-mode')).toBe(true);
+    control.destroy();
+  });
+
+  it('alterna entre marcador e borracha sem sair do modo de anotação', () => {
+    const { control, container } = setup();
+    const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
+    const annotation = container.querySelector<HTMLButtonElement>(
+      '.oa-font-scale-panel__annotation',
+    );
+    const mark = container.querySelector<HTMLButtonElement>('.oa-font-scale-panel__mark');
+    const erase = container.querySelector<HTMLButtonElement>('.oa-font-scale-panel__erase');
+    const mode = container.querySelector<HTMLElement>('.oa-font-scale-panel__mode');
+
+    trigger?.click();
+    annotation?.click();
+    erase?.click();
+
+    expect(mark?.getAttribute('aria-pressed')).toBe('false');
+    expect(erase?.getAttribute('aria-pressed')).toBe('true');
+    expect(erase?.classList.contains('is-active')).toBe(true);
+    expect(mode?.textContent).toBe('Apagar');
+
+    mark?.click();
+    expect(mark?.getAttribute('aria-pressed')).toBe('true');
+    expect(erase?.getAttribute('aria-pressed')).toBe('false');
+    expect(mode?.textContent).toBe('Marcar');
+    control.destroy();
+  });
+
+  it('preserva uma seleção feita antes de abrir o controle e ativar o lápis', async () => {
+    const { control, container, paragraphText, getContent } = setup();
+    const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
+    const annotation = container.querySelector<HTMLButtonElement>(
+      '.oa-font-scale-panel__annotation',
+    );
+    const range = document.createRange();
+    range.setStart(paragraphText, 3);
+    range.setEnd(paragraphText, 17);
+    document.getSelection()?.addRange(range);
+
+    trigger?.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        isPrimary: true,
+        pointerId: 11,
+        pointerType: 'touch',
+      }),
+    );
+    trigger?.click();
+    document.getSelection()?.removeAllRanges();
+    document.dispatchEvent(new Event('selectionchange'));
+    annotation?.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        isPrimary: true,
+        pointerId: 12,
+        pointerType: 'touch',
+      }),
+    );
+    annotation?.click();
+
+    await vi.waitFor(() => {
+      expect(getContent()).toBe('Um ==trecho simples== para marcar.');
+    });
     control.destroy();
   });
 

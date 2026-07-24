@@ -7,26 +7,33 @@ comum a dedo e Apple Pencil.
 
 ## Resultado
 
-Nenhum bloqueio de código permaneceu após a revisão. A funcionalidade está
-apta para teste físico, mas não para lançamento antes desse gate.
+A candidata `1.0.0` foi reprovada no primeiro teste físico: a comparação entre
+o texto do renderizador e o recorte do Markdown produzia um falso conflito, e a
+interação exigia um segundo toque depois da seleção. A revisão da correção não
+deixou bloqueios de código. A nova candidata pode ser distribuída como
+pré-lançamento para teste físico, mas não promovida a estável antes desse gate.
 
 ## Correções feitas durante a revisão
 
-1. A última seleção válida passou a sobreviver ao recolhimento das alças quando
-   o usuário toca na paleta.
-2. Erros e sucessos passaram a aparecer em `Notice`, além do live region, para
-   não deixar a recusa invisível a usuários sem leitor de tela.
-3. A consulta pública `getSectionInfo()` passou a ocorrer no momento da seleção,
-   conforme a orientação da API, e não apenas no pós-processamento inicial.
-4. A inspeção móvel passou a aceitar exclusivamente `Vault.process()` e a
-   rejeitar outras rotas de escrita.
-5. O harness trocou glifos aproximados pelos SVGs usados pelo controle; isso
-   eliminou um falso overflow na escala Mínima.
+1. A igualdade inválida com `getSectionInfo().text` foi removida; caminho e
+   linhas localizam uma ocorrência única no conteúdo real.
+2. Marcador e borracha viraram ferramentas persistentes; a ação ocorre
+   automaticamente ao terminar uma seleção.
+3. Uma seleção existente antes de abrir o controle é preservada e marcada ao
+   ativar o lápis.
+4. `pointerup` atende dedo e Apple Pencil; `pointercancel` aguarda a seleção
+   nativa estabilizar antes do fallback por `selectionchange`.
+5. Geração de sessão e caminho ativo cancelam timers e escritas antigas ao
+   mudar de nota, modo ou sessão.
+6. Anúncios repetidos recebem identidade própria para continuarem disponíveis
+   ao VoiceOver.
+7. Ativo, inativo e foco ganharam contraste mensurado, anel e indicador
+   geométrico sem depender somente de cor.
 
 ## Segurança da escrita
 
 - A escrita exige modo de Leitura, seleção não vazia e um único bloco aceito.
-- O caminho, as linhas e o texto integral da seção precisam continuar iguais.
+- Caminho, linhas, nota ativa e geração da sessão precisam continuar válidos.
 - O trecho precisa ter uma única ocorrência na seção.
 - Links, código, HTML, ênfase, destaque existente e outros wrappers reconhecidos
   são recusados para a ação de marcar.
@@ -37,9 +44,9 @@ apta para teste físico, mas não para lançamento antes desse gate.
 ## Evidência automatizada
 
 - `npm ci`: concluído com npm `11.11.0`.
-- `npm run check`: ESLint, 75 testes, TypeScript, build e inspeção móvel
+- `npm run check`: ESLint, 94 testes, TypeScript, build e inspeção móvel
   concluídos.
-- Bundle: `36.115` bytes, sem Node/Electron e com escrita restrita a
+- Bundle: `41.446` bytes, sem Node/Electron e com escrita restrita a
   `Vault.process()`.
 - Instalação em cofre temporário isolado: os hashes de `main.js`,
   `manifest.json` e `styles.css` coincidiram com os arquivos da raiz.
@@ -47,25 +54,30 @@ apta para teste físico, mas não para lançamento antes desse gate.
 
 ## Evidência visual
 
-O harness foi renderizado no Chromium nas escalas Grande, Média e Mínima. Os
-painéis normal e ativo ficaram sem overflow nas três escalas. O painel ativo
-mediu aproximadamente:
+O harness foi renderizado em viewport de iPad (`1024 × 1366`) nos temas claro
+e escuro, nas escalas Grande, Média e Mínima. Painel normal, marcador ativo,
+borracha inativa, foco, seleção, slider, acionador ativo e repouso ficaram sem
+corte. Os menores contrastes medidos foram:
 
-| Escala | Largura | Altura |
-| --- | ---: | ---: |
-| Grande | 75 px | 255 px |
-| Média | 50 px | 178 px |
-| Mínima | 25 px | 92 px |
+| Estado | Tema claro | Tema escuro | Limite |
+| --- | ---: | ---: | ---: |
+| texto e ícone inativo | `12,75:1` | `14,86:1` | `4,5:1` / `3:1` |
+| ícone, anel ativo e foco | `10,34:1` | `11,41:1` | `3:1` |
+| seleção em andamento | `13,62:1` | `9,63:1` | `4,5:1` |
 
-Não houve erro de console ou de página.
+Grande mantém botões de `66 px`; Média, `44 px`; Mínima, `22 px`. A última
+conserva contraste, mas não atende à recomendação Apple de `44 × 44 pt` e não é
+indicada para toque. Grande continua sendo o padrão.
 
 ## Gate humano pendente
 
 Validar em Obsidian no iPad físico:
 
-- seleção por palavra e ajuste pelas alças com dedo;
+- ativar o marcador e selecionar por palavra ou arrasto com dedo;
 - as mesmas operações com Apple Pencil;
-- toque com dedo e caneta nos botões marcar e apagar;
+- aplicação automática ao terminar a seleção, sem segundo toque;
+- troca persistente entre marcador e borracha;
+- seleção feita antes de abrir o controle;
 - persistência da paleta entre seleções;
 - VoiceOver, teclado externo e `Escape`;
 - retrato, paisagem e Split View;

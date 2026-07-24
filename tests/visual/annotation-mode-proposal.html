@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../../styles.css">
     <style>
       :root {
+        color-scheme: dark;
         --interactive-accent: #8b6df4;
         --background-primary: #201e27;
         --background-primary-alt: #292633;
@@ -17,7 +18,39 @@
         --text-muted: #b7b0c1;
         --text-on-accent: #fff;
         --text-highlight-bg: rgb(255 208 0 / 45%);
+        --audit-body: #121117;
+        --audit-border: #34313b;
+        --audit-card: #18161e;
+        --audit-heading: #1d1a23;
+        --audit-stage: #211f27;
+        --audit-stage-text: #e4dfea;
+        --audit-eyebrow: #bcaeff;
+        --audit-chip-border: #514a61;
+        --audit-chip-text: #cfc5ff;
         --font-interface: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      :root[data-theme='light'] {
+        color-scheme: light;
+        --interactive-accent: #6954d9;
+        --background-primary: #fff;
+        --background-primary-alt: #f3f3f5;
+        --background-modifier-border: #d8d8dd;
+        --background-modifier-border-focus: #6954d9;
+        --background-modifier-hover: #e7e7eb;
+        --text-normal: #2e3338;
+        --text-muted: #62676d;
+        --text-on-accent: #fff;
+        --text-highlight-bg: rgb(255 208 0 / 48%);
+        --audit-body: #ececf0;
+        --audit-border: #b9bac1;
+        --audit-card: #fafafd;
+        --audit-heading: #f2f2f6;
+        --audit-stage: #f7f7fa;
+        --audit-stage-text: #34393f;
+        --audit-eyebrow: #4935b3;
+        --audit-chip-border: #797180;
+        --audit-chip-text: #4935b3;
       }
 
       * {
@@ -26,7 +59,7 @@
 
       body {
         margin: 0;
-        background: #121117;
+        background: var(--audit-body);
         color: var(--text-normal);
         font: 15px/1.5 var(--font-interface);
       }
@@ -44,12 +77,12 @@
         gap: 30px;
         align-items: end;
         padding: 0 4px 24px;
-        border-bottom: 1px solid #34313b;
+        border-bottom: 1px solid var(--audit-border);
       }
 
       .eyebrow {
         margin: 0 0 5px;
-        color: #bcaeff;
+        color: var(--audit-eyebrow);
         font-size: 12px;
         font-weight: 750;
         letter-spacing: 0.13em;
@@ -80,9 +113,9 @@
       .state-card {
         min-width: 0;
         overflow: hidden;
-        border: 1px solid #34313b;
+        border: 1px solid var(--audit-border);
         border-radius: 20px;
-        background: #18161e;
+        background: var(--audit-card);
         box-shadow: 0 20px 60px rgb(0 0 0 / 28%);
       }
 
@@ -93,8 +126,8 @@
         align-items: center;
         gap: 20px;
         padding: 18px 22px;
-        border-bottom: 1px solid #34313b;
-        background: #1d1a23;
+        border-bottom: 1px solid var(--audit-border);
+        background: var(--audit-heading);
       }
 
       .state-heading h2 {
@@ -113,9 +146,9 @@
       .state-chip {
         flex: 0 0 auto;
         padding: 5px 9px;
-        border: 1px solid #514a61;
+        border: 1px solid var(--audit-chip-border);
         border-radius: 999px;
-        color: #cfc5ff;
+        color: var(--audit-chip-text);
         font-size: 11px;
         font-weight: 700;
       }
@@ -126,7 +159,7 @@
         padding: 48px 128px 48px 44px;
         background:
           radial-gradient(circle at 15% 0%, rgb(139 109 244 / 8%), transparent 34%),
-          #211f27;
+          var(--audit-stage);
       }
 
       .note-stage h3 {
@@ -140,7 +173,7 @@
       .note-stage p {
         max-width: 500px;
         margin: 0 0 20px;
-        color: #e4dfea;
+        color: var(--audit-stage-text);
         font-family: Georgia, "Times New Roman", serif;
         font-size: 18px;
         line-height: 1.72;
@@ -148,8 +181,8 @@
 
       .selection {
         border-radius: 3px;
-        background: rgb(110 153 255 / 35%);
-        box-shadow: 0 0 0 1px rgb(148 181 255 / 35%);
+        background: Highlight;
+        color: HighlightText;
       }
 
       mark {
@@ -161,7 +194,7 @@
       .oa-font-scale-root.prototype-root {
         position: absolute;
         inset: 28px 18px auto auto;
-        width: 75px;
+        width: var(--oa-panel-width);
         height: max-content;
         contain: none;
       }
@@ -172,6 +205,19 @@
         top: auto;
         max-height: none;
         overflow: visible;
+      }
+
+      .oa-font-scale-root.prototype-launcher-root {
+        position: absolute;
+        inset: auto auto 20px 20px;
+        width: var(--oa-launcher-size);
+        height: var(--oa-launcher-size);
+        contain: none;
+      }
+
+      .prototype-launcher-root .oa-font-scale-trigger {
+        position: relative;
+        inset: auto;
       }
 
       .prototype-button {
@@ -192,8 +238,8 @@
         display: grid;
         gap: 8px;
         padding: 16px 20px 20px;
-        border-top: 1px solid #34313b;
-        background: #1d1a23;
+        border-top: 1px solid var(--audit-border);
+        background: var(--audit-heading);
       }
 
       .legend-row {
@@ -204,7 +250,7 @@
       }
 
       .legend-row strong {
-        color: #f4f0f8;
+        color: var(--text-normal);
         font-size: 12px;
       }
 
@@ -265,7 +311,7 @@
             <h3>Leitura sem interrupções</h3>
             <p>
               O ajuste de escala continua disponível como hoje. O novo botão de
-              anotação inicia uma sessão separada, sem alterar automaticamente a nota.
+              anotação ativa o marcador; a nota só muda depois de uma seleção deliberada.
             </p>
             <p>
               A pessoa pode aumentar o texto, ativar o Modo Zen ou entrar em
@@ -309,6 +355,15 @@
                 </button>
               </section>
             </div>
+            <div class="oa-font-scale-root prototype-launcher-root is-idle">
+              <button class="oa-font-scale-trigger" type="button" aria-expanded="false" aria-label="Abrir controles de acessibilidade">
+                <span class="oa-font-scale-trigger__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20.75 6.99c-.14-.55-.69-.87-1.24-.75C17.13 6.77 14.48 7 12 7s-5.13-.23-7.51-.76c-.55-.12-1.1.2-1.24.75-.14.56.2 1.13.75 1.26 1.61.36 3.35.61 5 .75v12c0 .55.45 1 1 1s1-.45 1-1v-5h2v5c0 .55.45 1 1 1s1-.45 1-1V9c1.65-.14 3.39-.39 4.99-.75.56-.13.9-.7.76-1.26zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path>
+                  </svg>
+                </span>
+              </button>
+            </div>
           </div>
           <div class="prototype-legend">
             <div class="legend-row"><strong>Lápis</strong><span>Ativa uma sessão de anotação rápida.</span></div>
@@ -320,7 +375,7 @@
           <header class="state-heading">
             <div>
               <h2>2. Anotação ativa</h2>
-              <p>A paleta menor permanece enquanto a pessoa seleciona novos trechos.</p>
+              <p>O marcador permanece ativo e aplica a cor ao terminar cada seleção.</p>
             </div>
             <span class="state-chip">sessão</span>
           </header>
@@ -328,7 +383,7 @@
             <h3>Leitura sem interrupções</h3>
             <p>
               O ajuste de escala dá lugar a duas ferramentas deliberadas.
-              <span class="selection">Este trecho está selecionado e ainda não foi alterado.</span>
+              <span class="selection">Este trecho está sendo arrastado e será marcado ao soltar.</span>
             </p>
             <p>
               Um trecho já marcado aparece com
@@ -337,7 +392,7 @@
 
             <div class="oa-font-scale-root prototype-root">
               <section class="oa-font-scale-panel is-annotation-mode" aria-label="Paleta de anotação rápida">
-                <div class="oa-font-scale-panel__mode oa-font-scale-panel__text is-annotation-mode">Anotar</div>
+                <div class="oa-font-scale-panel__mode oa-font-scale-panel__text is-annotation-mode">Marcar</div>
                 <button class="oa-font-scale-panel__button oa-font-scale-panel__annotation prototype-button is-active" aria-label="Sair da anotação rápida" aria-pressed="true">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="M12 20h9"></path>
@@ -345,14 +400,14 @@
                     <path d="m15 5 3 3"></path>
                   </svg>
                 </button>
-                <button class="oa-font-scale-panel__button oa-font-scale-panel__mark prototype-button" aria-label="Marcar seleção">
+                <button class="oa-font-scale-panel__button oa-font-scale-panel__mark prototype-button is-active" aria-label="Marcador ativo; selecione ou arraste sobre o texto" aria-pressed="true">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="m9 11-6 6v3h9l3-3"></path>
                     <path d="m22 12-6.5 6.5-10-10L12 2Z"></path>
                     <path d="m15 5 4 4"></path>
                   </svg>
                 </button>
-                <button class="oa-font-scale-panel__button oa-font-scale-panel__erase prototype-button" aria-label="Apagar marcação">
+                <button class="oa-font-scale-panel__button oa-font-scale-panel__erase prototype-button" aria-label="Ativar borracha" aria-pressed="false">
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path d="m7 21-4-4L14.5 5.5a2.1 2.1 0 0 1 3 0l1 1a2.1 2.1 0 0 1 0 3L7 21Z"></path>
                     <path d="m12 8 6 6"></path>
@@ -360,6 +415,15 @@
                   </svg>
                 </button>
               </section>
+            </div>
+            <div class="oa-font-scale-root prototype-launcher-root">
+              <button class="oa-font-scale-trigger" type="button" aria-expanded="true" aria-label="Fechar controles de acessibilidade">
+                <span class="oa-font-scale-trigger__icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M20.75 6.99c-.14-.55-.69-.87-1.24-.75C17.13 6.77 14.48 7 12 7s-5.13-.23-7.51-.76c-.55-.12-1.1.2-1.24.75-.14.56.2 1.13.75 1.26 1.61.36 3.35.61 5 .75v12c0 .55.45 1 1 1s1-.45 1-1v-5h2v5c0 .55.45 1 1 1s1-.45 1-1V9c1.65-.14 3.39-.39 4.99-.75.56-.13.9-.7.76-1.26zM12 6c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path>
+                  </svg>
+                </span>
+              </button>
             </div>
           </div>
           <div class="prototype-legend">
@@ -372,8 +436,28 @@
 
       <footer class="proposal-footer">
         <span>Harness responsivo para as escalas Grande, Média e Mínima.</span>
-        <span>Estrutura e classes da implementação atual.</span>
+        <span><span id="audit-theme">escuro</span> · <span id="audit-scale">grande</span></span>
       </footer>
     </main>
+    <script>
+      const parameters = new URLSearchParams(window.location.search);
+      const theme = parameters.get('theme') === 'light' ? 'light' : 'dark';
+      const requestedScale = parameters.get('scale');
+      const scale = ['large', 'medium', 'small'].includes(requestedScale)
+        ? requestedScale
+        : 'large';
+      document.documentElement.dataset.theme = theme;
+      for (const root of document.querySelectorAll('.prototype-root, .prototype-launcher-root')) {
+        root.classList.remove('is-scale-medium', 'is-scale-small');
+        if (scale !== 'large') root.classList.add(`is-scale-${scale}`);
+      }
+      document.querySelector('#audit-theme').textContent =
+        theme === 'light' ? 'tema claro' : 'tema escuro';
+      document.querySelector('#audit-scale').textContent =
+        scale === 'large' ? 'escala grande' : scale === 'medium' ? 'escala média' : 'escala mínima';
+      if (parameters.get('focus') === 'eraser') {
+        document.querySelector('.oa-font-scale-panel__erase')?.focus();
+      }
+    </script>
   </body>
 </html>

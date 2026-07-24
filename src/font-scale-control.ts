@@ -66,7 +66,7 @@ export class FontScaleControl {
   private readonly unsubscribeAnnotation: () => void;
   private rangeDrag: RangeDragState | null = null;
   private idleTimer: number | null = null;
-  private lastAnnotationMessage = '';
+  private lastAnnotationAnnouncementId = 0;
   private opened = false;
 
   constructor(
@@ -161,8 +161,9 @@ export class FontScaleControl {
       cls: 'oa-font-scale-panel__button oa-font-scale-panel__mark',
       attr: {
         type: 'button',
-        'aria-label': 'Marcar seleção',
-        title: 'Marcar seleção',
+        'aria-label': 'Ativar marcador',
+        'aria-pressed': 'false',
+        title: 'Ativar marcador',
       },
     });
     setIcon(this.markButton, 'highlighter');
@@ -170,8 +171,9 @@ export class FontScaleControl {
       cls: 'oa-font-scale-panel__button oa-font-scale-panel__erase',
       attr: {
         type: 'button',
-        'aria-label': 'Apagar marcação',
-        title: 'Apagar marcação',
+        'aria-label': 'Ativar borracha',
+        'aria-pressed': 'false',
+        title: 'Ativar borracha',
       },
     });
     setIcon(this.eraseButton, 'eraser');
@@ -188,9 +190,21 @@ export class FontScaleControl {
     this.root.addEventListener('focusin', () => this.wakeTrigger(), { signal });
     this.root.addEventListener('focusout', () => this.scheduleTriggerIdle(), { signal });
     this.zenModeButton.addEventListener('click', () => this.toggleZenMode(), { signal });
+    for (const button of [
+      this.trigger,
+      this.annotationButton,
+      this.markButton,
+      this.eraseButton,
+    ]) {
+      button.addEventListener('pointerdown', () => this.annotation.rememberCurrentSelection(), {
+        signal,
+      });
+    }
     this.annotationButton.addEventListener('click', () => this.annotation.toggle(), { signal });
-    this.markButton.addEventListener('click', () => void this.annotation.mark(), { signal });
-    this.eraseButton.addEventListener('click', () => void this.annotation.erase(), { signal });
+    this.markButton.addEventListener('click', () => this.annotation.selectTool('mark'), { signal });
+    this.eraseButton.addEventListener('click', () => this.annotation.selectTool('erase'), {
+      signal,
+    });
     this.increaseButton.addEventListener('click', () => this.step(1), { signal });
     this.decreaseButton.addEventListener('click', () => this.step(-1), { signal });
     this.resetButton.addEventListener('click', () => this.reset(), { signal });
@@ -522,15 +536,38 @@ export class FontScaleControl {
     this.annotationButton.setAttribute('aria-pressed', `${state.active}`);
     this.annotationButton.classList.toggle('is-active', state.active);
     this.annotationButton.disabled = !state.available && !state.active;
-    this.markButton.disabled = state.busy || !state.hasSelection;
-    this.eraseButton.disabled = state.busy || !state.hasSelection;
+    this.markButton.disabled = state.busy;
+    this.eraseButton.disabled = state.busy;
+    this.markButton.classList.toggle('is-active', state.active && state.tool === 'mark');
+    this.eraseButton.classList.toggle('is-active', state.active && state.tool === 'erase');
+    this.markButton.setAttribute('aria-pressed', `${state.active && state.tool === 'mark'}`);
+    this.eraseButton.setAttribute('aria-pressed', `${state.active && state.tool === 'erase'}`);
+    const markLabel =
+      state.active && state.tool === 'mark'
+        ? 'Marcador ativo; selecione ou arraste sobre o texto'
+        : 'Ativar marcador';
+    const eraseLabel =
+      state.active && state.tool === 'erase'
+        ? 'Borracha ativa; selecione ou arraste sobre uma marcação'
+        : 'Ativar borracha';
+    this.markButton.setAttribute('aria-label', markLabel);
+    this.markButton.setAttribute('title', markLabel);
+    this.eraseButton.setAttribute('aria-label', eraseLabel);
+    this.eraseButton.setAttribute('title', eraseLabel);
 
     if (state.active) {
-      this.modeLabel.setText('Anotar');
-      this.modeLabel.setAttribute('title', 'Cor de marcação definida pelo tema');
+      this.modeLabel.setText(state.tool === 'mark' ? 'Marcar' : 'Apagar');
+      this.modeLabel.setAttribute(
+        'title',
+        state.tool === 'mark'
+          ? 'Marcador ativo; cor definida pelo tema'
+          : 'Borracha ativa',
+      );
       this.panel.setAttribute(
         'aria-label',
-        'Anotação rápida. Selecione texto e escolha marcar ou apagar',
+        state.tool === 'mark'
+          ? 'Anotação rápida. Marcador ativo; selecione ou arraste sobre o texto'
+          : 'Anotação rápida. Borracha ativa; selecione ou arraste sobre uma marcação',
       );
     } else {
       this.renderScaleLabel();
@@ -540,8 +577,8 @@ export class FontScaleControl {
       );
     }
 
-    if (state.message && state.message !== this.lastAnnotationMessage) {
-      this.lastAnnotationMessage = state.message;
+    if (state.message && state.announcementId !== this.lastAnnotationAnnouncementId) {
+      this.lastAnnotationAnnouncementId = state.announcementId;
       this.statusLive.setText(state.message);
     }
     this.updateTriggerLabel();

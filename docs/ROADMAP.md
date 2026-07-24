@@ -100,9 +100,8 @@ não exige migração destrutiva. Consulte
 Direita ou Esquerda com Inferior, Meio ou Superior, sem posição horizontal
 central. O componente completo oferece Mínima (50%), Média (100%) e Grande
 (150%), preservando Grande como padrão. Após dois segundos fechado e sem
-interação, o acionador fica com 50% de opacidade e recupera a visibilidade ao
-toque ou foco. O painel parte do botão e permanece contido na nota e na área
-visível. Consulte
+interação, o acionador reduz somente a sombra e conserva contraste integral. O
+painel parte do botão e permanece contido na nota e na área visível. Consulte
 [`RESEARCH-control-position-2026-07.md`](RESEARCH-control-position-2026-07.md).
 Consulte também
 [`RESEARCH-control-scale-2026-07.md`](RESEARCH-control-scale-2026-07.md).
@@ -126,10 +125,23 @@ recusa formatação aninhada e alterações concorrentes e escreve somente por
 tratamento paralelo de eventos. Consulte
 [`RESEARCH-reading-annotation-mode-2026-07.md`](RESEARCH-reading-annotation-mode-2026-07.md).
 
-**Gate pendente:** a versão 1.0.0 será distribuída primeiro como pré-lançamento
-pelo BRAT. Validar fisicamente no iPad, com dedo e Apple Pencil, a seleção por
-palavra e por alças, os botões de marcar/apagar, retrato, paisagem, Split View e
-VoiceOver antes de promover esse mesmo lançamento a estável.
+**Candidata 1.0.0 reprovada em 2026-07-23:** o ensaio físico encontrou um falso
+conflito entre o texto retornado pelo renderizador e o recorte do Markdown. A
+interação em duas etapas também foi rejeitada. A correção elimina essa igualdade
+inválida, preserva seleção anterior ao acionamento e mantém marcador ou borracha
+ativos para aplicar automaticamente ao fim do arrasto. Publicar e testar uma
+nova candidata antes de qualquer promoção estável.
+
+**Próximo gate:** distribuir a correção `1.0.1` como pré-lançamento pelo BRAT.
+Validar fisicamente no iPad, com dedo e Apple Pencil, a seleção por palavra e
+por alças, os botões de marcar/apagar, retrato, paisagem, Split View e VoiceOver
+antes de promover esse mesmo lançamento a estável.
+
+**Contraste auditado em 2026-07-23:** temas claro e escuro, estados
+ativo/inativo/foco, seleção, painel, acionador e slider passam os limites WCAG
+nas três escalas. Grande e Média também atendem ao alvo Apple de `44 × 44`.
+Mínima preserva `22 × 22` nos botões e não é recomendada para toque; redesenhar
+essa escala sem perder compactação permanece melhoria separada.
 
 ## Marco 3 — Auxílios opcionais de leitura
 
@@ -164,6 +176,8 @@ deve atrasar sua validação.
 - [ ] Testar atualização e reversão pelo BRAT.
 - [ ] Verificar remoção e recuperação no modo restrito.
 - [ ] Estabelecer referências de compatibilidade do Obsidian e iPadOS.
+- [ ] Redesenhar a escala Mínima para oferecer alvo físico adequado sem
+  sobrepor os controles nem ampliar sua aparência indevidamente.
 - [x] Manter arquivos do lançamento, tag, manifesto e `versions.json` coerentes.
 - [ ] Decidir se é desejável solicitar inclusão no catálogo oficial.
 
