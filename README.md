@@ -10,7 +10,8 @@ Controles de acessibilidade para o Obsidian, desenvolvidos primeiro para leitura
   borracha;
 - escalas independentes para o modo de Leitura e a Pré-visualização em tempo
   real, aplicadas proporcionalmente a títulos, tabelas, código, notas de
-  rodapé, propriedades, callouts e conteúdo incorporado;
+  rodapé, propriedades, callouts e conteúdo incorporado; o título interno e
+  H1 usam 120% da base, enquanto H2–H6 usam 110%;
 - fonte mínima de 32 px em Leitura e edição para os três perfis;
 - posicionamento configurável em seis combinações: Direita ou Esquerda com Inferior, Meio ou Superior;
 - escala completa do controle em Mínima (50%), Média (100%) ou Grande (150%);

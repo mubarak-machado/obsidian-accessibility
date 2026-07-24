@@ -107,6 +107,13 @@ código, notas de rodapé e transclusões acompanham proporcionalmente Leitura o
 Edição sem ampliar a interface do plugin. Consulte
 [`RESEARCH-complete-typographic-scaling-2026-07.md`](RESEARCH-complete-typographic-scaling-2026-07.md).
 
+**Hierarquia de títulos compactada em 2026-07-24:** a inspeção em uma tela de
+11" mostrou que as proporções padrão ficavam excessivas entre `60` e `75 px`.
+O título interno e H1 agora usam 120% da base, enquanto H2–H6 usam 110%.
+Cores, pesos, fontes e espaçamentos permanecem livres para o tema e o Theme
+Engine. Consulte
+[`RESEARCH-compact-heading-scale-2026-07.md`](RESEARCH-compact-heading-scale-2026-07.md).
+
 **Personalização do controle concluída em 2026-07-22:** o botão flutuante combina
 Direita ou Esquerda com Inferior, Meio ou Superior, sem posição horizontal
 central. O componente completo oferece Mínima (50%), Média (100%) e Grande

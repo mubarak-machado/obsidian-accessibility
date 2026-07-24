@@ -25,7 +25,14 @@
         --h4-size: 1.188em;
         --h5-size: 1.076em;
         --h6-size: 1em;
+        --h1-color: #6f1d1b;
+        --h2-color: #794500;
+        --h3-color: #17613f;
+        --h4-color: #075d75;
+        --h5-color: #3d4f9c;
+        --h6-color: #744079;
         --inline-title-size: var(--h1-size);
+        --inline-title-color: var(--h1-color);
         --table-text-size: var(--font-text-size);
         --table-header-size: var(--table-text-size);
         --table-line-height: 1.3;
@@ -55,6 +62,12 @@
       }
 
       body.theme-dark {
+        --h1-color: #ffb3aa;
+        --h2-color: #ffd18b;
+        --h3-color: #91e6b8;
+        --h4-color: #8cddeb;
+        --h5-color: #b8c3ff;
+        --h6-color: #e6b5ef;
         --text-normal: #f5f2fa;
         --text-muted: #c8c1d1;
         --text-accent: #c6b8ff;
@@ -128,6 +141,7 @@
 
       .inline-title {
         margin-block-end: 0.5em;
+        color: var(--inline-title-color);
         font-size: var(--inline-title-size);
         font-weight: 700;
         line-height: 1.2;
@@ -135,35 +149,41 @@
 
       h1,
       .HyperMD-header-1 {
+        color: var(--h1-color);
         font-size: var(--h1-size);
         line-height: 1.2;
       }
 
       h2,
       .HyperMD-header-2 {
+        color: var(--h2-color);
         font-size: var(--h2-size);
         line-height: 1.2;
       }
 
       h3,
       .HyperMD-header-3 {
+        color: var(--h3-color);
         font-size: var(--h3-size);
         line-height: 1.3;
       }
 
       h4,
       .HyperMD-header-4 {
+        color: var(--h4-color);
         font-size: var(--h4-size);
         line-height: 1.4;
       }
 
       h5,
       .HyperMD-header-5 {
+        color: var(--h5-color);
         font-size: var(--h5-size);
       }
 
       h6,
       .HyperMD-header-6 {
+        color: var(--h6-color);
         font-size: var(--h6-size);
       }
 
@@ -332,10 +352,10 @@
         <div class="markdown-preview-sizer">
           <div class="inline-title" data-audit="inline-title">Guia de leitura acessível</div>
           <h1 data-audit="heading-1">Título de primeiro nível</h1>
-          <h2>Título de segundo nível</h2>
-          <h3>Título de terceiro nível</h3>
-          <h4>Título de quarto nível</h4>
-          <h5>Título de quinto nível</h5>
+          <h2 data-audit="heading-2">Título de segundo nível</h2>
+          <h3 data-audit="heading-3">Título de terceiro nível</h3>
+          <h4 data-audit="heading-4">Título de quarto nível</h4>
+          <h5 data-audit="heading-5">Título de quinto nível</h5>
           <h6 data-audit="heading-6">Título de sexto nível</h6>
           <p data-audit="paragraph">
             Texto do corpo com <strong>ênfase</strong>, <a href="#">link</a>,
@@ -379,10 +399,10 @@
         <div class="cm-content">
           <div class="inline-title" data-audit="inline-title">Guia de leitura acessível</div>
           <div class="cm-line HyperMD-header-1" data-audit="heading-1"># Título de primeiro nível</div>
-          <div class="cm-line HyperMD-header-2">## Título de segundo nível</div>
-          <div class="cm-line HyperMD-header-3">### Título de terceiro nível</div>
-          <div class="cm-line HyperMD-header-4">#### Título de quarto nível</div>
-          <div class="cm-line HyperMD-header-5">##### Título de quinto nível</div>
+          <div class="cm-line HyperMD-header-2" data-audit="heading-2">## Título de segundo nível</div>
+          <div class="cm-line HyperMD-header-3" data-audit="heading-3">### Título de terceiro nível</div>
+          <div class="cm-line HyperMD-header-4" data-audit="heading-4">#### Título de quarto nível</div>
+          <div class="cm-line HyperMD-header-5" data-audit="heading-5">##### Título de quinto nível</div>
           <div class="cm-line HyperMD-header-6" data-audit="heading-6">###### Título de sexto nível</div>
           <p data-audit="paragraph">Texto do corpo na Visualização ao vivo.</p>
           <ul data-audit="list"><li>Item de lista em edição.</li></ul>
@@ -444,15 +464,38 @@
 
         const active = selectedMode === 'reading' ? reading : editing;
         const values = {};
-        for (const name of ['inline-title', 'heading-1', 'paragraph', 'table-cell', 'inline-code', 'footnote']) {
+        for (const name of [
+          'inline-title',
+          'heading-1',
+          'heading-2',
+          'heading-3',
+          'heading-4',
+          'heading-5',
+          'heading-6',
+          'paragraph',
+          'table-cell',
+          'inline-code',
+          'footnote',
+        ]) {
           const element = active.querySelector(`[data-audit="${name}"]`);
           values[name] = Number.parseFloat(getComputedStyle(element).fontSize);
         }
-        const grows = values['heading-1'] > values.paragraph
+        const mainTitleMatches = ['inline-title', 'heading-1'].every(
+          (name) => Math.abs(values[name] - value * 1.2) <= 0.11,
+        );
+        const otherHeadingsMatch = [2, 3, 4, 5, 6].every(
+          (level) => Math.abs(values[`heading-${level}`] - value * 1.1) <= 0.11,
+        );
+        const headingColors = [1, 2, 3, 4, 5, 6].map((level) =>
+          getComputedStyle(active.querySelector(`[data-audit="heading-${level}"]`)).color,
+        );
+        const grows = mainTitleMatches
+          && otherHeadingsMatch
+          && new Set(headingColors).size === 6
           && values['table-cell'] === values.paragraph
           && values['inline-code'] < values.paragraph
           && values.footnote < values.paragraph;
-        report.value = `${grows ? 'PASSA' : 'FALHA'} · corpo ${values.paragraph}px · H1 ${values['heading-1'].toFixed(1)}px · tabela ${values['table-cell']}px · código ${values['inline-code'].toFixed(1)}px`;
+        report.value = `${grows ? 'PASSA' : 'FALHA'} · corpo ${values.paragraph}px · H1 ${values['heading-1'].toFixed(1)}px · H2–H6 ${values['heading-2'].toFixed(1)}px · tabela ${values['table-cell']}px · código ${values['inline-code'].toFixed(1)}px`;
         report.dataset.result = grows ? 'pass' : 'fail';
       }
 

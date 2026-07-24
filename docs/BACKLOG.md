@@ -22,7 +22,8 @@ item mudar de ordem, escopo, estado ou for concluído. O
 
 ### P0 — Escala tipográfica completa
 
-**Estado:** concluído em 2026-07-24; aguarda ensaio físico antes de lançamento.
+**Estado:** concluído e refinado em 2026-07-24; aguarda ensaio físico antes de
+lançamento.
 
 Fazer o slider redimensionar proporcionalmente todo o conteúdo semântico da
 nota ativa em Leitura e Visualização ao vivo: título interno, títulos H1–H6,
@@ -30,6 +31,11 @@ texto, listas, citações, callouts, tabelas, código, fórmulas, notas de rodap
 metadados renderizados e conteúdo incorporado que herde a tipografia da nota.
 Preservar a hierarquia entre os elementos, a posição de leitura e o tamanho
 independente da interface do plugin.
+
+Após a inspeção nas escalas altas de uma tela de 11", a proporção ficou
+deliberadamente compacta: título interno e H1 usam 120% da base; H2–H6 usam
+110%. Cor, peso, fonte e espaçamento continuam sob responsabilidade do tema e
+do Theme Engine.
 
 ### P1 — Cor única do destaque nativo
 

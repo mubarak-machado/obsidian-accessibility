@@ -53,6 +53,24 @@ describe('escala tipográfica do conteúdo', () => {
     expect(styles).toContain('--table-header-size: var(--table-text-size);');
   });
 
+  it('limita título interno e H1 a 120%, e H2–H6 a 110%', () => {
+    const typography = ruleFor(
+      "body\n  .workspace-leaf-content[data-type='markdown'].oa-scale-active\n  :is(.markdown-preview-view, .markdown-source-view)",
+    );
+
+    expect(typography).toContain('--h1-size: 1.2em;');
+    for (const level of [2, 3, 4, 5, 6]) {
+      expect(typography).toContain(`--h${level}-size: 1.1em;`);
+    }
+    expect(typography).toContain('--inline-title-size: var(--h1-size);');
+    expect(typography).not.toMatch(
+      /--(?:inline-title|h[1-6])-(?:color|font|weight|line-height):/,
+    );
+    for (const level of [1, 2, 3, 4, 5, 6]) {
+      expect(harness).toContain(`color: var(--h${level}-color);`);
+    }
+  });
+
   it('mantém transclusões da Visualização ao vivo na escala de Edição', () => {
     const embeddedEditing = ruleFor(
       "body\n  .workspace-leaf-content[data-type='markdown'].oa-scale-active\n  .markdown-source-view\n  .markdown-preview-view",
@@ -67,6 +85,10 @@ describe('escala tipográfica do conteúdo', () => {
     for (const sample of [
       'inline-title',
       'heading-1',
+      'heading-2',
+      'heading-3',
+      'heading-4',
+      'heading-5',
       'heading-6',
       'paragraph',
       'list',

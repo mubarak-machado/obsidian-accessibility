@@ -71,8 +71,10 @@ e o cabeçalho acompanha o mesmo token.
   redimensionaria imagens, geometria, hit targets e o controle flutuante;
 - enumerar todos os elementos com seletores DOM: é frágil diante de mudanças no
   renderizador, plugins e conteúdo incorporado;
-- substituir os seis tamanhos de título por razões próprias: apagaria decisões
-  legítimas do tema;
+- substituir os seis tamanhos de título por razões próprias sem uma decisão de
+  produto: apagaria decisões legítimas do tema. A revisão posterior aprovada
+  para telas de 11" limita somente os tamanhos a 120%/110% e está documentada
+  em [`RESEARCH-compact-heading-scale-2026-07.md`](RESEARCH-compact-heading-scale-2026-07.md);
 - alterar `--font-text-size` globalmente no `body`: afetaria outras folhas,
   popovers e partes da interface, contrariando o escopo da nota ativa;
 - vencer regras `!important` de temas ou snippets: uma folha que deliberadamente
