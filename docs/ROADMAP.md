@@ -126,9 +126,10 @@ recusa formatação aninhada e alterações concorrentes e escreve somente por
 tratamento paralelo de eventos. Consulte
 [`RESEARCH-reading-annotation-mode-2026-07.md`](RESEARCH-reading-annotation-mode-2026-07.md).
 
-**Gate pendente:** validar fisicamente no iPad, com dedo e Apple Pencil, a
-seleção por palavra e por alças, os botões de marcar/apagar, retrato, paisagem,
-Split View e VoiceOver antes do incremento de versão e lançamento.
+**Gate pendente:** a versão 1.0.0 será distribuída primeiro como pré-lançamento
+pelo BRAT. Validar fisicamente no iPad, com dedo e Apple Pencil, a seleção por
+palavra e por alças, os botões de marcar/apagar, retrato, paisagem, Split View e
+VoiceOver antes de promover esse mesmo lançamento a estável.
 
 ## Marco 3 — Auxílios opcionais de leitura
 
