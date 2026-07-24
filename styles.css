@@ -1,12 +1,37 @@
 /* Obsidian Accessibility — interface mínima, móvel e restrita à folha Markdown ativa. */
 
 body .workspace-leaf-content[data-type='markdown'].oa-scale-active .markdown-preview-view {
-  font-size: var(--oa-scale-reading-size);
+  --font-text-size: var(--oa-scale-reading-size);
+
+  font-size: var(--font-text-size);
   line-height: var(--oa-scale-line-height);
 }
 
+body .workspace-leaf-content[data-type='markdown'].oa-scale-active .markdown-source-view {
+  --font-text-size: var(--oa-scale-editing-size);
+}
+
+body
+  .workspace-leaf-content[data-type='markdown'].oa-scale-active
+  .markdown-source-view
+  .markdown-preview-view {
+  --font-text-size: var(--oa-scale-editing-size);
+}
+
+body
+  .workspace-leaf-content[data-type='markdown'].oa-scale-active
+  :is(.markdown-preview-view, .markdown-source-view) {
+  /*
+   * O Obsidian resolve estes tokens contra o --font-text-size global antes da
+   * herança. Reancore-os à base delimitada da visualização ativa.
+   */
+  --metadata-input-height: calc(var(--font-text-size) * 1.75);
+  --table-text-size: var(--font-text-size);
+  --table-header-size: var(--table-text-size);
+}
+
 body .workspace-leaf-content[data-type='markdown'].oa-scale-active .markdown-source-view .cm-content {
-  font-size: var(--oa-scale-editing-size);
+  font-size: var(--font-text-size);
   line-height: var(--oa-scale-line-height);
 }
 

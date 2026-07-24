@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Auditoria de escala tipográfica</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        --font-text-size: 16px;
+        --font-smallest: 0.8em;
+        --font-smaller: 0.875em;
+        --font-small: 0.933em;
+        --h1-size: 1.618em;
+        --h2-size: 1.462em;
+        --h3-size: 1.318em;
+        --h4-size: 1.188em;
+        --h5-size: 1.076em;
+        --h6-size: 1em;
+        --inline-title-size: var(--h1-size);
+        --table-text-size: var(--font-text-size);
+        --table-header-size: var(--table-text-size);
+        --table-line-height: 1.3;
+        --code-size: var(--font-smaller);
+        --footnote-size: var(--font-smaller);
+        --tag-size: var(--font-smaller);
+        --metadata-label-font-size: var(--font-smaller);
+        --metadata-input-font-size: var(--font-smaller);
+        --callout-title-size: inherit;
+        --line-height-normal: 1.5;
+        --font-interface: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --font-text: Georgia, serif;
+        --font-monospace: ui-monospace, SFMono-Regular, Menlo, monospace;
+        --text-normal: #26242b;
+        --text-muted: #625d69;
+        --text-accent: #5140a8;
+        --text-highlight-bg: rgb(255 208 0 / 45%);
+        --background-primary: #ffffff;
+        --background-primary-alt: #f4f2f7;
+        --background-modifier-hover: #e8e4ed;
+        --background-modifier-border: #77717d;
+        --interactive-accent: #5140a8;
+        min-height: 100vh;
+        margin: 0;
+        background: var(--background-primary);
+        color: var(--text-normal);
+      }
+
+      body.theme-dark {
+        --text-normal: #f5f2fa;
+        --text-muted: #c8c1d1;
+        --text-accent: #c6b8ff;
+        --background-primary: #201e27;
+        --background-primary-alt: #292633;
+        --background-modifier-hover: #35313f;
+        --background-modifier-border: #aaa2b5;
+        --interactive-accent: #c6b8ff;
+      }
+
+      .audit-toolbar {
+        position: sticky;
+        z-index: 50;
+        top: 0;
+        display: flex;
+        min-height: 52px;
+        align-items: center;
+        gap: 12px;
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--background-modifier-border);
+        background: var(--background-primary-alt);
+        color: var(--text-normal);
+        font: 15px/1.3 var(--font-interface);
+      }
+
+      .audit-toolbar label {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .audit-toolbar select,
+      .audit-toolbar input {
+        min-height: 36px;
+        font: inherit;
+      }
+
+      .audit-report {
+        margin-inline-start: auto;
+        color: var(--text-muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .workspace-leaf-content {
+        position: relative;
+        height: calc(100vh - 52px);
+        overflow: hidden;
+      }
+
+      .markdown-preview-view,
+      .markdown-source-view {
+        width: 100%;
+        height: 100%;
+        padding: 28px 86px 80px 34px;
+        font-family: var(--font-text);
+        font-size: var(--font-text-size);
+        line-height: var(--line-height-normal);
+        overflow: auto;
+      }
+
+      .markdown-source-view[hidden],
+      .markdown-preview-view[hidden] {
+        display: none;
+      }
+
+      .markdown-preview-sizer,
+      .cm-content {
+        max-width: 920px;
+        margin-inline: auto;
+      }
+
+      .inline-title {
+        margin-block-end: 0.5em;
+        font-size: var(--inline-title-size);
+        font-weight: 700;
+        line-height: 1.2;
+      }
+
+      h1,
+      .HyperMD-header-1 {
+        font-size: var(--h1-size);
+        line-height: 1.2;
+      }
+
+      h2,
+      .HyperMD-header-2 {
+        font-size: var(--h2-size);
+        line-height: 1.2;
+      }
+
+      h3,
+      .HyperMD-header-3 {
+        font-size: var(--h3-size);
+        line-height: 1.3;
+      }
+
+      h4,
+      .HyperMD-header-4 {
+        font-size: var(--h4-size);
+        line-height: 1.4;
+      }
+
+      h5,
+      .HyperMD-header-5 {
+        font-size: var(--h5-size);
+      }
+
+      h6,
+      .HyperMD-header-6 {
+        font-size: var(--h6-size);
+      }
+
+      h1, h2, h3, h4, h5, h6,
+      .HyperMD-header-1, .HyperMD-header-2, .HyperMD-header-3,
+      .HyperMD-header-4, .HyperMD-header-5, .HyperMD-header-6 {
+        margin-block: 0.7em 0.25em;
+      }
+
+      p,
+      ul,
+      blockquote,
+      pre,
+      table,
+      .callout,
+      .metadata-container,
+      .markdown-embed {
+        margin-block: 0 0.8em;
+      }
+
+      blockquote,
+      .callout,
+      .metadata-container,
+      .markdown-embed {
+        padding: 0.45em 0.65em;
+        border-inline-start: 4px solid var(--interactive-accent);
+        background: var(--background-primary-alt);
+      }
+
+      .callout-title {
+        font-size: var(--callout-title-size);
+        font-weight: 700;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        line-height: var(--table-line-height);
+      }
+
+      th,
+      td {
+        padding: 0.35em 0.45em;
+        border: 1px solid var(--background-modifier-border);
+        text-align: start;
+      }
+
+      th {
+        font-size: var(--table-header-size);
+      }
+
+      td {
+        font-size: var(--table-text-size);
+      }
+
+      code,
+      pre {
+        font-family: var(--font-monospace);
+        font-size: var(--code-size);
+      }
+
+      pre {
+        padding: 0.55em;
+        background: var(--background-primary-alt);
+        overflow-x: auto;
+      }
+
+      .math {
+        font-size: 1em;
+        font-family: "Times New Roman", serif;
+      }
+
+      .tag {
+        padding: 0.1em 0.35em;
+        border-radius: 999px;
+        background: var(--background-modifier-hover);
+        color: var(--text-accent);
+        font-size: var(--tag-size);
+      }
+
+      .footnote {
+        color: var(--text-muted);
+        font-size: var(--footnote-size);
+      }
+
+      .metadata-row {
+        display: grid;
+        grid-template-columns: minmax(6em, 0.4fr) 1fr;
+        gap: 0.5em;
+      }
+
+      .metadata-label {
+        color: var(--text-muted);
+        font-family: var(--font-interface);
+        font-size: var(--metadata-label-font-size);
+      }
+
+      .metadata-value {
+        font-family: var(--font-interface);
+        font-size: var(--metadata-input-font-size);
+      }
+
+      .markdown-embed .markdown-preview-view {
+        height: auto;
+        padding: 0.3em 0;
+        overflow: visible;
+      }
+
+      .oa-font-scale-root.audit-control {
+        --oa-launcher-size: 48px;
+        --oa-launcher-icon-size: 28px;
+        --oa-launcher-border: 2px;
+        --oa-edge-offset: 12px;
+      }
+
+      .audit-control .oa-font-scale-trigger {
+        bottom: 18px;
+      }
+
+      @media (max-width: 700px) {
+        .audit-toolbar {
+          flex-wrap: wrap;
+        }
+
+        .audit-report {
+          width: 100%;
+          margin-inline-start: 0;
+        }
+
+        .markdown-preview-view,
+        .markdown-source-view {
+          padding-inline: 18px 76px;
+        }
+      }
+    </style>
+    <link rel="stylesheet" href="../../styles.css">
+  </head>
+  <body class="theme-light">
+    <form class="audit-toolbar" aria-label="Controles da auditoria">
+      <label>Modo
+        <select id="mode">
+          <option value="reading">Leitura</option>
+          <option value="editing">Visualização ao vivo</option>
+        </select>
+      </label>
+      <label>Tamanho
+        <input id="size" type="range" min="32" max="75" step="1" value="55">
+        <output id="size-output">55 px</output>
+      </label>
+      <label>Tema
+        <select id="theme">
+          <option value="light">Claro</option>
+          <option value="dark">Escuro</option>
+        </select>
+      </label>
+      <output id="report" class="audit-report" aria-live="polite"></output>
+    </form>
+
+    <main
+      id="leaf"
+      class="workspace-leaf-content oa-scale-active"
+      data-type="markdown"
+      style="--oa-scale-reading-size: 55px; --oa-scale-editing-size: 50px; --oa-scale-line-height: 1.2"
+    >
+      <section class="markdown-preview-view markdown-rendered">
+        <div class="markdown-preview-sizer">
+          <div class="inline-title" data-audit="inline-title">Guia de leitura acessível</div>
+          <h1 data-audit="heading-1">Título de primeiro nível</h1>
+          <h2>Título de segundo nível</h2>
+          <h3>Título de terceiro nível</h3>
+          <h4>Título de quarto nível</h4>
+          <h5>Título de quinto nível</h5>
+          <h6 data-audit="heading-6">Título de sexto nível</h6>
+          <p data-audit="paragraph">
+            Texto do corpo com <strong>ênfase</strong>, <a href="#">link</a>,
+            <mark>destaque</mark> e <span class="tag" data-audit="tag">#acessibilidade</span>.
+          </p>
+          <ul data-audit="list">
+            <li>Primeiro item de uma lista.</li>
+            <li>Segundo item com mais conteúdo para verificar quebra de linha.</li>
+          </ul>
+          <blockquote data-audit="blockquote">Uma citação deve acompanhar o corpo.</blockquote>
+          <aside class="callout" data-audit="callout">
+            <div class="callout-title">Nota importante</div>
+            <div>O conteúdo do callout também acompanha a escala.</div>
+          </aside>
+          <table aria-label="Amostra de tabela">
+            <thead><tr><th>Elemento</th><th>Resultado</th></tr></thead>
+            <tbody>
+              <tr><td data-audit="table-cell">Tabela</td><td>Acompanha a base</td></tr>
+            </tbody>
+          </table>
+          <p>Código <code data-audit="inline-code">inline()</code> no parágrafo.</p>
+          <pre data-audit="code-block"><code>const leitura = "acessível";</code></pre>
+          <p class="math" data-audit="math">E = mc² · ∫₀¹ x² dx</p>
+          <section class="metadata-container" data-audit="metadata">
+            <div class="metadata-row">
+              <span class="metadata-label">categoria</span>
+              <span class="metadata-value">leitura</span>
+            </div>
+          </section>
+          <section class="markdown-embed" data-audit="embed">
+            <strong>Nota incorporada</strong>
+            <div class="markdown-preview-view markdown-rendered">
+              <p data-audit="embed-content">O conteúdo incorporado herda a mesma base tipográfica.</p>
+            </div>
+          </section>
+          <p class="footnote" data-audit="footnote">1. Nota de rodapé em tamanho relativo.</p>
+        </div>
+      </section>
+
+      <section class="markdown-source-view" hidden>
+        <div class="cm-content">
+          <div class="inline-title" data-audit="inline-title">Guia de leitura acessível</div>
+          <div class="cm-line HyperMD-header-1" data-audit="heading-1"># Título de primeiro nível</div>
+          <div class="cm-line HyperMD-header-2">## Título de segundo nível</div>
+          <div class="cm-line HyperMD-header-3">### Título de terceiro nível</div>
+          <div class="cm-line HyperMD-header-4">#### Título de quarto nível</div>
+          <div class="cm-line HyperMD-header-5">##### Título de quinto nível</div>
+          <div class="cm-line HyperMD-header-6" data-audit="heading-6">###### Título de sexto nível</div>
+          <p data-audit="paragraph">Texto do corpo na Visualização ao vivo.</p>
+          <ul data-audit="list"><li>Item de lista em edição.</li></ul>
+          <blockquote data-audit="blockquote">Citação em edição.</blockquote>
+          <aside class="callout" data-audit="callout">
+            <div class="callout-title">Nota importante</div>
+            <div>Conteúdo renderizado dentro do editor.</div>
+          </aside>
+          <table><tbody><tr><td data-audit="table-cell">Tabela</td><td>Visualização ao vivo</td></tr></tbody></table>
+          <p><code data-audit="inline-code">inline()</code></p>
+          <pre data-audit="code-block"><code>const modo = "editing";</code></pre>
+          <p class="math" data-audit="math">a² + b² = c²</p>
+          <span class="tag" data-audit="tag">#pesquisa</span>
+          <section class="metadata-container" data-audit="metadata">
+            <div class="metadata-row"><span class="metadata-label">estado</span><span class="metadata-value">ativo</span></div>
+          </section>
+          <section class="markdown-embed" data-audit="embed">
+            <strong>Nota incorporada em edição</strong>
+            <div class="markdown-preview-view markdown-rendered">
+              <p data-audit="embed-content">A transclusão acompanha o tamanho de Edição.</p>
+            </div>
+          </section>
+          <p class="footnote" data-audit="footnote">1. Nota de rodapé.</p>
+        </div>
+      </section>
+
+      <div class="oa-font-scale-root is-right is-bottom is-scale-medium audit-control">
+        <button class="oa-font-scale-trigger" type="button" aria-label="Abrir controles de acessibilidade" aria-expanded="false">
+          <span class="oa-font-scale-trigger__icon" aria-hidden="true">♿</span>
+        </button>
+      </div>
+    </main>
+
+    <script>
+      const mode = document.querySelector('#mode');
+      const size = document.querySelector('#size');
+      const sizeOutput = document.querySelector('#size-output');
+      const theme = document.querySelector('#theme');
+      const leaf = document.querySelector('#leaf');
+      const reading = document.querySelector('.markdown-preview-view');
+      const editing = document.querySelector('.markdown-source-view');
+      const report = document.querySelector('#report');
+
+      function apply() {
+        const selectedMode = mode.value;
+        const selectedSize = Number(size.value);
+        const maximum = selectedMode === 'reading' ? 75 : 60;
+        size.max = String(maximum);
+        if (selectedSize > maximum) size.value = String(maximum);
+        const value = Number(size.value);
+        leaf.style.setProperty(
+          selectedMode === 'reading' ? '--oa-scale-reading-size' : '--oa-scale-editing-size',
+          `${value}px`,
+        );
+        document.body.className = `theme-${theme.value}`;
+        reading.hidden = selectedMode !== 'reading';
+        editing.hidden = selectedMode !== 'editing';
+        sizeOutput.value = `${value} px`;
+
+        const active = selectedMode === 'reading' ? reading : editing;
+        const values = {};
+        for (const name of ['inline-title', 'heading-1', 'paragraph', 'table-cell', 'inline-code', 'footnote']) {
+          const element = active.querySelector(`[data-audit="${name}"]`);
+          values[name] = Number.parseFloat(getComputedStyle(element).fontSize);
+        }
+        const grows = values['heading-1'] > values.paragraph
+          && values['table-cell'] === values.paragraph
+          && values['inline-code'] < values.paragraph
+          && values.footnote < values.paragraph;
+        report.value = `${grows ? 'PASSA' : 'FALHA'} · corpo ${values.paragraph}px · H1 ${values['heading-1'].toFixed(1)}px · tabela ${values['table-cell']}px · código ${values['inline-code'].toFixed(1)}px`;
+        report.dataset.result = grows ? 'pass' : 'fail';
+      }
+
+      for (const control of [mode, size, theme]) control.addEventListener('input', apply);
+
+      const params = new URLSearchParams(location.search);
+      if (params.has('mode')) mode.value = params.get('mode');
+      if (params.has('size')) size.value = params.get('size');
+      if (params.has('theme')) theme.value = params.get('theme');
+      apply();
+    </script>
+  </body>
+</html>

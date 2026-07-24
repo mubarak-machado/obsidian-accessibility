@@ -22,7 +22,7 @@ item mudar de ordem, escopo, estado ou for concluído. O
 
 ### P0 — Escala tipográfica completa
 
-**Estado:** em implementação.
+**Estado:** concluído em 2026-07-24; aguarda ensaio físico antes de lançamento.
 
 Fazer o slider redimensionar proporcionalmente todo o conteúdo semântico da
 nota ativa em Leitura e Visualização ao vivo: título interno, títulos H1–H6,
@@ -33,7 +33,7 @@ independente da interface do plugin.
 
 ### P1 — Cor única do destaque nativo
 
-**Estado:** aprovado; implementar depois de P0.
+**Estado:** aprovado; próximo item em implementação.
 
 Permitir escolher uma única cor para todos os destaques Markdown
 `==texto==` na nota ativa. A preferência deve ficar nos dados do plugin e
@@ -124,4 +124,3 @@ documentado equivalente; os botões manuais devem permanecer como alternativa.
 - desenho livre, tinta digital, Canvas e anotação de PDF;
 - mecanismo próprio de texto para fala ou dependência obrigatória de serviço
   externo.
-

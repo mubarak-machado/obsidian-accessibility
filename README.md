@@ -7,7 +7,9 @@ Controles de acessibilidade para o Obsidian, desenvolvidos primeiro para leitura
 - botão circular persistente de acessibilidade, com ícone preenchido de alta visibilidade, que abre um controle vertical compacto;
 - Modo Zen recuperável, que reduz os elementos de navegação sem bloquear o Outline (sumário) na barra lateral direita;
 - anotação rápida no modo de Leitura, com uma cor nativa do tema e borracha;
-- escalas independentes para o modo de Leitura e a Pré-visualização em tempo real;
+- escalas independentes para o modo de Leitura e a Pré-visualização em tempo
+  real, aplicadas proporcionalmente a títulos, tabelas, código, notas de
+  rodapé, propriedades, callouts e conteúdo incorporado;
 - fonte mínima de 32 px em Leitura e edição para os três perfis;
 - posicionamento configurável em seis combinações: Direita ou Esquerda com Inferior, Meio ou Superior;
 - escala completa do controle em Mínima (50%), Média (100%) ou Grande (150%);
@@ -65,6 +67,8 @@ A versão `0.1.1` é a referência visual e comportamental aprovada. O código-f
 - [Transição de desenvolvimento da versão 0.1.1](docs/HANDOFF-v0.1.1.pt-BR.md) — referência técnica e tarefa obrigatória de migração do código-fonte;
 - [Desenvolvimento e reversão](docs/DEVELOPMENT.md) — preparação limpa, instalação em cofre isolado de testes e recuperação;
 - [Roteiro de desenvolvimento](docs/ROADMAP.md) — melhorias em sequência e etapas de validação humana.
+- [Backlog do produto](docs/BACKLOG.md) — ordem canônica das melhorias
+  aprovadas, independente das sessões de trabalho.
 
 ```bash
 npm ci

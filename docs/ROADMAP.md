@@ -100,6 +100,13 @@ os máximos próprios de 75 px e 60 px. A alteração preserva os valores padrã
 não exige migração destrutiva. Consulte
 [`RESEARCH-unified-font-minimum-2026-07.md`](RESEARCH-unified-font-minimum-2026-07.md).
 
+**Escala tipográfica completa concluída em 2026-07-24:** o slider agora altera
+o token tipográfico oficial dentro de cada modo da nota ativa e reancora
+tabelas e propriedades à base local. Títulos, texto, listas, callouts, tabelas,
+código, notas de rodapé e transclusões acompanham proporcionalmente Leitura ou
+Edição sem ampliar a interface do plugin. Consulte
+[`RESEARCH-complete-typographic-scaling-2026-07.md`](RESEARCH-complete-typographic-scaling-2026-07.md).
+
 **Personalização do controle concluída em 2026-07-22:** o botão flutuante combina
 Direita ou Esquerda com Inferior, Meio ou Superior, sem posição horizontal
 central. O componente completo oferece Mínima (50%), Média (100%) e Grande
