@@ -22,8 +22,8 @@ item mudar de ordem, escopo, estado ou for concluído. O
 
 ### P0 — Escala tipográfica completa
 
-**Estado:** concluído e refinado em 2026-07-24; aguarda ensaio físico antes de
-lançamento.
+**Estado:** incluído na candidata `1.1.0`; aguarda ensaio físico antes de
+promoção estável.
 
 Fazer o slider redimensionar proporcionalmente todo o conteúdo semântico da
 nota ativa em Leitura e Visualização ao vivo: título interno, títulos H1–H6,
@@ -39,7 +39,8 @@ do Theme Engine.
 
 ### P1 — Cor única do destaque nativo
 
-**Estado:** concluído em 2026-07-24; aguarda ensaio físico antes de lançamento.
+**Estado:** incluído na candidata `1.1.0`; aguarda ensaio físico antes de
+promoção estável.
 
 Permitir escolher uma única cor para todos os destaques Markdown
 `==texto==` na nota ativa. A preferência deve ficar nos dados do plugin e

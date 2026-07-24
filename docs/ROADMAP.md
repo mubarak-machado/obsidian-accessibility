@@ -150,6 +150,12 @@ Markdown, não altera resultados de busca e combina a cor escolhida com texto
 preto ou branco de maior contraste. Consulte
 [`RESEARCH-highlight-color-2026-07.md`](RESEARCH-highlight-color-2026-07.md).
 
+**Candidata `1.1.0`:** a escala tipográfica completa, a hierarquia compacta de
+títulos e a cor única configurável do destaque são distribuídas juntas como
+pré-lançamento pelo BRAT. A promoção a estável depende do ensaio físico em uma
+tela de 11", incluindo Leitura e Visualização ao vivo, temas claro e escuro,
+Theme Engine, retrato, paisagem, Split View e VoiceOver.
+
 **Candidata 1.0.0 reprovada em 2026-07-23:** o ensaio físico encontrou um falso
 conflito entre o texto retornado pelo renderizador e o recorte do Markdown. A
 interação em duas etapas também foi rejeitada. A correção elimina essa igualdade
