@@ -1,5 +1,9 @@
 import { MarkdownView, Notice, Plugin } from 'obsidian';
 import { FontScaleControl } from './font-scale-control';
+import {
+  ReadingAnnotationController,
+  ReadingSectionRegistry,
+} from './reading-annotation';
 import { ScaleController } from './scale-controller';
 import { ScaleStore } from './scale-store';
 import { AccessibilitySettingTab } from './settings-tab';
@@ -18,6 +22,8 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
   private store!: ScaleStore;
   private controller!: ScaleController;
   private control: FontScaleControl | null = null;
+  private annotation: ReadingAnnotationController | null = null;
+  private readonly annotationRegistry = new ReadingSectionRegistry();
   private mountedView: MarkdownView | null = null;
   private profileObserver: MutationObserver | null = null;
   private zenMode: ZenModeController | null = null;
@@ -45,6 +51,9 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     await this.store.flush();
 
     this.addSettingTab(new AccessibilitySettingTab(this.app, this, this.store));
+    this.registerMarkdownPostProcessor((element, context) => {
+      this.annotationRegistry.register(element, context);
+    });
     this.registerCommands();
     this.registerWorkspaceEvents();
     this.observeExternalProfileChanges(doc);
@@ -65,6 +74,7 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     this.destroyControl();
     this.zenMode?.destroy();
     this.zenMode = null;
+    this.annotationRegistry.clear();
     const body = this.app.workspace.containerEl.ownerDocument.body;
     this.removeProfileClasses(body);
     if (this.originalProfileClass) body.classList.add(this.originalProfileClass);
@@ -120,6 +130,34 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
       },
     });
     this.addCommand({
+      id: 'toggle-reading-annotation',
+      name: 'Ativar ou desativar anotação rápida',
+      checkCallback: (checking) => {
+        const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+        if (!view || view.getMode() !== 'preview' || !this.annotation) return false;
+        if (!checking) this.annotation.toggle();
+        return true;
+      },
+    });
+    this.addCommand({
+      id: 'mark-reading-selection',
+      name: 'Marcar seleção no modo leitura',
+      checkCallback: (checking) => {
+        if (!this.annotation?.active) return false;
+        if (!checking) void this.annotation.mark();
+        return true;
+      },
+    });
+    this.addCommand({
+      id: 'erase-reading-highlight',
+      name: 'Apagar marcação selecionada no modo leitura',
+      checkCallback: (checking) => {
+        if (!this.annotation?.active) return false;
+        if (!checking) void this.annotation.erase();
+        return true;
+      },
+    });
+    this.addCommand({
       id: 'cycle-accessibility-profile',
       name: 'Alternar perfil de acessibilidade',
       callback: () => {
@@ -161,12 +199,26 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     if (!this.zenMode) return;
     this.mountedView = view;
     this.controller.mount(view);
-    this.control = new FontScaleControl(view, this.store, this.controller, this.zenMode);
+    this.annotation = new ReadingAnnotationController(
+      view,
+      this.app.vault,
+      this.annotationRegistry,
+      (message) => new Notice(message),
+    );
+    this.control = new FontScaleControl(
+      view,
+      this.store,
+      this.controller,
+      this.zenMode,
+      this.annotation,
+    );
   }
 
   private destroyControl(): void {
     this.control?.destroy();
     this.control = null;
+    this.annotation?.destroy();
+    this.annotation = null;
     this.controller?.unmount();
     this.mountedView = null;
   }

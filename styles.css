@@ -238,18 +238,38 @@ body.oa-zen-mode .status-bar {
   touch-action: manipulation;
 }
 
+.oa-font-scale-panel__button[hidden],
+.oa-font-scale-panel__range-frame[hidden] {
+  display: none;
+}
+
+.oa-font-scale-panel__button:disabled {
+  color: var(--text-faint, var(--text-muted));
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.oa-font-scale-panel__button:disabled:is(:hover, :active, :focus-visible) {
+  background: transparent;
+  color: var(--text-faint, var(--text-muted));
+}
+
 .oa-font-scale-panel__button:is(:hover, :active, :focus-visible) {
   background: var(--background-modifier-hover);
   color: var(--interactive-accent);
 }
 
-.oa-font-scale-panel__zen-mode.is-active {
+.oa-font-scale-panel__zen-mode.is-active,
+.oa-font-scale-panel__annotation.is-active {
   background: var(--interactive-accent);
   color: var(--text-on-accent);
 }
 
 .oa-font-scale-panel__zen-mode svg,
-.oa-font-scale-panel__reset svg {
+.oa-font-scale-panel__reset svg,
+.oa-font-scale-panel__annotation svg,
+.oa-font-scale-panel__mark svg,
+.oa-font-scale-panel__erase svg {
   width: var(--oa-inner-icon-size);
   height: var(--oa-inner-icon-size);
 }
@@ -302,6 +322,12 @@ body.oa-zen-mode .status-bar {
   border-radius: 999px;
   background: var(--background-modifier-border-focus);
   content: '';
+}
+
+.oa-font-scale-panel__mode.is-annotation-mode::after {
+  height: max(3px, calc(var(--oa-thin-border) * 3));
+  border: var(--oa-thin-border) solid var(--background-modifier-border-focus);
+  background: var(--text-highlight-bg);
 }
 
 .oa-font-scale-panel__reset {

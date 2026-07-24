@@ -18,8 +18,9 @@ novamente a dependência de par mais recente do esbuild para o Vite. O npm 11
 instala o arquivo aprovado sem alterar dependências; o pacote de produção
 permanece idêntico, byte por byte, ao da versão `0.1.1`.
 
-`npm run check` executa o ESLint, 26 casos do Vitest, a compilação estrita do
-TypeScript, o pacote de produção do esbuild e a inspeção do pacote móvel.
+`npm run check` executa o ESLint, a suíte do Vitest, a compilação estrita do
+TypeScript, o pacote de produção do esbuild e a inspeção do pacote móvel,
+incluindo a restrição da escrita de anotações a `Vault.process()`.
 Durante a verificação da migração, execute também:
 
 ```bash

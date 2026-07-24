@@ -1,5 +1,9 @@
 import { MarkdownView, setIcon } from 'obsidian';
 import { computePanelPosition } from './positioning';
+import {
+  ReadingAnnotationController,
+  type ReadingAnnotationState,
+} from './reading-annotation';
 import { ScaleController } from './scale-controller';
 import { ScaleStore } from './scale-store';
 import {
@@ -47,14 +51,22 @@ export class FontScaleControl {
   private readonly panel: HTMLElement;
   private readonly modeLabel: HTMLDivElement;
   private readonly zenModeButton: HTMLButtonElement;
+  private readonly annotationButton: HTMLButtonElement;
+  private readonly markButton: HTMLButtonElement;
+  private readonly eraseButton: HTMLButtonElement;
+  private readonly increaseButton: HTMLButtonElement;
+  private readonly decreaseButton: HTMLButtonElement;
+  private readonly resetButton: HTMLButtonElement;
   private readonly statusLive: HTMLDivElement;
   private readonly rangeFrame: HTMLDivElement;
   private readonly range: HTMLInputElement;
   private readonly abortController = new AbortController();
   private readonly unsubscribe: () => void;
   private readonly unsubscribeZenMode: () => void;
+  private readonly unsubscribeAnnotation: () => void;
   private rangeDrag: RangeDragState | null = null;
   private idleTimer: number | null = null;
+  private lastAnnotationMessage = '';
   private opened = false;
 
   constructor(
@@ -62,6 +74,7 @@ export class FontScaleControl {
     private readonly store: ScaleStore,
     private readonly controller: ScaleController,
     private readonly zenMode: ZenModeController,
+    private readonly annotation: ReadingAnnotationController,
   ) {
     const doc = view.containerEl.ownerDocument;
     this.root = view.containerEl.createDiv({ cls: 'oa-font-scale-root' });
@@ -103,7 +116,17 @@ export class FontScaleControl {
         title: 'Ativar modo zen',
       },
     });
-    const increase = this.textButton(this.panel, '+', 'Aumentar um pixel');
+    this.annotationButton = this.panel.createEl('button', {
+      cls: 'oa-font-scale-panel__button oa-font-scale-panel__annotation',
+      attr: {
+        type: 'button',
+        'aria-label': 'Ativar anotação rápida',
+        'aria-pressed': 'false',
+        title: 'Ativar anotação rápida',
+      },
+    });
+    setIcon(this.annotationButton, 'pencil-line');
+    this.increaseButton = this.textButton(this.panel, '+', 'Aumentar um pixel');
 
     this.rangeFrame = this.panel.createDiv({ cls: 'oa-font-scale-panel__range-frame' });
     const rangeVisual = this.rangeFrame.createDiv({
@@ -124,8 +147,8 @@ export class FontScaleControl {
       },
     });
 
-    const decrease = this.textButton(this.panel, '−', 'Diminuir um pixel');
-    const reset = this.panel.createEl('button', {
+    this.decreaseButton = this.textButton(this.panel, '−', 'Diminuir um pixel');
+    this.resetButton = this.panel.createEl('button', {
       cls: 'oa-font-scale-panel__button oa-font-scale-panel__reset',
       attr: {
         type: 'button',
@@ -133,7 +156,25 @@ export class FontScaleControl {
         title: 'Restaurar tamanho do perfil',
       },
     });
-    setIcon(reset, 'rotate-ccw');
+    setIcon(this.resetButton, 'rotate-ccw');
+    this.markButton = this.panel.createEl('button', {
+      cls: 'oa-font-scale-panel__button oa-font-scale-panel__mark',
+      attr: {
+        type: 'button',
+        'aria-label': 'Marcar seleção',
+        title: 'Marcar seleção',
+      },
+    });
+    setIcon(this.markButton, 'highlighter');
+    this.eraseButton = this.panel.createEl('button', {
+      cls: 'oa-font-scale-panel__button oa-font-scale-panel__erase',
+      attr: {
+        type: 'button',
+        'aria-label': 'Apagar marcação',
+        title: 'Apagar marcação',
+      },
+    });
+    setIcon(this.eraseButton, 'eraser');
     this.statusLive = this.root.createDiv({
       cls: 'oa-visually-hidden',
       attr: { 'aria-live': 'polite', 'aria-atomic': 'true' },
@@ -147,9 +188,12 @@ export class FontScaleControl {
     this.root.addEventListener('focusin', () => this.wakeTrigger(), { signal });
     this.root.addEventListener('focusout', () => this.scheduleTriggerIdle(), { signal });
     this.zenModeButton.addEventListener('click', () => this.toggleZenMode(), { signal });
-    increase.addEventListener('click', () => this.step(1), { signal });
-    decrease.addEventListener('click', () => this.step(-1), { signal });
-    reset.addEventListener('click', () => this.reset(), { signal });
+    this.annotationButton.addEventListener('click', () => this.annotation.toggle(), { signal });
+    this.markButton.addEventListener('click', () => void this.annotation.mark(), { signal });
+    this.eraseButton.addEventListener('click', () => void this.annotation.erase(), { signal });
+    this.increaseButton.addEventListener('click', () => this.step(1), { signal });
+    this.decreaseButton.addEventListener('click', () => this.step(-1), { signal });
+    this.resetButton.addEventListener('click', () => this.reset(), { signal });
     this.range.addEventListener('input', () => this.setScale(Number(this.range.value)), { signal });
     this.rangeFrame.addEventListener('pointerdown', (event) => this.startRangeDrag(event), {
       signal,
@@ -179,11 +223,13 @@ export class FontScaleControl {
       this.renderZenMode(active);
       this.statusLive.setText(active ? 'Modo zen ativado' : 'Modo zen desativado');
     });
+    this.unsubscribeAnnotation = annotation.subscribe((state) => this.renderAnnotation(state));
     this.render();
     this.renderZenMode(zenMode.active);
   }
 
   refreshContext(): void {
+    this.annotation.refreshContext();
     this.render();
     this.controller.refresh();
     if (this.opened) this.positionPanel();
@@ -210,6 +256,7 @@ export class FontScaleControl {
     this.abortController.abort();
     this.unsubscribe();
     this.unsubscribeZenMode();
+    this.unsubscribeAnnotation();
     this.close(false);
     this.clearIdleTimer();
     this.root.remove();
@@ -244,8 +291,10 @@ export class FontScaleControl {
     this.range.setAttribute('aria-valuetext', `${value} pixels`);
     const position = (limits.maximum - value) / (limits.maximum - limits.minimum);
     this.rangeFrame.style.setProperty('--oa-font-scale-range-position', `${position * 100}%`);
-    this.modeLabel.setText(`${value} px`);
-    this.modeLabel.setAttribute('title', `${value} pixels`);
+    if (!this.annotation.active) {
+      this.modeLabel.setText(`${value} px`);
+      this.modeLabel.setAttribute('title', `${value} pixels`);
+    }
     if (!settings.enabled) {
       if (this.opened) this.close(false);
       this.clearIdleTimer();
@@ -277,6 +326,7 @@ export class FontScaleControl {
 
   private close(returnFocus: boolean): void {
     if (!this.opened) return;
+    if (this.annotation.active) this.annotation.exit();
     this.opened = false;
     this.panel.hidden = true;
     this.trigger.setAttribute('aria-expanded', 'false');
@@ -414,16 +464,24 @@ export class FontScaleControl {
   private updateTriggerLabel(): void {
     const action = this.opened ? 'Fechar' : 'Abrir';
     const state = this.zenMode.active ? 'Modo zen ativo. ' : '';
-    this.setTriggerLabel(`${state}${action} controles de acessibilidade`);
+    const annotationState = this.annotation.active ? 'Anotação rápida ativa. ' : '';
+    this.setTriggerLabel(`${state}${annotationState}${action} controles de acessibilidade`);
   }
 
   private onOutsidePointer(event: PointerEvent): void {
     if (!this.opened || this.root.contains(event.target as Node)) return;
+    if (this.annotation.active) return;
     this.close(false);
   }
 
   private onKeyDown(event: KeyboardEvent): void {
     if (event.key !== 'Escape') return;
+    if (this.annotation.active) {
+      event.preventDefault();
+      this.annotation.exit();
+      this.annotationButton.focus();
+      return;
+    }
     if (this.opened) {
       event.preventDefault();
       this.close(true);
@@ -441,5 +499,62 @@ export class FontScaleControl {
       text,
       attr: { type: 'button', 'aria-label': label, title: label },
     });
+  }
+
+  private renderAnnotation(state: ReadingAnnotationState): void {
+    this.panel.classList.toggle('is-annotation-mode', state.active);
+    this.modeLabel.classList.toggle('is-annotation-mode', state.active);
+    this.zenModeButton.hidden = state.active;
+    this.increaseButton.hidden = state.active;
+    this.rangeFrame.hidden = state.active;
+    this.decreaseButton.hidden = state.active;
+    this.resetButton.hidden = state.active;
+    this.markButton.hidden = !state.active;
+    this.eraseButton.hidden = !state.active;
+
+    const annotationLabel = state.active
+      ? 'Sair da anotação rápida'
+      : state.available
+        ? 'Ativar anotação rápida'
+        : 'Anotação rápida disponível apenas no modo leitura';
+    this.annotationButton.setAttribute('aria-label', annotationLabel);
+    this.annotationButton.setAttribute('title', annotationLabel);
+    this.annotationButton.setAttribute('aria-pressed', `${state.active}`);
+    this.annotationButton.classList.toggle('is-active', state.active);
+    this.annotationButton.disabled = !state.available && !state.active;
+    this.markButton.disabled = state.busy || !state.hasSelection;
+    this.eraseButton.disabled = state.busy || !state.hasSelection;
+
+    if (state.active) {
+      this.modeLabel.setText('Anotar');
+      this.modeLabel.setAttribute('title', 'Cor de marcação definida pelo tema');
+      this.panel.setAttribute(
+        'aria-label',
+        'Anotação rápida. Selecione texto e escolha marcar ou apagar',
+      );
+    } else {
+      this.renderScaleLabel();
+      this.panel.setAttribute(
+        'aria-label',
+        'Controles de acessibilidade. Toque fora ou pressione escape para fechar',
+      );
+    }
+
+    if (state.message && state.message !== this.lastAnnotationMessage) {
+      this.lastAnnotationMessage = state.message;
+      this.statusLive.setText(state.message);
+    }
+    this.updateTriggerLabel();
+    if (this.opened) {
+      window.requestAnimationFrame(() => this.positionPanel());
+    }
+  }
+
+  private renderScaleLabel(): void {
+    const mode = this.controller.mode();
+    const profile = this.store.activeProfile;
+    const value = mode === 'reading' ? profile.readingSize : profile.editingSize;
+    this.modeLabel.setText(`${value} px`);
+    this.modeLabel.setAttribute('title', `${value} pixels`);
   }
 }

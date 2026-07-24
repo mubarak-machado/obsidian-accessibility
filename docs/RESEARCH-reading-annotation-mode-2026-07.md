@@ -2,8 +2,9 @@
 
 Data: 2026-07-23
 
-Status: proposta técnica e visual inicial; nenhuma alteração de comportamento
-foi implementada.
+Status: proposta aprovada e MVP implementado em 2026-07-23; validação
+automatizada e visual concluída, com ensaio físico no iPad ainda obrigatório
+antes do lançamento.
 
 ## Objetivo autorizado
 
@@ -87,6 +88,34 @@ O protótipo está em
 | [WAI-ARIA APG — Button](https://www.w3.org/WAI/ARIA/apg/patterns/button/) | orientação vigente, avaliada em 2026-07-23 | W3C Software and Document License | define botão de alternância com estado perceptível | **adotar** botão nativo, `aria-pressed`, nome dinâmico e anúncio de estado |
 
 Nenhum código externo foi copiado nesta etapa.
+
+## Dedo e Apple Pencil
+
+O fluxo básico não diferencia dedo e caneta. Ele usa a seleção de texto nativa,
+observa `selectionchange` e ativa botões HTML por `click`, sem cancelar
+`pointerdown` sobre o conteúdo. Essa escolha acompanha:
+
+- a [documentação da Apple sobre entrada do Apple Pencil](https://developer.apple.com/documentation/uikit/handling-input-from-apple-pencil),
+  segundo a qual UIKit entrega o toque da caneta pelo mesmo modelo básico usado
+  para o toque dos dedos;
+- a [documentação do Scribble](https://support.apple.com/guide/ipad/enter-text-with-scribble-ipad355ab2a7/ipados),
+  que oferece seleção por círculo, sublinhado, duplo toque e ajuste das alças;
+- o [Pointer Events](https://www.w3.org/TR/pointerevents3/), que unifica mouse,
+  toque e caneta e recomenda `click` como ativação independente do dispositivo;
+- o [WebKit do Safari 18.2](https://webkit.org/blog/16301/webkit-features-in-safari-18-2/),
+  que expõe `pointerType` também nos eventos de ativação.
+
+Não há impedimento conhecido para selecionar com Apple Pencil e tocar nos
+botões com a caneta. Ainda assim, o comportamento exato da seleção em texto não
+editável pertence ao iPadOS e à WebView do Obsidian; por isso, dedo e Apple
+Pencil fazem parte da validação física obrigatória.
+
+O duplo toque no corpo do Apple Pencil é diferente de um duplo toque da ponta
+na tela. A Apple o entrega a aplicativos nativos por
+[`UIPencilInteraction`](https://developer.apple.com/documentation/uikit/uipencilinteraction).
+Não há evento web documentado equivalente. Alternar marca-texto e borracha por
+esse gesto fica no backlog e dependerá de uma futura ponte nativa do Obsidian ou
+do WebKit. Os dois botões visíveis continuam sendo a rota garantida.
 
 ## Formato persistente
 
@@ -217,9 +246,26 @@ separação acima deve ser introduzida incrementalmente e continuar montando uma
 - Fazer o incremento `MINOR` em commit separado.
 - Publicar apenas após o ensaio físico obrigatório.
 
-## Decisões ainda necessárias
+## Resultado da implementação
 
-1. Aprovar ou ajustar a transformação visual mostrada no protótipo.
-2. Confirmar que a primeira versão deve recusar seleção com formatação ou mais
-   de um bloco, em vez de tentar adivinhar.
-3. Validar em Obsidian real que as âncoras públicas de seção são suficientes.
+- `ReadingSectionRegistry` consulta `getSectionInfo()` no momento da seleção e
+  mantém as âncoras somente em memória.
+- `ReadingAnnotationController` preserva a última seleção válida quando tocar
+  no painel recolhe as alças, inclusive para eventos com `pointerType: pen`.
+- `applyReadingAnnotation()` exige uma ocorrência única na seção atual e recusa
+  conteúdo alterado, quebra de bloco e formatação aninhada.
+- A única escrita autorizada usa `Vault.process()` e aplica ou remove apenas
+  `==texto==`.
+- O painel existente alterna entre o slider e a paleta compacta sem criar outra
+  raiz nem persistir estado de sessão.
+- Sublinhado, cores adicionais, histórico próprio e gestos nativos do corpo do
+  Apple Pencil permanecem fora do MVP.
+
+## Decisões e gate restante
+
+1. A transformação visual foi aprovada sem ajustes.
+2. A recusa conservadora de seleção com formatação ou mais de um bloco foi
+   adotada.
+3. A liberação continua condicionada ao ensaio físico em Obsidian no iPad, com
+   dedo e Apple Pencil, para confirmar seleção, alças, botões e âncoras públicas
+   de seção.

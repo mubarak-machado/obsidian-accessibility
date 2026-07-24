@@ -3,6 +3,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { FontScaleControl } from '../src/font-scale-control';
+import {
+  ReadingAnnotationController,
+  ReadingSectionRegistry,
+} from '../src/reading-annotation';
 import type { ScaleController } from '../src/scale-controller';
 import { ScaleStore } from '../src/scale-store';
 import { DEFAULT_SETTINGS } from '../src/settings-model';
@@ -56,10 +60,18 @@ function setup(mode: 'reading' | 'editing' = 'reading'): {
   store: ScaleStore;
   controller: ScaleController;
   zenMode: ZenModeController;
+  annotation: ReadingAnnotationController;
   container: HTMLElement;
+  paragraphText: Text;
+  getContent: () => string;
 } {
   const container = document.createElement('div');
   document.body.appendChild(container);
+  const section = container.appendChild(document.createElement('div'));
+  const paragraph = section.appendChild(document.createElement('p'));
+  const paragraphText = paragraph.appendChild(
+    document.createTextNode('Um trecho simples para marcar.'),
+  );
   const store = new ScaleStore(DEFAULT_SETTINGS, async () => undefined);
   const controller = {
     mode: vi.fn(() => mode),
@@ -68,14 +80,49 @@ function setup(mode: 'reading' | 'editing' = 'reading'): {
   } as unknown as ScaleController;
   const view = {
     containerEl: container,
+    file: { path: 'Notas/Teste.md' },
     getMode: () => (mode === 'reading' ? 'preview' : 'source'),
   };
+  const registry = new ReadingSectionRegistry();
+  registry.register(section, {
+    sourcePath: 'Notas/Teste.md',
+    getSectionInfo: () => ({
+      text: 'Um trecho simples para marcar.',
+      lineStart: 0,
+      lineEnd: 0,
+    }),
+  } as never);
+  let content = 'Um trecho simples para marcar.';
+  const vault = {
+    getFileByPath: () => view.file,
+    cachedRead: async () => content,
+    process: async (_file: unknown, operation: (data: string) => string) => {
+      content = operation(content);
+      return content;
+    },
+  };
+  const annotation = new ReadingAnnotationController(view as never, vault as never, registry);
   const zenMode = new ZenModeController(document.body, {
     leftSplit: { collapsed: false, collapse() { this.collapsed = true; }, expand() { this.collapsed = false; } },
     rightSplit: { collapsed: false, collapse() { this.collapsed = true; }, expand() { this.collapsed = false; } },
   });
-  const control = new FontScaleControl(view as never, store, controller, zenMode);
-  return { control, store, controller, zenMode, container };
+  const control = new FontScaleControl(
+    view as never,
+    store,
+    controller,
+    zenMode,
+    annotation,
+  );
+  return {
+    control,
+    store,
+    controller,
+    zenMode,
+    annotation,
+    container,
+    paragraphText,
+    getContent: () => content,
+  };
 }
 
 describe('FontScaleControl', () => {
@@ -308,19 +355,100 @@ describe('FontScaleControl', () => {
     expect(frame?.querySelector('.oa-font-scale-panel__range-thumb')).not.toBeNull();
     expect(frame?.style.getPropertyValue('--oa-font-scale-range-position')).toMatch(/%$/);
     expect(panel?.querySelector('.oa-font-scale-panel__actions')).toBeNull();
-    expect(panel?.querySelectorAll(':scope > button')).toHaveLength(4);
+    expect(panel?.querySelectorAll(':scope > button:not([hidden])')).toHaveLength(5);
     expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe(
       '55 px',
     );
     expect(panel?.children[1]?.classList.contains('oa-font-scale-panel__zen-mode')).toBe(true);
-    expect(panel?.children[2]?.textContent).toBe('+');
+    expect(panel?.children[2]?.classList.contains('oa-font-scale-panel__annotation')).toBe(true);
+    expect(panel?.children[3]?.textContent).toBe('+');
     expect(panel?.querySelector('.oa-font-scale-panel__separator')).toBeNull();
     const reset = panel?.querySelector<HTMLButtonElement>('.oa-font-scale-panel__reset');
-    expect(reset).toBe(panel?.lastElementChild);
+    const visibleChildren = panel?.querySelectorAll<HTMLElement>(':scope > :not([hidden])');
+    expect(reset).toBe(visibleChildren?.[visibleChildren.length - 1]);
     expect(reset?.classList.contains('oa-font-scale-panel__button')).toBe(true);
     expect(reset?.dataset.icon).toBe('rotate-ccw');
     expect(reset?.getAttribute('aria-label')).toBe('Restaurar tamanho do perfil');
     expect(reset?.textContent).toBe('');
+    control.destroy();
+  });
+
+  it('troca o slider pela paleta compacta e volta ao estado anterior', () => {
+    const { control, container } = setup();
+    const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
+    const panel = container.querySelector<HTMLElement>('.oa-font-scale-panel');
+    const annotation = container.querySelector<HTMLButtonElement>(
+      '.oa-font-scale-panel__annotation',
+    );
+    const mark = container.querySelector<HTMLButtonElement>('.oa-font-scale-panel__mark');
+    const erase = container.querySelector<HTMLButtonElement>('.oa-font-scale-panel__erase');
+    const range = container.querySelector<HTMLElement>('.oa-font-scale-panel__range-frame');
+
+    trigger?.click();
+    annotation?.click();
+
+    expect(panel?.classList.contains('is-annotation-mode')).toBe(true);
+    expect(annotation?.getAttribute('aria-pressed')).toBe('true');
+    expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe('Anotar');
+    expect(range?.hidden).toBe(true);
+    expect(mark?.hidden).toBe(false);
+    expect(erase?.hidden).toBe(false);
+    expect(mark?.disabled).toBe(true);
+    expect(erase?.disabled).toBe(true);
+
+    annotation?.click();
+    expect(panel?.classList.contains('is-annotation-mode')).toBe(false);
+    expect(panel?.querySelector('.oa-font-scale-panel__mode')?.textContent).toBe('55 px');
+    expect(range?.hidden).toBe(false);
+    control.destroy();
+  });
+
+  it('mantém a paleta aberta e aceita marcar com eventos de Apple Pencil', async () => {
+    const { control, container, paragraphText, getContent } = setup();
+    const trigger = container.querySelector<HTMLButtonElement>('.oa-font-scale-trigger');
+    const annotation = container.querySelector<HTMLButtonElement>(
+      '.oa-font-scale-panel__annotation',
+    );
+    const mark = container.querySelector<HTMLButtonElement>('.oa-font-scale-panel__mark');
+    const panel = container.querySelector<HTMLElement>('.oa-font-scale-panel');
+    trigger?.click();
+
+    annotation?.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, pointerType: 'pen' }),
+    );
+    annotation?.click();
+    paragraphText.parentElement?.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, pointerType: 'pen' }),
+    );
+    expect(panel?.hidden).toBe(false);
+
+    const range = document.createRange();
+    range.setStart(paragraphText, 3);
+    range.setEnd(paragraphText, 17);
+    document.getSelection()?.addRange(range);
+    document.dispatchEvent(new Event('selectionchange'));
+    expect(mark?.disabled).toBe(false);
+
+    mark?.dispatchEvent(
+      new PointerEvent('pointerdown', { bubbles: true, pointerType: 'pen' }),
+    );
+    mark?.click();
+    await vi.waitFor(() => {
+      expect(getContent()).toBe('Um ==trecho simples== para marcar.');
+    });
+    expect(panel?.hidden).toBe(false);
+    expect(panel?.classList.contains('is-annotation-mode')).toBe(true);
+    control.destroy();
+  });
+
+  it('desabilita a anotação fora do modo leitura', () => {
+    const { control, container } = setup('editing');
+    const button = container.querySelector<HTMLButtonElement>(
+      '.oa-font-scale-panel__annotation',
+    );
+
+    expect(button?.disabled).toBe(true);
+    expect(button?.getAttribute('aria-label')).toContain('apenas no modo leitura');
     control.destroy();
   });
 

@@ -76,4 +76,12 @@ describe('escala visual do controle', () => {
     expect(styles).toContain('opacity 180ms ease');
     expect(styles).toContain('@media (prefers-reduced-transparency: reduce)');
   });
+
+  it('representa a anotação ativa sem nova paleta de cores ou redimensionamento', () => {
+    expect(styles).toContain('.oa-font-scale-panel__annotation.is-active');
+    expect(styles).toContain('.oa-font-scale-panel__mode.is-annotation-mode::after');
+    expect(styles).toContain('background: var(--text-highlight-bg);');
+    expect(styles).toContain('.oa-font-scale-panel__button:disabled');
+    expect(styles).not.toContain('--oa-annotation-color');
+  });
 });

@@ -118,6 +118,18 @@ Consulte também
 
 **Etapa humana:** concluir um ensaio de ponta a ponta antes de adicionar mais controles.
 
+**Anotação rápida implementada em 2026-07-23:** o painel aprovado agora oferece
+um modo compacto restrito à Leitura, com uma única marcação nativa
+`==texto==` e borracha. A localização exige seção e ocorrência inequívocas,
+recusa formatação aninhada e alterações concorrentes e escreve somente por
+`Vault.process()`. O mesmo fluxo aceita ativação por dedo e Apple Pencil sem
+tratamento paralelo de eventos. Consulte
+[`RESEARCH-reading-annotation-mode-2026-07.md`](RESEARCH-reading-annotation-mode-2026-07.md).
+
+**Gate pendente:** validar fisicamente no iPad, com dedo e Apple Pencil, a
+seleção por palavra e por alças, os botões de marcar/apagar, retrato, paisagem,
+Split View e VoiceOver antes do incremento de versão e lançamento.
+
 ## Marco 3 — Auxílios opcionais de leitura
 
 Criar protótipos independentes e mantê-los desativados até a aprovação:
@@ -130,6 +142,19 @@ Criar protótipos independentes e mantê-los desativados até a aprovação:
 - [ ] cronômetro opcional ou estimativa de tempo restante.
 
 Cada módulo deve poder falhar isoladamente, evitar escrita nas notas e não depender apenas de cor.
+
+### Backlog sem prioridade — Apple Pencil
+
+- [ ] Investigar uma ponte segura para o duplo toque no corpo do Apple Pencil
+  alternar entre marca-texto e borracha.
+- [ ] Respeitar a ação preferida configurada no iPadOS antes de adotar um
+  comportamento próprio.
+- [ ] Manter sempre os botões manuais como alternativa para dedo, caneta,
+  teclado e tecnologias assistivas.
+
+O gesto é entregue nativamente por `UIPencilInteraction` e não possui evento
+web documentado equivalente. Ele não faz parte do MVP de anotação rápida e não
+deve atrasar sua validação.
 
 ## Marco 4 — Robustez e distribuição
 

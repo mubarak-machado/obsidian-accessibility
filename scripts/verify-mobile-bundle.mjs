@@ -14,8 +14,23 @@ if (bundleStat.size > 100_000) failures.push('bundle excede o teto inicial de 10
 if (/require\(["'](?:electron|fs|node:|path|child_process)/.test(bundle)) {
   failures.push('bundle móvel contém dependência Node/Electron');
 }
-if (/processFrontMatter|fileManager\.processFrontMatter|vault\.modify/.test(bundle)) {
-  failures.push('bundle contém rota de escrita em notas');
+if (
+  /processFrontMatter|fileManager\.processFrontMatter|\.vault\.(?:modify|append|create|delete|trash|rename)\(/.test(
+    bundle,
+  )
+) {
+  failures.push('bundle contém rota de escrita fora da operação atômica autorizada');
+}
+if (!bundle.includes('.vault.process(')) {
+  failures.push('bundle não contém a operação atômica autorizada para anotação');
+}
+if (
+  !bundle.includes('selectionchange') ||
+  !bundle.includes('getSectionInfo') ||
+  !bundle.includes('mark-reading-selection') ||
+  !bundle.includes('erase-reading-highlight')
+) {
+  failures.push('bundle não contém o fluxo móvel completo de anotação no modo leitura');
 }
 if (!styles.includes('safe-area-inset-left') || !styles.includes('safe-area-inset-right')) {
   failures.push('CSS não contempla as safe areas laterais');
@@ -73,10 +88,19 @@ if (!styles.includes('prefers-reduced-transparency')) {
   failures.push('CSS não respeita transparência reduzida');
 }
 if (!styles.includes('prefers-reduced-motion')) failures.push('CSS não respeita movimento reduzido');
+if (
+  !styles.includes('.oa-font-scale-panel__annotation.is-active') ||
+  !styles.includes('.oa-font-scale-panel__mode.is-annotation-mode::after') ||
+  !styles.includes('var(--text-highlight-bg)')
+) {
+  failures.push('CSS não contém o estado compacto e a amostra de cor da anotação');
+}
 
 if (failures.length > 0) {
   for (const failure of failures) console.error(`FALHA: ${failure}`);
   process.exitCode = 1;
 } else {
-  console.log(`Bundle móvel validado: ${bundleStat.size} bytes, sem Node/Electron nem escrita em notas`);
+  console.log(
+    `Bundle móvel validado: ${bundleStat.size} bytes, sem Node/Electron e com escrita restrita a Vault.process`,
+  );
 }
