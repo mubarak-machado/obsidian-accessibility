@@ -59,6 +59,10 @@ export class ScaleStore {
     this.update({ ...this.settings, controlScale });
   }
 
+  setHighlightColor(highlightColor: string | null): void {
+    this.update({ ...this.settings, highlightColor });
+  }
+
   setActiveProfile(activeProfile: ProfileId): void {
     if (activeProfile === this.settings.activeProfile) return;
     this.update({ ...this.settings, activeProfile });

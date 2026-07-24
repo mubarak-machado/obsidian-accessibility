@@ -5,7 +5,9 @@ import {
   detectProfile,
   hasCurrentSettingsSchema,
   migrateFromStyleSettings,
+  normalizeHighlightColor,
   normalizeSettings,
+  shouldMigrateFromStyleSettings,
 } from '../src/settings-model';
 
 function classList(...classes: string[]): DOMTokenList {
@@ -36,6 +38,7 @@ describe('normalizeSettings', () => {
     expect(settings.side).toBe('left');
     expect(settings.verticalPosition).toBe('top');
     expect(settings.controlScale).toBe('medium');
+    expect(settings.highlightColor).toBeNull();
     expect(settings.activeProfile).toBe('presentation');
     expect(settings.profiles.presentation).toEqual({
       readingSize: 75,
@@ -66,7 +69,7 @@ describe('normalizeSettings', () => {
     });
 
     expect(migrated).not.toHaveProperty('tabBarHidden');
-    expect(migrated.schemaVersion).toBe(3);
+    expect(migrated.schemaVersion).toBe(4);
     expect(hasCurrentSettingsSchema({ ...DEFAULT_SETTINGS, schemaVersion: 1 })).toBe(false);
   });
 
@@ -82,7 +85,7 @@ describe('normalizeSettings', () => {
       expect(migrated.side).toBe(side);
       expect(migrated.verticalPosition).toBe('center');
       expect(migrated.controlScale).toBe('large');
-      expect(migrated.schemaVersion).toBe(3);
+      expect(migrated.schemaVersion).toBe(4);
     },
   );
 
@@ -115,6 +118,23 @@ describe('normalizeSettings', () => {
   it('distingue migração inicial de dados já versionados', () => {
     expect(hasCurrentSettingsSchema(DEFAULT_SETTINGS)).toBe(true);
     expect(hasCurrentSettingsSchema({ activeProfile: 'research' })).toBe(false);
+  });
+
+  it('preserva somente cores hexadecimais completas e normalizadas', () => {
+    expect(normalizeHighlightColor('#1D4ED8')).toBe('#1d4ed8');
+    expect(normalizeSettings({ highlightColor: '#5B21B6' }).highlightColor).toBe(
+      '#5b21b6',
+    );
+    expect(normalizeHighlightColor('#fff')).toBeNull();
+    expect(normalizeHighlightColor('red')).toBeNull();
+    expect(normalizeHighlightColor(null)).toBeNull();
+  });
+
+  it('não repete a importação do Style Settings ao migrar do esquema 3', () => {
+    expect(shouldMigrateFromStyleSettings(null)).toBe(true);
+    expect(shouldMigrateFromStyleSettings({ schemaVersion: 2 })).toBe(true);
+    expect(shouldMigrateFromStyleSettings({ schemaVersion: 3 })).toBe(false);
+    expect(shouldMigrateFromStyleSettings(DEFAULT_SETTINGS)).toBe(false);
   });
 });
 

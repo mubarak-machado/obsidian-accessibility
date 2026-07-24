@@ -92,7 +92,9 @@ describe('escala visual do controle', () => {
     expect(styles).toContain('.oa-font-scale-panel__mark.is-active');
     expect(styles).toContain('.oa-font-scale-panel__erase.is-active');
     expect(styles).toContain('.oa-font-scale-panel__mode.is-annotation-mode::after');
-    expect(styles).toContain('background: var(--text-highlight-bg);');
+    expect(styles).toContain(
+      'background: var(--oa-highlight-background, var(--text-highlight-bg));',
+    );
     expect(styles).toContain('.oa-reading-annotation-active');
     expect(styles).toContain('::selection');
     expect(styles).toContain('background: Highlight;');

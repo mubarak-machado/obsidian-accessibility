@@ -136,6 +136,13 @@ recusa formatação aninhada e alterações concorrentes e escreve somente por
 tratamento paralelo de eventos. Consulte
 [`RESEARCH-reading-annotation-mode-2026-07.md`](RESEARCH-reading-annotation-mode-2026-07.md).
 
+**Cor única configurável concluída em 2026-07-24:** as configurações do plugin
+agora permitem escolher a cor usada por todo `==texto==` da nota ativa ou
+restaurar explicitamente a cor do tema. A preferência não é gravada no
+Markdown, não altera resultados de busca e combina a cor escolhida com texto
+preto ou branco de maior contraste. Consulte
+[`RESEARCH-highlight-color-2026-07.md`](RESEARCH-highlight-color-2026-07.md).
+
 **Candidata 1.0.0 reprovada em 2026-07-23:** o ensaio físico encontrou um falso
 conflito entre o texto retornado pelo renderizador e o recorte do Markdown. A
 interação em duas etapas também foi rejeitada. A correção elimina essa igualdade

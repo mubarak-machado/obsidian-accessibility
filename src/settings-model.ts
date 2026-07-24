@@ -1,4 +1,5 @@
-export const SETTINGS_SCHEMA_VERSION = 3;
+export const SETTINGS_SCHEMA_VERSION = 4;
+export const DEFAULT_CUSTOM_HIGHLIGHT_COLOR = '#ffd000';
 
 export type ProfileId = 'presentation' | 'preparation' | 'research';
 export type ControlSide = 'left' | 'right';
@@ -18,6 +19,7 @@ export interface AccessibilitySettings {
   side: ControlSide;
   verticalPosition: ControlVerticalPosition;
   controlScale: ControlScale;
+  highlightColor: string | null;
   activeProfile: ProfileId;
   profiles: Record<ProfileId, ProfileScaleSettings>;
 }
@@ -60,6 +62,7 @@ export const DEFAULT_SETTINGS: AccessibilitySettings = {
   side: 'right',
   verticalPosition: 'center',
   controlScale: 'large',
+  highlightColor: null,
   activeProfile: 'preparation',
   profiles: {
     presentation: { readingSize: 65, editingSize: 50, lineHeight: 1.2 },
@@ -108,6 +111,11 @@ function controlScale(value: unknown): ControlScale {
     : DEFAULT_SETTINGS.controlScale;
 }
 
+export function normalizeHighlightColor(value: unknown): string | null {
+  if (typeof value !== 'string' || !/^#[\da-f]{6}$/i.test(value)) return null;
+  return value.toLowerCase();
+}
+
 function normalizedProfile(
   value: unknown,
   fallback: ProfileScaleSettings,
@@ -135,6 +143,7 @@ export function normalizeSettings(value: unknown): AccessibilitySettings {
     side: controlSide(source.side),
     verticalPosition: controlVerticalPosition(source.verticalPosition),
     controlScale: controlScale(source.controlScale),
+    highlightColor: normalizeHighlightColor(source.highlightColor),
     activeProfile: profileId(source.activeProfile),
     profiles: {
       presentation: normalizedProfile(
@@ -152,6 +161,11 @@ export function normalizeSettings(value: unknown): AccessibilitySettings {
 
 export function hasCurrentSettingsSchema(value: unknown): boolean {
   return isRecord(value) && value.schemaVersion === SETTINGS_SCHEMA_VERSION;
+}
+
+export function shouldMigrateFromStyleSettings(value: unknown): boolean {
+  if (!isRecord(value)) return true;
+  return typeof value.schemaVersion !== 'number' || value.schemaVersion < 3;
 }
 
 export function detectProfile(body: HTMLElement): ProfileId | null {

@@ -33,12 +33,17 @@ independente da interface do plugin.
 
 ### P1 — Cor única do destaque nativo
 
-**Estado:** aprovado; próximo item em implementação.
+**Estado:** concluído em 2026-07-24; aguarda ensaio físico antes de lançamento.
 
 Permitir escolher uma única cor para todos os destaques Markdown
 `==texto==` na nota ativa. A preferência deve ficar nos dados do plugin e
 sobrepor somente o token de destaque do tema nesse escopo. Oferecer retorno
 explícito à cor do tema e assegurar contraste legível em temas claro e escuro.
+
+A implementação usa o seletor nativo de cor das configurações, aplica a
+preferência somente à folha Markdown ativa e escolhe automaticamente texto
+preto ou branco. Resultados de busca e outros realces da interface não recebem
+a sobreposição.
 
 ## Fila aprovada
 

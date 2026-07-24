@@ -1,10 +1,12 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
+import type { ButtonComponent, ColorComponent } from 'obsidian';
 import type ObsidianAccessibilityPlugin from './main';
 import { ScaleStore } from './scale-store';
 import {
   CONTROL_SCALES,
   CONTROL_SIDES,
   CONTROL_VERTICAL_POSITIONS,
+  DEFAULT_CUSTOM_HIGHLIGHT_COLOR,
   PROFILE_IDS,
   PROFILE_LABELS,
   ControlScale,
@@ -100,6 +102,56 @@ export class AccessibilitySettingTab extends PluginSettingTab {
           }),
       );
 
+    new Setting(containerEl).setName('Destaque').setHeading();
+    containerEl.createEl('p', {
+      text: 'Escolha uma única cor para todo ==texto== da nota ativa, sem gravar a preferência no Markdown.',
+      cls: 'setting-item-description',
+    });
+
+    const highlightSetting = new Setting(containerEl)
+      .setName('Cor do destaque')
+      .setDesc(this.highlightDescription(settings.highlightColor));
+    highlightSetting.descEl.id = 'oa-highlight-color-description';
+    let colorPicker: ColorComponent | null = null;
+    let colorActionButton: ButtonComponent | null = null;
+
+    highlightSetting
+      .addColorPicker((picker) => {
+        colorPicker = picker;
+        picker
+          .setValue(settings.highlightColor ?? DEFAULT_CUSTOM_HIGHLIGHT_COLOR)
+          .onChange((color) => {
+            this.store.setHighlightColor(color);
+            highlightSetting.descEl.textContent = this.highlightDescription(color);
+            colorActionButton?.setButtonText('Usar cor do tema');
+          });
+      })
+      .addButton((button) => {
+        colorActionButton = button;
+        button
+          .setButtonText(
+            settings.highlightColor === null ? 'Usar esta cor' : 'Usar cor do tema',
+          )
+          .onClick(() => {
+            if (this.store.snapshot.highlightColor) {
+              this.store.setHighlightColor(null);
+              highlightSetting.descEl.textContent = this.highlightDescription(null);
+              button.setButtonText('Usar esta cor');
+              return;
+            }
+
+            const color = colorPicker?.getValue() ?? DEFAULT_CUSTOM_HIGHLIGHT_COLOR;
+            this.store.setHighlightColor(color);
+            highlightSetting.descEl.textContent = this.highlightDescription(color);
+            button.setButtonText('Usar cor do tema');
+          });
+      });
+
+    const colorInput =
+      highlightSetting.controlEl.querySelector<HTMLInputElement>("input[type='color']");
+    colorInput?.setAttribute('aria-label', 'Escolher cor do destaque');
+    colorInput?.setAttribute('aria-describedby', 'oa-highlight-color-description');
+
     new Setting(containerEl).setName('Tamanhos por perfil').setHeading();
     containerEl.createEl('p', {
       text: 'Leitura e edição têm mínimo comum de 32 px; os valores permanecem independentes em cada perfil.',
@@ -119,6 +171,12 @@ export class AccessibilitySettingTab extends PluginSettingTab {
       });
 
     for (const id of PROFILE_IDS) this.addProfileSettings(containerEl, id);
+  }
+
+  private highlightDescription(color: string | null): string {
+    return color
+      ? `Cor personalizada ${color.toUpperCase()}; o texto usa automaticamente preto ou branco para manter o contraste.`
+      : 'Usando a cor do tema. Escolha uma cor ou aplique a amostra exibida.';
   }
 
   private addProfileSettings(container: HTMLElement, profileId: ProfileId): void {

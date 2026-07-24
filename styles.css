@@ -35,6 +35,35 @@ body .workspace-leaf-content[data-type='markdown'].oa-scale-active .markdown-sou
   line-height: var(--oa-scale-line-height);
 }
 
+body
+  .workspace-leaf-content[data-type='markdown'].oa-highlight-color-active
+  .markdown-rendered
+  mark,
+body
+  .workspace-leaf-content[data-type='markdown'].oa-highlight-color-active
+  .cm-s-obsidian
+  span.cm-formatting-highlight,
+body
+  .workspace-leaf-content[data-type='markdown'].oa-highlight-color-active
+  .cm-s-obsidian
+  span.cm-highlight:not(.obsidian-search-match-highlight) {
+  --text-highlight-bg: var(--oa-highlight-background);
+
+  background-color: var(--text-highlight-bg);
+  color: var(--oa-highlight-foreground);
+  -webkit-text-fill-color: currentcolor;
+  mix-blend-mode: normal;
+}
+
+body
+  .workspace-leaf-content[data-type='markdown'].oa-highlight-color-active
+  .markdown-rendered
+  mark
+  * {
+  color: inherit;
+  -webkit-text-fill-color: currentcolor;
+}
+
 body.oa-zen-mode .mod-root .workspace-tabs .workspace-tab-header-container,
 body.oa-zen-mode .workspace-ribbon.mod-left,
 body.oa-zen-mode .status-bar {
@@ -391,7 +420,7 @@ body
 .oa-font-scale-panel__mode.is-annotation-mode::after {
   height: max(3px, calc(var(--oa-thin-border) * 3));
   border: var(--oa-thin-border) solid currentcolor;
-  background: var(--text-highlight-bg);
+  background: var(--oa-highlight-background, var(--text-highlight-bg));
 }
 
 .oa-font-scale-panel__reset {

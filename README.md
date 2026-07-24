@@ -6,7 +6,8 @@ Controles de acessibilidade para o Obsidian, desenvolvidos primeiro para leitura
 
 - botão circular persistente de acessibilidade, com ícone preenchido de alta visibilidade, que abre um controle vertical compacto;
 - Modo Zen recuperável, que reduz os elementos de navegação sem bloquear o Outline (sumário) na barra lateral direita;
-- anotação rápida no modo de Leitura, com uma cor nativa do tema e borracha;
+- anotação rápida no modo de Leitura, com uma única cor configurável e
+  borracha;
 - escalas independentes para o modo de Leitura e a Pré-visualização em tempo
   real, aplicadas proporcionalmente a títulos, tabelas, código, notas de
   rodapé, propriedades, callouts e conteúdo incorporado;
@@ -36,6 +37,13 @@ trecho existente é marcado. A paleta permanece aberta entre as seleções.
 Trechos ambíguos, múltiplos blocos, transclusões e formatação aninhada são
 recusados para evitar alterações no lugar errado. O fluxo usa os mesmos botões
 com dedo, Apple Pencil, teclado e tecnologias assistivas.
+
+Em **Configurações → Obsidian Accessibility → Destaque**, escolha a cor única
+usada por todos os trechos `==texto==` quando a nota estiver ativa. Essa
+preferência visual fica nos dados do plugin, não no Markdown, e substitui a cor
+do tema somente para o destaque nativo. O texto marcado alterna
+automaticamente entre preto e branco para conservar o melhor contraste.
+**Usar cor do tema** remove a sobreposição personalizada.
 
 ## Instalação no iPad com o BRAT
 

@@ -1,5 +1,6 @@
 import { MarkdownView, Notice, Plugin } from 'obsidian';
 import { FontScaleControl } from './font-scale-control';
+import { HighlightColorController } from './highlight-color-controller';
 import {
   ReadingAnnotationController,
   ReadingSectionRegistry,
@@ -13,14 +14,15 @@ import {
   PROFILE_IDS,
   ProfileId,
   detectProfile,
-  hasCurrentSettingsSchema,
   migrateFromStyleSettings,
   normalizeSettings,
+  shouldMigrateFromStyleSettings,
 } from './settings-model';
 
 export default class ObsidianAccessibilityPlugin extends Plugin {
   private store!: ScaleStore;
   private controller!: ScaleController;
+  private highlightColorController: HighlightColorController | null = null;
   private control: FontScaleControl | null = null;
   private annotation: ReadingAnnotationController | null = null;
   private readonly annotationRegistry = new ReadingSectionRegistry();
@@ -37,16 +39,17 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     this.originalProfileClass = originalProfile ? PROFILE_CLASSES[originalProfile] : null;
     const persisted: unknown = await this.loadData();
     const normalized = normalizeSettings(persisted);
-    const migrated = hasCurrentSettingsSchema(persisted)
-      ? normalized
-      : migrateFromStyleSettings(
+    const migrated = shouldMigrateFromStyleSettings(persisted)
+      ? migrateFromStyleSettings(
           normalized,
           doc.body,
           doc.defaultView?.getComputedStyle(doc.body) ?? getComputedStyle(doc.body),
-        );
+        )
+      : normalized;
 
     this.store = new ScaleStore(migrated, async (settings) => this.saveData(settings));
     this.controller = new ScaleController(this.store);
+    this.highlightColorController = new HighlightColorController(this.store);
     this.zenMode = new ZenModeController(doc.body, this.app.workspace);
     await this.store.flush();
 
@@ -59,6 +62,7 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     this.observeExternalProfileChanges(doc);
     this.unsubscribeStore = this.store.subscribe(() => {
       this.applyProfileClass(doc.body);
+      this.highlightColorController?.refresh();
       this.control?.refreshContext();
     });
 
@@ -72,6 +76,7 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     this.unsubscribeStore?.();
     this.unsubscribeStore = null;
     this.destroyControl();
+    this.highlightColorController = null;
     this.zenMode?.destroy();
     this.zenMode = null;
     this.annotationRegistry.clear();
@@ -199,6 +204,7 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     if (!this.zenMode) return;
     this.mountedView = view;
     this.controller.mount(view);
+    this.highlightColorController?.mount(view);
     this.annotation = new ReadingAnnotationController(
       view,
       this.app.vault,
@@ -220,6 +226,7 @@ export default class ObsidianAccessibilityPlugin extends Plugin {
     this.annotation?.destroy();
     this.annotation = null;
     this.controller?.unmount();
+    this.highlightColorController?.unmount();
     this.mountedView = null;
   }
 
