@@ -6,6 +6,10 @@ Toda funcionalidade ou melhoria começa com pesquisa externa, priorizando GitHub
 
 Trabalhe diretamente em `main`, conforme o fluxo de mantenedor único definido em [`AGENTS.md`](../AGENTS.md).
 
+A sequência operacional aprovada e os critérios de cada melhoria ficam no
+[`BACKLOG.md`](BACKLOG.md), que é o registro canônico independente das sessões
+de trabalho.
+
 ## Marco 0 — Código-fonte reproduzível
 
 **Objetivo:** tornar este repositório a fonte oficial completa sem alterar a versão `0.1.1`.
